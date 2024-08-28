@@ -20,6 +20,8 @@ data class Cell(
     var connected: Set<COLOR> = emptySet(),
     var initialRotation: Int = 0,
     val rotationsMillis: MutableList<Long> = mutableListOf(),
+    var rotatedParts:Int=0,
+    var rotations:Int=0,
     val connections: MutableSet<Direction> = mutableSetOf(),
     val clock: Clock = Clock.System
 ) {
@@ -73,7 +75,7 @@ data class Cell(
 data class Position(val x: Int, val y: Int)
 
 
-class Grid(val x: Int = 10, val y: Int = 13) {
+data class Grid(val x: Int = 10, val y: Int = 13) {
     val cells: List<List<Cell>> =
         (0 until x).map { x ->
             (0 until y).map { y ->
@@ -81,6 +83,9 @@ class Grid(val x: Int = 10, val y: Int = 13) {
             }
         }
 }
+
+
+operator fun Grid.get(cellPosition: Position) = cells[cellPosition.x][cellPosition.y]
 
 operator fun Grid.get(x: Int): List<Cell> = cells[x]
 

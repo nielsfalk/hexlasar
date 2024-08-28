@@ -47,6 +47,7 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
             implementation(projects.shared)
+            implementation(libs.kotlinx.datetime)
             api(libs.moko.mvvm.compose)
         }
         desktopMain.dependencies {

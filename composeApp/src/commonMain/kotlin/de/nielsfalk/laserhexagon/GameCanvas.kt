@@ -39,7 +39,7 @@ fun GameCanvas(modifier: Modifier, grid: Grid, leakCellCenterPoints: (Map<Offset
 
             cell.openCircleParts.forEach { circlePart ->
                 val angleOffset = -90f - 360 / 12 / 2
-                val startAngle = angleOffset + 360 * circlePart / 12
+                val startAngle = ((angleOffset + 360 * circlePart / 12)+cell.rotationWithParts*360/6)%360f
                 drawArc(
                     color = Color.White,
                     topLeft = cellCenterOffset - Offset(partsPixel * 0.50f, partsPixel * 0.50f),

@@ -1,0 +1,34 @@
+package de.nielsfalk.laserhexagon
+
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.pointerInput
+
+@Composable
+fun GameScreen(onTabCell: (Position) -> Unit, state: Grid) {
+    var cellCenterPoints = mapOf<Offset, Cell>()
+
+    Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+        GameCanvas(
+            modifier = Modifier.pointerInput(Unit) {
+                detectTapGestures(
+                    onTap = { tapOffset ->
+                        cellCenterPoints.cellCloseTo(tapOffset)
+                            ?.let {
+                                onTabCell(it.position)
+                            }
+                    }
+                )
+            }
+                .weight(1f)
+                .aspectRatio(1f),
+            grid = state,
+            leakCellCenterPoints = { cellCenterPoints = it })
+    }
+}
