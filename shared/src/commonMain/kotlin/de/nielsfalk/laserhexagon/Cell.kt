@@ -48,6 +48,10 @@ data class Cell(
     }
     val neighbors: Map<Direction, Cell>
         get() = neighborsPositions.mapValues { (_, position) -> grid[position] }
+    val connectedNeighbors: Map<Direction, Cell>
+        get() = neighbors.filter { (direction, cell) ->
+            true
+        }
     val neighborsDirections: Set<Direction> by lazy { neighborsPositions.keys }
 }
 
@@ -57,8 +61,8 @@ data class Position(val x: Int, val y: Int)
 
 data class Grid(
     val cells: List<Cell>,
-    val x: Int = cells.maxOf { it.position.x }+1,
-    val y: Int = cells.maxOf { it.position.y }+1,
+    val x: Int = cells.maxOf { it.position.x } + 1,
+    val y: Int = cells.maxOf { it.position.y } + 1,
 ) {
     constructor(x: Int = 10, y: Int = 13) : this(
         (0 until x).map { x ->
@@ -87,7 +91,18 @@ operator fun Grid.get(cellPosition: Position) = cells.first { it.position == cel
 operator fun Grid.get(x: Int, y: Int): Cell = this[Position(x, y)]
 
 enum class COLOR { RED, YELLOW, BLUE }
-enum class Direction { LEFT, TOPLEFT, TOPRIGHT, RIGHT, BOTTOMRIGHT, BOTTOMLEFT }
+enum class Direction {
+    LEFT, TOPLEFT, TOPRIGHT, RIGHT, BOTTOMRIGHT, BOTTOMLEFT;
+
+    fun rotate(i: Int): Direction =
+        Direction.entries[(ordinal + i) % Direction.entries.size]
+
+
+    val opposite: Direction by lazy {
+        rotate(Direction.entries.size/2)
+    }
+}
+
 
 val Int.odd: Boolean get() = this % 2 != 0
 val Int.even: Boolean get() = this % 2 != 1

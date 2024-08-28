@@ -12,7 +12,6 @@ import io.kotest.matchers.shouldBe
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
 
 class CellTest : FreeSpec({
     "on a 5*5 grid" - {
@@ -24,33 +23,33 @@ class CellTest : FreeSpec({
 
         "neighbours" - {
             "topleft cell has correct neighbours" {
-                grid[0,0].neighborsPositions shouldContainExactly mapOf(
+                grid[0, 0].neighborsPositions shouldContainExactly mapOf(
                     RIGHT to Position(1, 0),
                     BOTTOMRIGHT to Position(0, 1)
                 )
             }
             "topright cell has correct neighbours" {
-                grid[4,0].neighborsPositions shouldContainExactly mapOf(
+                grid[4, 0].neighborsPositions shouldContainExactly mapOf(
                     LEFT to Position(3, 0),
                     BOTTOMLEFT to Position(3, 1),
                     BOTTOMRIGHT to Position(4, 1)
                 )
             }
             "bottonleft cell has correct neighbours" {
-                grid[0,5].neighborsPositions shouldContainExactly mapOf(
+                grid[0, 5].neighborsPositions shouldContainExactly mapOf(
                     TOPLEFT to Position(0, 4),
                     TOPRIGHT to Position(1, 4),
                     RIGHT to Position(1, 5)
                 )
             }
             "bottonright cell has correct neighbours" {
-                grid[4,5].neighborsPositions shouldContainExactly mapOf(
+                grid[4, 5].neighborsPositions shouldContainExactly mapOf(
                     LEFT to Position(3, 5),
                     TOPLEFT to Position(4, 4)
                 )
             }
             "random cell in odd row has correct neighbours" {
-                grid[3,3].neighborsPositions shouldContainExactly mapOf(
+                grid[3, 3].neighborsPositions shouldContainExactly mapOf(
                     LEFT to Position(2, 3),
                     TOPLEFT to Position(3, 2),
                     TOPRIGHT to Position(4, 2),
@@ -60,7 +59,7 @@ class CellTest : FreeSpec({
                 )
             }
             "random cell in even row has correct neighbours" {
-                grid[3,4].neighborsPositions shouldContainExactly mapOf(
+                grid[3, 4].neighborsPositions shouldContainExactly mapOf(
                     LEFT to Position(2, 4),
                     TOPLEFT to Position(2, 3),
                     TOPRIGHT to Position(3, 3),
@@ -71,16 +70,31 @@ class CellTest : FreeSpec({
             }
         }
     }
+
+    "Direction" - {
+        listOf(
+            LEFT to RIGHT,
+            TOPLEFT to BOTTOMRIGHT,
+            TOPRIGHT to BOTTOMLEFT,
+            RIGHT to LEFT,
+            BOTTOMRIGHT to TOPLEFT,
+            BOTTOMLEFT to TOPRIGHT,
+        ).forEach{(given, expectedOpposite)->
+            "$given has opposite $expectedOpposite"{
+                given.opposite shouldBe expectedOpposite
+            }
+        }
+        listOf(
+            LEFT to TOPLEFT,
+            TOPLEFT to TOPRIGHT,
+            TOPRIGHT to RIGHT,
+            RIGHT to BOTTOMRIGHT,
+            BOTTOMRIGHT to BOTTOMLEFT,
+            BOTTOMLEFT to LEFT,
+        ).forEach{(given, expected)->
+            "$given rotated is $expected"{
+                given.rotate(1) shouldBe expected
+            }
+        }
+    }
 })
-
-
-data class FixedClock(var now: Instant = Clock.System.now()) : Clock {
-    override fun now(): Instant = now
-    operator fun plus(duration: Duration) {
-        now += duration
-    }
-
-    operator fun minus(duration: Duration) {
-        now-=duration
-    }
-}
