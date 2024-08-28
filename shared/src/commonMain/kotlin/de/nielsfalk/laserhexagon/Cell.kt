@@ -19,30 +19,10 @@ data class Cell(
     var endPoint: Set<COLOR> = emptySet(),
     var connected: Set<COLOR> = emptySet(),
     var initialRotation: Int = 0,
-    val rotationsMillis: MutableList<Long> = mutableListOf(),
     var rotatedParts:Int=0,
     var rotations:Int=0,
     val connections: MutableSet<Direction> = mutableSetOf(),
-    val clock: Clock = Clock.System
 ) {
-    val animationMillis = 200
-
-    fun rotate() {
-        rotationsMillis += clock.now().toEpochMilliseconds()
-    }
-
-    fun pendingRotationEdges(): Float {
-        rotationsMillis.map { clock.now().toEpochMilliseconds() - it }.partition { it in 0..<animationMillis }
-        return rotationsMillis.map {
-            val millisSinceEvent = clock.now().toEpochMilliseconds() - it
-            when {
-                millisSinceEvent < 0 -> 0f
-                millisSinceEvent > animationMillis -> 1f
-                else -> millisSinceEvent / animationMillis.toFloat()
-            }
-        }.sum()
-    }
-
     val neighborsPositions: Map<Direction, Position> by lazy {
         mapOf(
             LEFT to Position(position.x - 1, position.y),

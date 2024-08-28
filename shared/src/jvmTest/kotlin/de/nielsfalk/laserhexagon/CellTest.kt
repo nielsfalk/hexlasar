@@ -71,47 +71,6 @@ class CellTest : FreeSpec({
                 )
             }
         }
-        "rotation" - {
-            listOf(0,1).forEach {
-                "should not rotate for future events" {
-                    val clock = FixedClock()
-                    val cell = Grid(5, 6)[0][0].copy(clock = clock)
-
-                    cell.rotate()
-                    clock - it.milliseconds
-
-                    cell.pendingRotationEdges() shouldBe 0f
-                }
-            }
-            "should rotate for past events" {
-                val clock = FixedClock()
-                val cell = Grid(5, 6)[0][0].copy(clock = clock)
-
-                cell.rotate()
-                clock + 200.milliseconds
-
-                cell.pendingRotationEdges() shouldBe 1f
-            }
-            "should sum rotations for past events" {
-                val clock = FixedClock()
-                val cell = Grid(5, 6)[0][0].copy(clock = clock)
-
-                cell.rotate()
-                cell.rotate()
-                clock + 300.milliseconds
-
-                cell.pendingRotationEdges() shouldBe 2f
-            }
-            "should rotate partial for past events" {
-                val clock = FixedClock()
-                val cell = Grid(5, 6)[0][0].copy(clock = clock)
-
-                cell.rotate()
-                clock + 50.milliseconds
-
-                cell.pendingRotationEdges() shouldBe 0.25f
-            }
-        }
     }
 })
 
