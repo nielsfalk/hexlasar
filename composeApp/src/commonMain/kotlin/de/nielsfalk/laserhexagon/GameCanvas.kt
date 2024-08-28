@@ -18,7 +18,7 @@ import kotlin.math.pow
 import kotlin.math.sqrt
 
 @Composable
-fun GameCanvas(modifier: Modifier, grid: Grid, leakCellCenterPoints: (Map<Offset, Cell>) -> Unit) {
+fun GameCanvas(modifier: Modifier, grid: Grid, leakCellCenterPoints: (Map<Offset, Position>) -> Unit) {
     Canvas(
         modifier = modifier,
     ) {
@@ -39,7 +39,7 @@ fun GameCanvas(modifier: Modifier, grid: Grid, leakCellCenterPoints: (Map<Offset
 
             cell.openCircleParts.forEach { circlePart ->
                 val angleOffset = -90f - 360 / 12 / 2
-                val startAngle = ((angleOffset + 360 * circlePart / 12)+cell.rotationWithParts*360/6)%360f
+                val startAngle = ((angleOffset + 360 * circlePart / 12) + cell.rotationWithParts * 360 / 6) % 360f
                 drawArc(
                     color = Color.White,
                     topLeft = cellCenterOffset - Offset(partsPixel * 0.50f, partsPixel * 0.50f),
@@ -92,19 +92,14 @@ fun GameCanvas(modifier: Modifier, grid: Grid, leakCellCenterPoints: (Map<Offset
                 )
             }
         }
-        leakCellCenterPoints(mutableMapOf<Offset, Cell>().apply {
+        leakCellCenterPoints(mutableMapOf<Offset, Position>().apply {
             grid.onAllCells(this@Canvas.size.width) {
-                put(cellCenterOffset, cell)
+                put(cellCenterOffset, cell.position)
             }
         }
         )
     }
 }
-
-
-internal fun Map<Offset, Cell>.cellCloseTo(tapOffset: Offset): Cell? =
-    keys.minByOrNull { (it.x - tapOffset.x).absoluteValue + (it.y - tapOffset.y).absoluteValue }
-        ?.let { this[it] }
 
 private fun COLOR.toColor() =
     when (this) {
@@ -134,7 +129,7 @@ private fun Grid.onAllCells(width: Float, function: CellDrawContext.() -> Unit) 
             CellDrawContext(
                 parts = parts,
                 partsPixel = partsPixel,
-                cell = this[x,y],
+                cell = this[x, y],
                 cellCenterOffset = Offset(
                     x = ((if (y.odd) 3 else 2) + x * 2) * partsPixel,
                     y = (1 + y) * sqrt((2 * partsPixel).pow(2) - partsPixel.pow(2))

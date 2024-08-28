@@ -9,10 +9,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
+import kotlin.math.absoluteValue
 
 @Composable
 fun GameScreen(onTabCell: (Position) -> Unit, state: Grid) {
-    var cellCenterPoints = mapOf<Offset, Cell>()
+    var cellCenterPoints = mapOf<Offset, Position>()
 
     Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         GameCanvas(
@@ -21,14 +22,20 @@ fun GameScreen(onTabCell: (Position) -> Unit, state: Grid) {
                     onTap = { tapOffset ->
                         cellCenterPoints.cellCloseTo(tapOffset)
                             ?.let {
-                                onTabCell(it.position)
-                            }
+                                println(it)
+                                onTabCell(it) }
                     }
                 )
             }
                 .weight(1f)
                 .aspectRatio(1f),
             grid = state,
-            leakCellCenterPoints = { cellCenterPoints = it })
+            leakCellCenterPoints = {
+                cellCenterPoints = it
+            })
     }
 }
+
+internal fun Map<Offset, Position>.cellCloseTo(tapOffset: Offset): Position? =
+    keys.minByOrNull { (it.x - tapOffset.x).absoluteValue + (it.y - tapOffset.y).absoluteValue }
+        ?.let { this[it] }

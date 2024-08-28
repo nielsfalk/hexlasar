@@ -15,7 +15,7 @@ data class Cell(
     val position: Position,
     val source: COLOR? = null,
     val endPoint: Set<COLOR> = emptySet(),
-    val connected: Set<COLOR> = emptySet(),
+    val connected: Set<COLOR> = source?.let { setOf(it) } ?: setOf(),
     val initialRotation: Int = 0,
     val rotatedParts: Int = 0,
     val rotations: Int = 0,
@@ -56,18 +56,18 @@ data class Position(val x: Int, val y: Int)
 
 
 data class Grid(
-    val x: Int = 10,
-    val y: Int = 13,
-    val cells: List<Cell>
+    val cells: List<Cell>,
+    val x: Int = cells.maxOf { it.position.x }+1,
+    val y: Int = cells.maxOf { it.position.y }+1,
 ) {
     constructor(x: Int = 10, y: Int = 13) : this(
-        x,
-        y,
         (0 until x).map { x ->
             (0 until y).map { y ->
                 Cell(Position(x, y))
             }
-        }.flatten()
+        }.flatten(),
+        x,
+        y
     )
 
     init {
@@ -96,15 +96,19 @@ val testGrid = Grid(5, 6).run {
     update(
         cellIterator.next().copy(
             connections = setOf(LEFT),
-            source = RED
+            source = RED,
+            connected = setOf(RED)
         ),
         cellIterator.next().copy(
             connections = setOf(TOPLEFT),
-            source = BLUE
+            source = BLUE,
+            connected = setOf(BLUE)
         ),
         cellIterator.next().copy(
             connections = setOf(TOPRIGHT),
-            source = YELLOW
+            source = YELLOW,
+            connected = setOf(YELLOW)
+
         ),
         cellIterator.next().copy(
             connections = setOf(RIGHT),
