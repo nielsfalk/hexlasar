@@ -9,20 +9,19 @@ import de.nielsfalk.laserhexagon.Direction.LEFT
 import de.nielsfalk.laserhexagon.Direction.RIGHT
 import de.nielsfalk.laserhexagon.Direction.TOPLEFT
 import de.nielsfalk.laserhexagon.Direction.TOPRIGHT
-import kotlinx.datetime.Clock
 
 
 data class Cell(
     val position: Position,
-    val grid: Grid,
-    var source: COLOR? = null,
-    var endPoint: Set<COLOR> = emptySet(),
-    var connected: Set<COLOR> = emptySet(),
-    var initialRotation: Int = 0,
-    var rotatedParts:Int=0,
-    var rotations:Int=0,
-    val connections: MutableSet<Direction> = mutableSetOf(),
+    val source: COLOR? = null,
+    val endPoint: Set<COLOR> = emptySet(),
+    val connected: Set<COLOR> = emptySet(),
+    val initialRotation: Int = 0,
+    val rotatedParts: Int = 0,
+    val rotations: Int = 0,
+    val connections: Set<Direction> = setOf(),
 ) {
+    lateinit var grid: Grid
     val neighborsPositions: Map<Direction, Position> by lazy {
         mapOf(
             LEFT to Position(position.x - 1, position.y),
@@ -47,7 +46,8 @@ data class Cell(
         }
 
     }
-    val neighbors: Map<Direction, Cell> by lazy { neighborsPositions.mapValues { (_, position) -> grid[position.x][position.y] } }
+    val neighbors: Map<Direction, Cell>
+        get() = neighborsPositions.mapValues { (_, position) -> grid[position] }
     val neighborsDirections: Set<Direction> by lazy { neighborsPositions.keys }
 }
 
@@ -55,56 +55,76 @@ data class Cell(
 data class Position(val x: Int, val y: Int)
 
 
-data class Grid(val x: Int = 10, val y: Int = 13) {
-    val cells: List<List<Cell>> =
+data class Grid(
+    val x: Int = 10,
+    val y: Int = 13,
+    val cells: List<Cell>
+) {
+    constructor(x: Int = 10, y: Int = 13) : this(
+        x,
+        y,
         (0 until x).map { x ->
             (0 until y).map { y ->
-                Cell(Position(x, y), this)
+                Cell(Position(x, y))
             }
-        }
+        }.flatten()
+    )
+
+    init {
+        cells.forEach { it.grid = this }
+    }
+
+    fun update(vararg modifiedCells: Cell): Grid {
+        val modifiedPositions = modifiedCells.map { it.position }
+        return copy(cells = cells.filter { it.position !in modifiedPositions }
+                + modifiedCells)
+    }
 }
 
 
-operator fun Grid.get(cellPosition: Position) = cells[cellPosition.x][cellPosition.y]
+operator fun Grid.get(cellPosition: Position) = cells.first { it.position == cellPosition }
 
-operator fun Grid.get(x: Int): List<Cell> = cells[x]
+operator fun Grid.get(x: Int, y: Int): Cell = this[Position(x, y)]
 
 enum class COLOR { RED, YELLOW, BLUE }
 enum class Direction { LEFT, TOPLEFT, TOPRIGHT, RIGHT, BOTTOMRIGHT, BOTTOMLEFT }
 
 val Int.odd: Boolean get() = this % 2 != 0
 val Int.even: Boolean get() = this % 2 != 1
-val testGrid = Grid(5, 6).apply {
-    val cellIterator = cells.flatten().iterator()
-    cellIterator.next().apply {
-        connections.add(LEFT)
-        source = RED
-    }
-    cellIterator.next().apply {
-        connections.add(TOPLEFT)
-        source = BLUE
-    }
-    cellIterator.next().apply {
-        connections.add(TOPRIGHT)
-        source = YELLOW
-    }
-    cellIterator.next().apply {
-        connections.add(RIGHT)
-        endPoint = setOf(RED)
-    }
-    cellIterator.next().apply {
-        connections.add(BOTTOMRIGHT)
-        endPoint = setOf(RED, YELLOW)
-    }
-    cellIterator.next().apply { connections.add(BOTTOMLEFT) }
-    cellIterator.next().apply {
-        connections.addAll(Direction.entries)
-        connected = setOf(RED, BLUE)
-    }
-    cellIterator.next().apply {
-        connections.addAll(Direction.entries)
-        connected = setOf(YELLOW, BLUE)
-    }
-    cellIterator.next().apply { connections.addAll(Direction.entries) }
+val testGrid = Grid(5, 6).run {
+    val cellIterator = cells.iterator()
+    update(
+        cellIterator.next().copy(
+            connections = setOf(LEFT),
+            source = RED
+        ),
+        cellIterator.next().copy(
+            connections = setOf(TOPLEFT),
+            source = BLUE
+        ),
+        cellIterator.next().copy(
+            connections = setOf(TOPRIGHT),
+            source = YELLOW
+        ),
+        cellIterator.next().copy(
+            connections = setOf(RIGHT),
+            endPoint = setOf(RED)
+        ),
+        cellIterator.next().copy(
+            connections = setOf(BOTTOMRIGHT),
+            endPoint = setOf(RED, YELLOW)
+        ),
+        cellIterator.next().copy(connections = setOf(BOTTOMLEFT)),
+        cellIterator.next().copy(
+            connections = Direction.entries.toSet(),
+            connected = setOf(RED, BLUE)
+        ),
+        cellIterator.next().copy(
+            connections = Direction.entries.toSet(),
+            connected = setOf(YELLOW, BLUE)
+        ),
+        cellIterator.next().copy(connections = Direction.entries.toSet())
+    )
+
 }
 

@@ -134,7 +134,7 @@ private fun Grid.onAllCells(width: Float, function: CellDrawContext.() -> Unit) 
             CellDrawContext(
                 parts = parts,
                 partsPixel = partsPixel,
-                cell = cells[x][y],
+                cell = this[x,y],
                 cellCenterOffset = Offset(
                     x = ((if (y.odd) 3 else 2) + x * 2) * partsPixel,
                     y = (1 + y) * sqrt((2 * partsPixel).pow(2) - partsPixel.pow(2))
