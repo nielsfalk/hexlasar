@@ -73,8 +73,6 @@ fun App() {
     }
 }
 
-private val Int.odd: Boolean get() = this % 2 != 0
-
 private fun Size.maxSquare(): Size {
     val width = if (width > height) height else width
     return Size(width, width)
