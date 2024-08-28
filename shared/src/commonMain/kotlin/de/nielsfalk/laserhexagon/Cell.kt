@@ -1,5 +1,8 @@
 package de.nielsfalk.laserhexagon
 
+import de.nielsfalk.laserhexagon.COLOR.BLUE
+import de.nielsfalk.laserhexagon.COLOR.RED
+import de.nielsfalk.laserhexagon.COLOR.YELLOW
 import de.nielsfalk.laserhexagon.Direction.BOTTOMLEFT
 import de.nielsfalk.laserhexagon.Direction.BOTTOMRIGHT
 import de.nielsfalk.laserhexagon.Direction.LEFT
@@ -10,7 +13,10 @@ import de.nielsfalk.laserhexagon.Direction.TOPRIGHT
 data class Cell(
     val position: Position,
     val grid: Grid,
-    val source: RGB? = null,
+    var source: COLOR? = null,
+    var endPoint: Set<COLOR> = emptySet(),
+    var connected: Set<COLOR> = emptySet(),
+    var rotation: Int = 0,
     val connections: MutableSet<Direction> = mutableSetOf()
 ) {
     val neighborsPositions: Map<Direction, Position> by lazy {
@@ -56,19 +62,42 @@ class Grid(val x: Int = 10, val y: Int = 13) {
 
 operator fun Grid.get(x: Int): List<Cell> = cells[x]
 
-enum class RGB { RED, GREEN, BLUE }
+enum class COLOR { RED, YELLOW, BLUE }
 enum class Direction { LEFT, TOPLEFT, TOPRIGHT, RIGHT, BOTTOMRIGHT, BOTTOMLEFT }
 
 val Int.odd: Boolean get() = this % 2 != 0
 val Int.even: Boolean get() = this % 2 != 1
 val testGrid = Grid(5, 6).apply {
     val cellIterator = cells.flatten().iterator()
-    cellIterator.next().connections.add(LEFT)
-    cellIterator.next().connections.add(TOPLEFT)
-    cellIterator.next().connections.add(TOPRIGHT)
-    cellIterator.next().connections.add(RIGHT)
-    cellIterator.next().connections.add(BOTTOMRIGHT)
-    cellIterator.next().connections.add(BOTTOMLEFT)
-    cellIterator.next().connections.addAll(Direction.entries)
+    cellIterator.next().apply {
+        connections.add(LEFT)
+        source = RED
+    }
+    cellIterator.next().apply {
+        connections.add(TOPLEFT)
+        source = BLUE
+    }
+    cellIterator.next().apply {
+        connections.add(TOPRIGHT)
+        source = YELLOW
+    }
+    cellIterator.next().apply {
+        connections.add(RIGHT)
+        endPoint = setOf(RED)
+    }
+    cellIterator.next().apply {
+        connections.add(BOTTOMRIGHT)
+        endPoint = setOf(RED, YELLOW)
+    }
+    cellIterator.next().apply { connections.add(BOTTOMLEFT) }
+    cellIterator.next().apply {
+        connections.addAll(Direction.entries)
+        connected = setOf(RED, BLUE)
+    }
+    cellIterator.next().apply {
+        connections.addAll(Direction.entries)
+        connected = setOf(YELLOW, BLUE)
+    }
+    cellIterator.next().apply { connections.addAll(Direction.entries) }
 }
 
