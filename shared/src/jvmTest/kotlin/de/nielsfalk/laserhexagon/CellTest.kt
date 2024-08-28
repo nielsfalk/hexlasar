@@ -7,9 +7,12 @@ import de.nielsfalk.laserhexagon.Direction.RIGHT
 import de.nielsfalk.laserhexagon.Direction.TOPLEFT
 import de.nielsfalk.laserhexagon.Direction.TOPRIGHT
 import io.kotest.core.spec.style.FreeSpec
-import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.maps.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 class CellTest : FreeSpec({
     "on a 5*5 grid" - {
@@ -68,5 +71,58 @@ class CellTest : FreeSpec({
                 )
             }
         }
+        "rotation" - {
+            listOf(0,1).forEach {
+                "should not rotate for future events" {
+                    val clock = FixedClock()
+                    val cell = Grid(5, 6)[0][0].copy(clock = clock)
+
+                    cell.rotate()
+                    clock - it.milliseconds
+
+                    cell.pendingRotationEdges() shouldBe 0f
+                }
+            }
+            "should rotate for past events" {
+                val clock = FixedClock()
+                val cell = Grid(5, 6)[0][0].copy(clock = clock)
+
+                cell.rotate()
+                clock + 200.milliseconds
+
+                cell.pendingRotationEdges() shouldBe 1f
+            }
+            "should sum rotations for past events" {
+                val clock = FixedClock()
+                val cell = Grid(5, 6)[0][0].copy(clock = clock)
+
+                cell.rotate()
+                cell.rotate()
+                clock + 300.milliseconds
+
+                cell.pendingRotationEdges() shouldBe 2f
+            }
+            "should rotate partial for past events" {
+                val clock = FixedClock()
+                val cell = Grid(5, 6)[0][0].copy(clock = clock)
+
+                cell.rotate()
+                clock + 50.milliseconds
+
+                cell.pendingRotationEdges() shouldBe 0.25f
+            }
+        }
     }
 })
+
+
+data class FixedClock(var now: Instant = Clock.System.now()) : Clock {
+    override fun now(): Instant = now
+    operator fun plus(duration: Duration) {
+        now += duration
+    }
+
+    operator fun minus(duration: Duration) {
+        now-=duration
+    }
+}

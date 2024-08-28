@@ -78,8 +78,8 @@ fun App() {
                             color = Color.White,
                             topLeft = cellCenterOffset - Offset(partsPixel * 0.50f, partsPixel * 0.50f),
                             size = Size(partsPixel, partsPixel),
-                            startAngle = startAngle -1,
-                            sweepAngle = 360f / 12+2,
+                            startAngle = startAngle - 1,
+                            sweepAngle = 360f / 12 + 2,
                             useCenter = false,
                             style = Stroke(partsPixel)
                         )
@@ -94,7 +94,7 @@ fun App() {
                                 style = Stroke(partsPixel)
                             )
                         }
-                            ?:                            drawArc(
+                            ?: drawArc(
                                 color = Color.DarkGray,
                                 topLeft = cellCenterOffset - Offset(partsPixel * 0.52f, partsPixel * 0.52f),
                                 size = Size(partsPixel * 1.04f, partsPixel * 1.04f),
@@ -114,7 +114,7 @@ fun App() {
                         )
                     }
                     drawCircle(
-                        color = connectedColor?:Color.DarkGray,
+                        color = connectedColor ?: Color.DarkGray,
                         radius = partsPixel / 3,
                         center = cellCenterOffset
                     )

@@ -9,6 +9,8 @@ import de.nielsfalk.laserhexagon.Direction.LEFT
 import de.nielsfalk.laserhexagon.Direction.RIGHT
 import de.nielsfalk.laserhexagon.Direction.TOPLEFT
 import de.nielsfalk.laserhexagon.Direction.TOPRIGHT
+import kotlinx.datetime.Clock
+
 
 data class Cell(
     val position: Position,
@@ -16,9 +18,29 @@ data class Cell(
     var source: COLOR? = null,
     var endPoint: Set<COLOR> = emptySet(),
     var connected: Set<COLOR> = emptySet(),
-    var rotation: Int = 0,
-    val connections: MutableSet<Direction> = mutableSetOf()
+    var initialRotation: Int = 0,
+    val rotationsMillis: MutableList<Long> = mutableListOf(),
+    val connections: MutableSet<Direction> = mutableSetOf(),
+    val clock: Clock = Clock.System
 ) {
+    val animationMillis = 200
+
+    fun rotate() {
+        rotationsMillis += clock.now().toEpochMilliseconds()
+    }
+
+    fun pendingRotationEdges(): Float {
+        rotationsMillis.map { clock.now().toEpochMilliseconds() - it }.partition { it in 0..<animationMillis }
+        return rotationsMillis.map {
+            val millisSinceEvent = clock.now().toEpochMilliseconds() - it
+            when {
+                millisSinceEvent < 0 -> 0f
+                millisSinceEvent > animationMillis -> 1f
+                else -> millisSinceEvent / animationMillis.toFloat()
+            }
+        }.sum()
+    }
+
     val neighborsPositions: Map<Direction, Position> by lazy {
         mapOf(
             LEFT to Position(position.x - 1, position.y),
