@@ -9,9 +9,6 @@ import de.nielsfalk.laserhexagon.Direction.TOPRIGHT
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.maps.shouldContainExactly
 import io.kotest.matchers.shouldBe
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
-import kotlin.time.Duration
 
 class CellTest : FreeSpec({
     "on a 5*5 grid" - {
@@ -67,6 +64,19 @@ class CellTest : FreeSpec({
                     BOTTOMRIGHT to Position(3, 5),
                     BOTTOMLEFT to Position(2, 5)
                 )
+            }
+        }
+        "connected neighbours" - {
+            "middle to right cell" {
+                val modifiedGrid = grid.update(
+                    grid[1,2].copy(connections = setOf(RIGHT)),
+                    grid[2,2].copy(connections = setOf(RIGHT)),
+                    grid[3,2].copy(connections = setOf(LEFT))
+                )
+
+                val cell = modifiedGrid[2,2]
+
+                cell.connectedNeighbors shouldContainExactly mapOf(RIGHT to modifiedGrid[3,2])
             }
         }
     }

@@ -21,6 +21,9 @@ data class Cell(
     val rotations: Int = 0,
     val connections: Set<Direction> = setOf(),
 ) {
+    val rotatedConnections:Set<Direction> by lazy {
+        connections.map { it.rotate(rotations)}.toSet()
+    }
     lateinit var grid: Grid
     val neighborsPositions: Map<Direction, Position> by lazy {
         mapOf(
@@ -50,7 +53,7 @@ data class Cell(
         get() = neighborsPositions.mapValues { (_, position) -> grid[position] }
     val connectedNeighbors: Map<Direction, Cell>
         get() = neighbors.filter { (direction, cell) ->
-            true
+            direction in rotatedConnections && direction.opposite in cell.rotatedConnections
         }
     val neighborsDirections: Set<Direction> by lazy { neighborsPositions.keys }
 }
