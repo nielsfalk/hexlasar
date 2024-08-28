@@ -7,6 +7,7 @@ import de.nielsfalk.laserhexagon.Direction.RIGHT
 import de.nielsfalk.laserhexagon.Direction.TOPLEFT
 import de.nielsfalk.laserhexagon.Direction.TOPRIGHT
 import io.kotest.core.spec.style.FreeSpec
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.maps.shouldContainExactly
 import io.kotest.matchers.shouldBe
 
@@ -46,24 +47,24 @@ class CellTest : FreeSpec({
                     TOPLEFT to Position(4, 4)
                 )
             }
-            "random cell in odd row has correct neighbours"{
+            "random cell in odd row has correct neighbours" {
                 grid[3][3].neighborsPositions shouldContainExactly mapOf(
-                    LEFT to Position(2,3),
-                    TOPLEFT to Position(3,2),
-                    TOPRIGHT to Position(4,2),
-                    RIGHT to Position(4,3),
-                    BOTTOMRIGHT to Position(4,4),
-                    BOTTOMLEFT to Position(3,4)
+                    LEFT to Position(2, 3),
+                    TOPLEFT to Position(3, 2),
+                    TOPRIGHT to Position(4, 2),
+                    RIGHT to Position(4, 3),
+                    BOTTOMRIGHT to Position(4, 4),
+                    BOTTOMLEFT to Position(3, 4)
                 )
             }
-            "random cell in even row has correct neighbours"{
+            "random cell in even row has correct neighbours" {
                 grid[3][4].neighborsPositions shouldContainExactly mapOf(
-                    LEFT to Position(2,4),
-                    TOPLEFT to Position(2,3),
-                    TOPRIGHT to Position(3,3),
-                    RIGHT to Position(4,4),
-                    BOTTOMRIGHT to Position(3,5),
-                    BOTTOMLEFT to Position(2,5)
+                    LEFT to Position(2, 4),
+                    TOPLEFT to Position(2, 3),
+                    TOPRIGHT to Position(3, 3),
+                    RIGHT to Position(4, 4),
+                    BOTTOMRIGHT to Position(3, 5),
+                    BOTTOMLEFT to Position(2, 5)
                 )
             }
         }

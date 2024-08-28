@@ -13,29 +13,32 @@ data class Cell(
     val source: RGB? = null,
     val connections: MutableSet<Direction> = mutableSetOf()
 ) {
-    val neighborsPositions: Map<Direction, Position> = mapOf(
-        LEFT to Position(position.x - 1, position.y),
-        TOPLEFT to
-                if (position.y.even) Position(position.x - 1, position.y - 1)
-                else Position(position.x, position.y - 1),
-        TOPRIGHT to
-                if (position.y.even) Position(position.x, position.y - 1)
-                else Position(position.x + 1, position.y - 1),
-        RIGHT to Position(position.x + 1, position.y),
-        BOTTOMRIGHT to
-                if (position.y.even) Position(position.x, position.y + 1)
-                else Position(position.x + 1, position.y + 1),
-        BOTTOMLEFT to
-                if (position.y.even) Position(position.x - 1, position.y + 1)
-                else Position(position.x, position.y + 1)
-    ).filterValues {
-        it.x >= 0
-                && it.y >= 0
-                && it.x < grid.x
-                && it.y < grid.y
-    }
+    val neighborsPositions: Map<Direction, Position> by lazy {
+        mapOf(
+            LEFT to Position(position.x - 1, position.y),
+            TOPLEFT to
+                    if (position.y.even) Position(position.x - 1, position.y - 1)
+                    else Position(position.x, position.y - 1),
+            TOPRIGHT to
+                    if (position.y.even) Position(position.x, position.y - 1)
+                    else Position(position.x + 1, position.y - 1),
+            RIGHT to Position(position.x + 1, position.y),
+            BOTTOMRIGHT to
+                    if (position.y.even) Position(position.x, position.y + 1)
+                    else Position(position.x + 1, position.y + 1),
+            BOTTOMLEFT to
+                    if (position.y.even) Position(position.x - 1, position.y + 1)
+                    else Position(position.x, position.y + 1)
+        ).filterValues {
+            it.x >= 0
+                    && it.y >= 0
+                    && it.x < grid.x
+                    && it.y < grid.y
+        }
 
-    val neighbors: Map<Direction, Cell> = neighborsPositions.mapValues { (_,position)-> grid[position.x][position.y] }
+    }
+    val neighbors: Map<Direction, Cell> by lazy { neighborsPositions.mapValues { (_, position) -> grid[position.x][position.y] } }
+    val neighborsDirections: Set<Direction> by lazy { neighborsPositions.keys }
 }
 
 
@@ -58,4 +61,14 @@ enum class Direction { LEFT, TOPLEFT, TOPRIGHT, RIGHT, BOTTOMRIGHT, BOTTOMLEFT }
 
 val Int.odd: Boolean get() = this % 2 != 0
 val Int.even: Boolean get() = this % 2 != 1
+val testGrid = Grid(5, 6).apply {
+    val cellIterator = cells.flatten().iterator()
+    cellIterator.next().connections.add(LEFT)
+    cellIterator.next().connections.add(TOPLEFT)
+    cellIterator.next().connections.add(TOPRIGHT)
+    cellIterator.next().connections.add(RIGHT)
+    cellIterator.next().connections.add(BOTTOMRIGHT)
+    cellIterator.next().connections.add(BOTTOMLEFT)
+    cellIterator.next().connections.addAll(Direction.entries)
+}
 
