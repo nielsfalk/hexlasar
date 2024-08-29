@@ -130,4 +130,44 @@ class GlowPathTest : FreeSpec({
 
         grid.glowPath[1, 0] shouldContainExactly setOf(RED, YELLOW)
     }
+    "not solved"{
+        Grid(3, 1).let {
+            it.update(
+                it[0, 0].copy(
+                    source = RED,
+                    connections = setOf(RIGHT)
+                ),
+                it[1, 0].copy(
+                    connections = setOf(LEFT, RIGHT),
+                    endPoint = setOf(RED, YELLOW)
+                ),
+                it[2, 0].copy(
+                    connections = setOf(),
+                    source = YELLOW
+                )
+            )
+        }.initGlowPath().followPathComplete()
+
+            .solved shouldBe false
+    }
+    "solved"{
+        Grid(3, 1).let {
+            it.update(
+                it[0, 0].copy(
+                    source = RED,
+                    connections = setOf(RIGHT)
+                ),
+                it[1, 0].copy(
+                    connections = setOf(LEFT, RIGHT),
+                    endPoint = setOf(RED, YELLOW)
+                ),
+                it[2, 0].copy(
+                    connections = setOf(LEFT),
+                    source = YELLOW
+                )
+            )
+        }.initGlowPath().followPathComplete()
+
+            .solved shouldBe true
+    }
 })

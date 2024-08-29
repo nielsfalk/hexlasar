@@ -43,11 +43,18 @@ data class Grid(
            cells.map { it to color }
        }
     }
+
+    val endpoints by lazy {
+        cells.filter { it.endPoint.isNotEmpty() }
+    }
 }
 
 operator fun Grid.get(cellPosition: Position) = cells.first { it.position == cellPosition }
 
 operator fun Grid.get(x: Int, y: Int): Cell = this[Position(x, y)]
+
+val Grid.solved: Any
+    get() = endpoints.all { glowPath[it.position].containsAll(it.endPoint) }
 
 val testGrid = Grid(5, 6).run {
     val cellIterator = cells.iterator()
