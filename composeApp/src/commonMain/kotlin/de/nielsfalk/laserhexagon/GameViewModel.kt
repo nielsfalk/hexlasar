@@ -14,15 +14,17 @@ class GameViewModel(testGrid: Grid) : dev.icerock.moko.mvvm.viewmodel.ViewModel(
         when (event) {
             is GameEvent.Rotate ->
                 viewModelScope.launch {
-                    (1..rotationSpeed).forEachIndexed { _, idx ->
+                    (1..rotationSpeed).forEach { idx ->
                         _state.update {
                             val cell = it[event.cellPosition]
                             it.update(
-                                if (idx == rotationSpeed)
-                                    cell.copy(rotatedParts = cell.rotatedParts+1)
-                                else
-                                    cell.copy(rotations = cell.rotations+1,
-                                        rotatedParts = cell.rotatedParts+1- rotationSpeed)
+                                if (idx == rotationSpeed) {
+                                    println("almost ")
+                                    cell.copy(
+                                        rotations = cell.rotations + 1,
+                                        rotatedParts = cell.rotatedParts + 1 - rotationSpeed
+                                    )
+                                } else cell.copy(rotatedParts = cell.rotatedParts + 1)
                             )
                         }
                         delay(1)
