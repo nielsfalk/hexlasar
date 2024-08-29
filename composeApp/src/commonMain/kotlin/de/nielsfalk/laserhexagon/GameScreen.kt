@@ -1,7 +1,9 @@
 package de.nielsfalk.laserhexagon
 
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.Button
@@ -14,12 +16,17 @@ import androidx.compose.ui.input.pointer.pointerInput
 import kotlin.math.absoluteValue
 
 @Composable
-fun GameScreen(onRetry: () -> Unit, onTabCell: (Position) -> Unit, state: Grid) {
+fun GameScreen(onRetry: () -> Unit, onTabCell: (Position) -> Unit, onNext: () -> Unit, state: Grid) {
     var cellCenterPoints = mapOf<Offset, Position>()
 
     Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-        Button(onClick = { onRetry() }) {
-            Text(if (state.solved) "You solved it" else "retry")
+        Row {
+            Button(onClick = onRetry) {
+                Text(if (state.solved) "You solved it" else "retry")
+            }
+            Button(onClick = onNext) {
+                Text("next")
+            }
         }
         GameCanvas(
             modifier = Modifier.pointerInput(Unit) {

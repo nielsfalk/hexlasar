@@ -65,6 +65,14 @@ class GameViewModel(testGrid: Grid) : dev.icerock.moko.mvvm.viewmodel.ViewModel(
                     glow()
                 }
             }
+
+            GameEvent.Next ->{
+                val newGrid = LevelGenerator().generate().initGlowPath()
+                _state.update { newGrid }
+                viewModelScope.launch {
+                    glow()
+                }
+            }
         }
     }
 }
