@@ -85,3 +85,5 @@ internal fun Grid.followPathComplete(): Grid {
     }
     return result
 }
+
+const val glowSpeed = 200
