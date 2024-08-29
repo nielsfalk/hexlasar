@@ -39,3 +39,6 @@ data class PercentContextBuilder(val parts: MutableList<Pair<Int, () -> Unit>> =
         parts.add(this to function)
     }
 }
+
+val Int.odd: Boolean get() = this % 2 != 0
+val Int.even: Boolean get() = this % 2 != 1

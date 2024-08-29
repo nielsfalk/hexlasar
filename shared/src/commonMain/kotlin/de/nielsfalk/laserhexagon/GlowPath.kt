@@ -9,6 +9,16 @@ data class GlowPath(
     val sources: List<GlowPathEntry> = listOf()
 )
 
+operator fun GlowPath.get(x: Int, y: Int): List<COLOR> =
+    sources.flatMap { it[x, y] }
+
+private operator fun GlowPathEntry.get(x: Int, y: Int): Set<COLOR> =
+    if (position.x == x && position.y == y) {
+        setOf(color)
+    } else {
+        children.flatMap { it[x, y] }.toSet()
+    }
+
 data class GlowPathEntry(
     val position: Position,
     val parentPostition: Position? = null,
@@ -55,7 +65,8 @@ fun GlowPathEntry.follow(grid: Grid, root: GlowPathEntry = this): GlowPathEntry 
     return copy(children = children.map {
         it.follow(
             grid = grid,
-            root = root)
+            root = root
+        )
     } + newChildren)
 }
 

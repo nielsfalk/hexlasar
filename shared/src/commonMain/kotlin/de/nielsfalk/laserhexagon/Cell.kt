@@ -1,8 +1,5 @@
 package de.nielsfalk.laserhexagon
 
-import de.nielsfalk.laserhexagon.COLOR.BLUE
-import de.nielsfalk.laserhexagon.COLOR.RED
-import de.nielsfalk.laserhexagon.COLOR.YELLOW
 import de.nielsfalk.laserhexagon.Direction.BOTTOMLEFT
 import de.nielsfalk.laserhexagon.Direction.BOTTOMRIGHT
 import de.nielsfalk.laserhexagon.Direction.LEFT
@@ -66,9 +63,7 @@ data class Cell(
     val neighborsDirections: Set<Direction> by lazy { neighborsPositions.keys }
 }
 
-
 data class Position(val x: Int, val y: Int)
-
 
 enum class COLOR { RED, YELLOW, BLUE }
 enum class Direction {
@@ -77,54 +72,9 @@ enum class Direction {
     fun rotate(i: Int): Direction =
         Direction.entries[(ordinal + i) % Direction.entries.size]
 
-
     val opposite: Direction by lazy {
         rotate(Direction.entries.size / 2)
     }
-}
-
-
-val Int.odd: Boolean get() = this % 2 != 0
-val Int.even: Boolean get() = this % 2 != 1
-val testGrid = Grid(5, 6).run {
-    val cellIterator = cells.iterator()
-    update(
-        cellIterator.next().copy(
-            connections = setOf(LEFT),
-            source = RED,
-            connected = setOf(RED)
-        ),
-        cellIterator.next().copy(
-            connections = setOf(TOPLEFT),
-            source = BLUE,
-            connected = setOf(BLUE)
-        ),
-        cellIterator.next().copy(
-            connections = setOf(TOPRIGHT),
-            source = YELLOW,
-            connected = setOf(YELLOW)
-
-        ),
-        cellIterator.next().copy(
-            connections = setOf(RIGHT),
-            endPoint = setOf(RED)
-        ),
-        cellIterator.next().copy(
-            connections = setOf(BOTTOMRIGHT),
-            endPoint = setOf(RED, YELLOW)
-        ),
-        cellIterator.next().copy(connections = setOf(BOTTOMLEFT)),
-        cellIterator.next().copy(
-            connections = Direction.entries.toSet(),
-            connected = setOf(RED, BLUE)
-        ),
-        cellIterator.next().copy(
-            connections = Direction.entries.toSet(),
-            connected = setOf(YELLOW, BLUE)
-        ),
-        cellIterator.next().copy(connections = Direction.entries.toSet())
-    )
-
 }
 
 val Cell.rotationWithParts: Float get() = rotations + rotatedParts / rotationSpeed.toFloat()

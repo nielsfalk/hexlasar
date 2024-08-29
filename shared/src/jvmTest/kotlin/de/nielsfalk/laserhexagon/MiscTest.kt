@@ -59,7 +59,9 @@ class MiscTest : FreeSpec({
         }
 
         resultRecorder shouldContainExactly mapOf(
-            "the one percent" to 1, "69" to 69, "last 30" to 30
+            "the one percent" to 1,
+            "69" to 69,
+            "last 30" to 30
         )
     }
 })
