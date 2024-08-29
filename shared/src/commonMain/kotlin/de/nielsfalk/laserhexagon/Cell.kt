@@ -64,7 +64,9 @@ data class Cell(
 
 data class Position(val x: Int, val y: Int)
 
-enum class COLOR { RED, YELLOW, BLUE }
+enum class COLOR { RED, YELLOW, BLUE;
+
+    companion object }
 enum class Direction {
     LEFT, TOPLEFT, TOPRIGHT, RIGHT, BOTTOMRIGHT, BOTTOMLEFT;
 

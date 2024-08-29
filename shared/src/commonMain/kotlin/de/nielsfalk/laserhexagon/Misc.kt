@@ -10,6 +10,8 @@ fun Float.roundUp(): Int {
 }
 
 class ControlledRandom(givenInts: List<Int>) : Random() {
+    constructor(vararg givenInts:Int) : this(givenInts.toList())
+
     private val givenIntsIterator = givenInts.iterator()
     override fun nextBits(bitCount: Int): Int {
         throw NotImplementedError()
