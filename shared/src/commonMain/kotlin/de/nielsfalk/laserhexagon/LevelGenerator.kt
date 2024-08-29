@@ -40,18 +40,36 @@ class LevelGenerator(
                         `else do` { 1 }
                     }
                 )
-                grid.connect(source, freeNeighbors.take(random, connectionCount))
+                grid = grid.connect(source, freeNeighbors.take(random, connectionCount))
             }
         }
-        return grid
+        repeat(x * y) {
+            grid.cells.filter { it.connections.size == 1 && it.source == null }
+                .randomOrNull(random)
+                ?.let { endpoint ->
+                    val freeNeighbors = endpoint.freeNeighbors
+                    if (freeNeighbors.isEmpty()) {
+                        val connectionCount: Int = max(freeNeighbors.size, randomExecution(random) {
+                            3 `percent do` { 5 }
+                            25 `percent do` { 4 }
+                            25 `percent do` { 3 }
+                            25 `percent do` { 2 }
+                            `else do` { 1 }
+                        })
+                        //grid = grid.connect(endpoint, freeNeighbors.take(random, connectionCount))
+                    }
+                }
+        }
+        //Find empty cells
+        //Connect colors
+        return grid.copy(glowPath = GlowPath()).initGlowPath()
     }
 }
 
-private fun Grid.connect(source: Cell, neighbors: Map<Direction, Cell>) {
-    val cells = mutableListOf(source.copy(connections = neighbors.keys))
-    cells.addAll(neighbors.map { (direction, cell) -> cell.copy(connections = setOf(direction.opposite)) })
-    update(
-        *cells.toTypedArray()
+private fun Grid.connect(source: Cell, neighbors: Map<Direction, Cell>): Grid {
+    return update(
+        neighbors.map { (direction, cell) -> cell.copy(connections = setOf(direction.opposite)) } +
+                source.copy(connections = neighbors.keys)
     )
 }
 

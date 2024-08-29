@@ -36,6 +36,9 @@ data class Grid(
                 + modifiedCells)
     }
 
+    fun update(modifiedCells: List<Cell>): Grid =
+        update(*modifiedCells.toTypedArray())
+
     val sources by lazy {
         COLOR.entries.map { color ->
             color to cells.filter { it.source == color }
