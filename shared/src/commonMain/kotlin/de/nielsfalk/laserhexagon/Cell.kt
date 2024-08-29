@@ -12,7 +12,6 @@ data class Cell(
     val position: Position,
     val source: COLOR? = null,
     val endPoint: Set<COLOR> = emptySet(),
-    val connected: Set<COLOR> = source?.let { setOf(it) } ?: setOf(),
     val initialRotation: Int = 0,
     val rotatedParts: Int = 0,
     val rotations: Int = 0,

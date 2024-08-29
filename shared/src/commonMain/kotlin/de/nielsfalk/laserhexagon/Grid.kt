@@ -54,19 +54,15 @@ val testGrid = Grid(5, 6).run {
     update(
         cellIterator.next().copy(
             connections = setOf(LEFT),
-            source = RED,
-            connected = setOf(RED)
+            source = RED
         ),
         cellIterator.next().copy(
             connections = setOf(TOPLEFT),
-            source = BLUE,
-            connected = setOf(BLUE)
+            source = BLUE
         ),
         cellIterator.next().copy(
             connections = setOf(TOPRIGHT),
-            source = YELLOW,
-            connected = setOf(YELLOW)
-
+            source = YELLOW
         ),
         cellIterator.next().copy(
             connections = setOf(RIGHT),
@@ -77,14 +73,15 @@ val testGrid = Grid(5, 6).run {
             endPoint = setOf(RED, YELLOW)
         ),
         cellIterator.next().copy(connections = setOf(BOTTOMLEFT)),
-        cellIterator.next().copy(
-            connections = Direction.entries.toSet(),
-            connected = setOf(RED, BLUE)
-        ),
-        cellIterator.next().copy(
-            connections = Direction.entries.toSet(),
-            connected = setOf(YELLOW, BLUE)
-        ),
-        cellIterator.next().copy(connections = Direction.entries.toSet())
+        cellIterator.next().copy(connections = Direction.entries.toSet()),
+        cellIterator.next().copy(connections = Direction.entries.toSet()),
+        cellIterator.next().copy(connections = Direction.entries.toSet()),
+        cellIterator.next().copy(connections = Direction.entries.toSet()),
+        cellIterator.next().copy(connections = Direction.entries.toSet()),
+        cellIterator.next().copy(connections = setOf(LEFT,TOPLEFT)),
+        cellIterator.next().copy(connections = setOf(LEFT,TOPRIGHT)),
+        cellIterator.next().copy(connections = setOf(LEFT,RIGHT)),
+        cellIterator.next().copy(connections = setOf(LEFT,BOTTOMLEFT)),
+        cellIterator.next().copy(connections = setOf(LEFT,BOTTOMRIGHT))
     )
 }

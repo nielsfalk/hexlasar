@@ -6,6 +6,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import de.nielsfalk.laserhexagon.Direction.BOTTOMLEFT
 import de.nielsfalk.laserhexagon.Direction.BOTTOMRIGHT
@@ -13,7 +14,6 @@ import de.nielsfalk.laserhexagon.Direction.LEFT
 import de.nielsfalk.laserhexagon.Direction.RIGHT
 import de.nielsfalk.laserhexagon.Direction.TOPLEFT
 import de.nielsfalk.laserhexagon.Direction.TOPRIGHT
-import kotlin.math.absoluteValue
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -26,77 +26,114 @@ fun GameCanvas(modifier: Modifier, grid: Grid, leakCellCenterPoints: (Map<Offset
 
         val parts = grid.x * 2 + 3
         val partsPixel = size.width / parts
-        grid.onAllCells(size.width) {
-            drawCircle(
-                color = Color.White,
-                radius = partsPixel,
-                center = cellCenterOffset,
-                style = Stroke(partsPixel / 50)
-            )
-        }
-        grid.onAllCells(size.width) {
-            val connectedColor = grid.glowPath[cell.position].toColor()
-
-            cell.openCircleParts.forEach { circlePart ->
-                val angleOffset = -90f - 360 / 12 / 2
-                val startAngle = ((angleOffset + 360 * circlePart / 12) + cell.rotationWithParts * 360 / 6) % 360f
-                drawArc(
-                    color = Color.White,
-                    topLeft = cellCenterOffset - Offset(partsPixel * 0.50f, partsPixel * 0.50f),
-                    size = Size(partsPixel, partsPixel),
-                    startAngle = startAngle - 1,
-                    sweepAngle = 360f / 12 + 2,
-                    useCenter = false,
-                    style = Stroke(partsPixel)
-                )
-                connectedColor?.let {
-                    drawArc(
-                        color = it,
-                        topLeft = cellCenterOffset - Offset(partsPixel * 0.55f, partsPixel * 0.55f),
-                        size = Size(partsPixel * 1.1f, partsPixel * 1.1f),
-                        startAngle = startAngle,
-                        sweepAngle = 360f / 12,
-                        useCenter = false,
-                        style = Stroke(partsPixel)
-                    )
-                }
-                    ?: drawArc(
-                        color = Color.DarkGray,
-                        topLeft = cellCenterOffset - Offset(partsPixel * 0.52f, partsPixel * 0.52f),
-                        size = Size(partsPixel * 1.04f, partsPixel * 1.04f),
-                        startAngle = startAngle,
-                        sweepAngle = 360f / 12,
-                        useCenter = false,
-                        style = Stroke(partsPixel)
-                    )
-
-            }
-            cell.endPoint.toColor()?.let {
-                drawCircle(
-                    color = it,
-                    radius = partsPixel / 3,
-                    center = cellCenterOffset,
-                    style = Stroke(partsPixel / 6)
-                )
-            }
-            drawCircle(
-                color = connectedColor ?: Color.DarkGray,
-                radius = partsPixel / 3,
-                center = cellCenterOffset
-            )
-            cell.source?.toColor()?.let {
-                drawCircle(
-                    color = it,
-                    radius = partsPixel * 0.6f,
-                    center = cellCenterOffset
-                )
-            }
-        }
+        drawWhiteCellBorders(grid, partsPixel)
+        drawConnections(grid, partsPixel)
+        drawEndpoints(grid, partsPixel)
+        drawMiddlePoint(grid, partsPixel)
+        drawSource(grid, partsPixel)
         leakCellCenterPoints(mutableMapOf<Offset, Position>().apply {
             grid.onAllCells(this@Canvas.size.width) {
                 put(cellCenterOffset, cell.position)
             }
         }
+        )
+    }
+}
+
+private fun DrawScope.drawMiddlePoint(grid: Grid, partsPixel: Float) {
+    grid.onAllCells(size.width) {
+        val connectedColor = grid.glowPath[cell.position].toColor()
+        drawCircle(
+            color = connectedColor ?: Color.DarkGray,
+            radius = partsPixel / 3,
+            center = cellCenterOffset
+        )
+    }
+}
+
+private fun DrawScope.drawSource(grid: Grid, partsPixel: Float) {
+    grid.onAllCells(size.width) {
+        cell.source?.toColor()?.let {
+            drawCircle(
+                color = it,
+                radius = partsPixel * 0.6f,
+                center = cellCenterOffset
+            )
+        }
+    }
+}
+
+private fun DrawScope.drawEndpoints(grid: Grid, partsPixel: Float) {
+    grid.onAllCells(size.width) {
+
+        cell.endPoint.toColor()?.let {
+            val connectedColor = grid.glowPath[cell.position]
+            if (connectedColor.containsAll(cell.endPoint)){
+                drawCircle(
+                    color = Color.White,
+                    radius = partsPixel / 3,
+                    center = cellCenterOffset,
+                    style = Stroke(partsPixel / 2)
+                )
+            }
+
+            drawCircle(
+                color = it,
+                radius = partsPixel / 3,
+                center = cellCenterOffset,
+                style = Stroke(partsPixel / 6)
+            )
+        }
+    }
+}
+
+private fun DrawScope.drawConnections(grid: Grid, partsPixel: Float) {
+    grid.onAllCells(size.width) {
+        val connectedColor = grid.glowPath[cell.position].toColor()
+        cell.openCircleParts.forEach { circlePart ->
+            val angleOffset = -90f - 360 / 12 / 2
+            val startAngle = ((angleOffset + 360 * circlePart / 12) + cell.rotationWithParts * 360 / 6) % 360f
+            drawArc(
+                color = Color.White,
+                topLeft = cellCenterOffset - Offset(partsPixel * 0.50f, partsPixel * 0.50f),
+                size = Size(partsPixel, partsPixel),
+                startAngle = startAngle - 1,
+                sweepAngle = 360f / 12 + 2,
+                useCenter = false,
+                style = Stroke(partsPixel)
+            )
+            connectedColor?.let {
+                drawArc(
+                    color = it,
+                    topLeft = cellCenterOffset - Offset(partsPixel * 0.55f, partsPixel * 0.55f),
+                    size = Size(partsPixel * 1.1f, partsPixel * 1.1f),
+                    startAngle = startAngle,
+                    sweepAngle = 360f / 12,
+                    useCenter = false,
+                    style = Stroke(partsPixel)
+                )
+            }
+                ?: drawArc(
+                    color = Color.DarkGray,
+                    topLeft = cellCenterOffset - Offset(partsPixel * 0.52f, partsPixel * 0.52f),
+                    size = Size(partsPixel * 1.04f, partsPixel * 1.04f),
+                    startAngle = startAngle,
+                    sweepAngle = 360f / 12,
+                    useCenter = false,
+                    style = Stroke(partsPixel)
+                )
+
+        }
+    }
+}
+
+private fun DrawScope.drawWhiteCellBorders(grid: Grid, partsPixel: Float) {
+    grid.onAllCells(size.width) {
+        drawCircle(
+            color = Color.White,
+            radius = partsPixel,
+            center = cellCenterOffset,
+            style = Stroke(partsPixel / 50)
         )
     }
 }
