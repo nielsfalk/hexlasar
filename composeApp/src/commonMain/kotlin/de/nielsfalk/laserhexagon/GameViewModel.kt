@@ -9,6 +9,9 @@ import kotlinx.coroutines.launch
 class GameViewModel(testGrid: Grid) : dev.icerock.moko.mvvm.viewmodel.ViewModel() {
     private val _state: MutableStateFlow<Grid> = MutableStateFlow(testGrid)
     val state: StateFlow<Grid> get() = _state
+    init {
+        _state.update { it.initGlowPath() }
+    }
 
     fun onEvent(event: GameEvent) {
         when (event) {
@@ -19,7 +22,6 @@ class GameViewModel(testGrid: Grid) : dev.icerock.moko.mvvm.viewmodel.ViewModel(
                             val cell = it[event.cellPosition]
                             it.update(
                                 if (idx == rotationSpeed) {
-                                    println("almost ")
                                     cell.copy(
                                         rotations = cell.rotations + 1,
                                         rotatedParts = cell.rotatedParts + 1 - rotationSpeed

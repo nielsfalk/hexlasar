@@ -9,8 +9,11 @@ data class GlowPath(
     val sources: List<GlowPathEntry> = listOf()
 )
 
-operator fun GlowPath.get(x: Int, y: Int): List<COLOR> =
-    sources.flatMap { it[x, y] }
+operator fun GlowPath.get(x: Int, y: Int): Set<COLOR> =
+    sources.flatMap { it[x, y] }.toSet()
+
+operator fun GlowPath.get(position: Position): Set<COLOR> =
+    this[position.x, position.y]
 
 private operator fun GlowPathEntry.get(x: Int, y: Int): Set<COLOR> =
     if (position.x == x && position.y == y) {

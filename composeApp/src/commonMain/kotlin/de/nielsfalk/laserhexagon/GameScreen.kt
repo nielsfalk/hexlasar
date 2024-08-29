@@ -22,7 +22,6 @@ fun GameScreen(onTabCell: (Position) -> Unit, state: Grid) {
                     onTap = { tapOffset ->
                         cellCenterPoints.cellCloseTo(tapOffset)
                             ?.let {
-                                println(it)
                                 onTabCell(it) }
                     }
                 )

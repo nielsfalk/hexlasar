@@ -35,7 +35,7 @@ fun GameCanvas(modifier: Modifier, grid: Grid, leakCellCenterPoints: (Map<Offset
             )
         }
         grid.onAllCells(size.width) {
-            val connectedColor = cell.connected.toColor()
+            val connectedColor = grid.glowPath[cell.position].toColor()
 
             cell.openCircleParts.forEach { circlePart ->
                 val angleOffset = -90f - 360 / 12 / 2
