@@ -3,10 +3,11 @@ package de.nielsfalk.laserhexagon
 import kotlin.random.Random
 
 
-fun Float.roundUp(): Int =
-    (this * 100).toInt().let {
-        it / 100 + if (it % 100 == 0) 0 else 1
+fun Float.roundUp(): Int {
+    return (this * 1000).toInt().let {
+        it / 1000 + if (it % 1000 == 0) 0 else 1
     }
+}
 
 class ControlledRandom(givenInts: List<Int>) : Random() {
     private val givenIntsIterator = givenInts.iterator()

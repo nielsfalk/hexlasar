@@ -7,8 +7,8 @@ import io.kotest.matchers.shouldBe
 class MiscTest : FreeSpec({
     mapOf(
         1.0f to 1,
-        2.001f to 2,
-        2.01f to 3,
+        2.0001f to 2,
+        2.002f to 3,
     ).forEach { (given, expected) ->
         "$given rounds up to $expected" {
             given.roundUp() shouldBe expected
