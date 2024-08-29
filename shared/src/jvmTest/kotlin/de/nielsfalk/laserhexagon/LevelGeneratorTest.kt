@@ -8,19 +8,19 @@ class LevelGeneratorTest:FreeSpec({
         val random = ControlledRandom(
             0, //first Source
             0, //its color
-            5, //second Source
-            1, //its color
+            0, //use source
+            60, //percentage
 
         )
         val levelGenerator = LevelGenerator(
             x = 3,
             y = 3,
-            sourceCount = 2,
+            sourceCount = 1,
             random = random
         )
 
         val grid = levelGenerator.generate()
 
-        grid.sources.size shouldBe 2
+        grid.sources.size shouldBe 1
     }
 })
