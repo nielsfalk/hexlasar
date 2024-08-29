@@ -10,7 +10,7 @@ fun Float.roundUp(): Int {
 }
 
 class ControlledRandom(givenInts: List<Int>) : Random() {
-    constructor(vararg givenInts:Int) : this(givenInts.toList())
+    constructor(vararg givenInts: Int) : this(givenInts.toList())
 
     private val givenIntsIterator = givenInts.iterator()
     override fun nextBits(bitCount: Int): Int {
@@ -24,21 +24,22 @@ class ControlledRandom(givenInts: List<Int>) : Random() {
         givenIntsIterator.next()
 }
 
-fun randomExecution(random: Random, function: PercentContextBuilder.() -> Unit) {
-    val parts = PercentContextBuilder().apply(function).parts.iterator()
-    var random = random.nextInt(100)
+fun <T> randomExecution(random: Random, function: PercentContextBuilder<T>.() -> T) {
+    val parts = PercentContextBuilder<T>().apply { function() }.parts.iterator()
+    var nextInd = random.nextInt(100)
     while (parts.hasNext()) {
         val (odds, oddFunction) = parts.next()
-        if (random < odds) {
+        if (nextInd < odds) {
             oddFunction()
             return
         }
-        random -= odds
+        nextInd -= odds
     }
 }
 
-data class PercentContextBuilder(val parts: MutableList<Pair<Int, () -> Unit>> = mutableListOf()) {
-    infix fun Int.`percent do`(function: () -> Unit) {
+data class PercentContextBuilder<T>(val parts: MutableList<Pair<Int, () -> T>> = mutableListOf()) {
+    @Suppress("FunctionName")
+    infix fun Int.`percent do`(function: () -> T) {
         parts.add(this to function)
     }
 }
