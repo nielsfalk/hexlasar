@@ -53,7 +53,7 @@ operator fun Grid.get(cellPosition: Position) = cells.first { it.position == cel
 
 operator fun Grid.get(x: Int, y: Int): Cell = this[Position(x, y)]
 
-val Grid.solved: Any
+val Grid.solved: Boolean
     get() = endpoints.all { glowPath[it.position].containsAll(it.endPoint) }
 
 val testGrid = Grid(5, 6).run {

@@ -59,6 +59,10 @@ class GameViewModel(testGrid: Grid) : dev.icerock.moko.mvvm.viewmodel.ViewModel(
                         delay(1)
                     }
                 }
+
+            GameEvent.Retry -> {
+
+            }
         }
     }
 }

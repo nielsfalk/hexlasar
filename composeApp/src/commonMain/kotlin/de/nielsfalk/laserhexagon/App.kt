@@ -4,7 +4,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.geometry.Offset
 import dev.icerock.moko.mvvm.compose.getViewModel
 import dev.icerock.moko.mvvm.compose.viewModelFactory
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -22,7 +21,8 @@ fun App() {
 
         GameScreen(
             onTabCell = { viewModel.onEvent(GameEvent.Rotate(it)) },
-            state=state
+            onRetry = { viewModel.onEvent(GameEvent.Retry) },
+            state = state
         )
     }
 }
