@@ -1,6 +1,7 @@
 package de.nielsfalk.laserhexagon
 
 import io.kotest.core.spec.style.FreeSpec
+import io.kotest.matchers.maps.shouldContainExactly
 import io.kotest.matchers.shouldBe
 
 class MiscTest : FreeSpec({
@@ -12,5 +13,53 @@ class MiscTest : FreeSpec({
         "$given rounds up to $expected" {
             given.roundUp() shouldBe expected
         }
+    }
+
+    "ControlledRandom" - {
+        "10" {
+            val givenInts = listOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+            val random = ControlledRandom(
+                givenInts
+            )
+
+            val result = (0 until givenInts.size).map { random.nextInt() }
+
+            result shouldBe givenInts
+        }
+    }
+    "random execution" {
+        val givenInts = (0 until 100).toList()
+        val random = ControlledRandom(
+            givenInts
+        )
+        val resultRecorder = mutableMapOf<String, Int>()
+        fun record(s: String) {
+            val count = resultRecorder.computeIfAbsent(s) { 0 }
+            resultRecorder[s] = count + 1
+        }
+
+        repeat(givenInts.size) {
+            randomExecution(random) {
+                0 `percent do` {
+                    record("should not happen")
+                }
+                1 `percent do` {
+                    record("the one percent")
+                }
+                69 `percent do` {
+                    record("69")
+                }
+                30 `percent do` {
+                    record("last 30")
+                }
+                300 `percent do` {
+                    record("should not happen all 100 percent are defined")
+                }
+            }
+        }
+
+        resultRecorder shouldContainExactly mapOf(
+            "the one percent" to 1, "69" to 69, "last 30" to 30
+        )
     }
 })
