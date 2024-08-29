@@ -21,8 +21,12 @@ data class Cell(
     val rotations: Int = 0,
     val connections: Set<Direction> = setOf(),
 ) {
-    val rotatedConnections:Set<Direction> by lazy {
-        connections.map { it.rotate(rotations)}.toSet()
+    val rotatedConnections: Set<Direction> by lazy {
+        connections.map { it.rotate(rotations) }.toSet()
+    }
+
+    val futureRotatedConnections: Set<Direction> by lazy {
+        connections.map { it.rotate(rotationWithParts.roundUp()) }.toSet()
     }
     lateinit var grid: Grid
     val neighborsPositions: Map<Direction, Position> by lazy {
@@ -55,43 +59,16 @@ data class Cell(
         get() = neighbors.filter { (direction, cell) ->
             direction in rotatedConnections && direction.opposite in cell.rotatedConnections
         }
+    val futureConnectedNeighbors: Map<Direction, Cell>
+        get() = neighbors.filter { (direction, cell) ->
+            direction in futureRotatedConnections && direction.opposite in cell.futureRotatedConnections
+        }
     val neighborsDirections: Set<Direction> by lazy { neighborsPositions.keys }
 }
 
 
 data class Position(val x: Int, val y: Int)
 
-
-data class Grid(
-    val cells: List<Cell>,
-    val x: Int = cells.maxOf { it.position.x } + 1,
-    val y: Int = cells.maxOf { it.position.y } + 1,
-) {
-    constructor(x: Int = 10, y: Int = 13) : this(
-        (0 until x).map { x ->
-            (0 until y).map { y ->
-                Cell(Position(x, y))
-            }
-        }.flatten(),
-        x,
-        y
-    )
-
-    init {
-        cells.forEach { it.grid = this }
-    }
-
-    fun update(vararg modifiedCells: Cell): Grid {
-        val modifiedPositions = modifiedCells.map { it.position }
-        return copy(cells = cells.filter { it.position !in modifiedPositions }
-                + modifiedCells)
-    }
-}
-
-
-operator fun Grid.get(cellPosition: Position) = cells.first { it.position == cellPosition }
-
-operator fun Grid.get(x: Int, y: Int): Cell = this[Position(x, y)]
 
 enum class COLOR { RED, YELLOW, BLUE }
 enum class Direction {
@@ -102,7 +79,7 @@ enum class Direction {
 
 
     val opposite: Direction by lazy {
-        rotate(Direction.entries.size/2)
+        rotate(Direction.entries.size / 2)
     }
 }
 
@@ -150,3 +127,5 @@ val testGrid = Grid(5, 6).run {
 
 }
 
+val Cell.rotationWithParts: Float get() = rotations + rotatedParts / rotationSpeed.toFloat()
+const val rotationSpeed = 200

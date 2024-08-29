@@ -69,14 +69,35 @@ class CellTest : FreeSpec({
         "connected neighbours" - {
             "middle to right cell" {
                 val modifiedGrid = grid.update(
-                    grid[1,2].copy(connections = setOf(RIGHT)),
-                    grid[2,2].copy(connections = setOf(RIGHT)),
-                    grid[3,2].copy(connections = setOf(LEFT))
+                    grid[1, 2].copy(connections = setOf(RIGHT)),
+                    grid[2, 2].copy(connections = setOf(RIGHT)),
+                    grid[3, 2].copy(connections = setOf(LEFT))
                 )
 
-                val cell = modifiedGrid[2,2]
+                val cell = modifiedGrid[2, 2]
 
-                cell.connectedNeighbors shouldContainExactly mapOf(RIGHT to modifiedGrid[3,2])
+                cell.connectedNeighbors shouldContainExactly mapOf(RIGHT to modifiedGrid[3, 2])
+            }
+            "left and right" {
+                val grid = Grid(3, 1).let {
+                    it.update(
+                        it[0, 0].copy(
+                            source = COLOR.RED,
+                            connections = setOf(RIGHT)
+                        ),
+                        it[1, 0].copy(
+                            connections = setOf(LEFT, RIGHT)
+                        ),
+                        it[2, 0].copy(
+                            connections = setOf(LEFT)
+                        )
+                    )
+                }
+
+                grid[1, 0].connectedNeighbors shouldContainExactly mapOf(
+                    LEFT to grid[0, 0],
+                    RIGHT to grid[2, 0]
+                )
             }
         }
     }
@@ -89,8 +110,8 @@ class CellTest : FreeSpec({
             RIGHT to LEFT,
             BOTTOMRIGHT to TOPLEFT,
             BOTTOMLEFT to TOPRIGHT,
-        ).forEach{(given, expectedOpposite)->
-            "$given has opposite $expectedOpposite"{
+        ).forEach { (given, expectedOpposite) ->
+            "$given has opposite $expectedOpposite" {
                 given.opposite shouldBe expectedOpposite
             }
         }
@@ -101,8 +122,8 @@ class CellTest : FreeSpec({
             RIGHT to BOTTOMRIGHT,
             BOTTOMRIGHT to BOTTOMLEFT,
             BOTTOMLEFT to LEFT,
-        ).forEach{(given, expected)->
-            "$given rotated is $expected"{
+        ).forEach { (given, expected) ->
+            "$given rotated is $expected" {
                 given.rotate(1) shouldBe expected
             }
         }

@@ -31,10 +31,3 @@ class GameViewModel(testGrid: Grid) : dev.icerock.moko.mvvm.viewmodel.ViewModel(
         }
     }
 }
-
-val Cell.rotationWithParts: Float get() = rotations + rotatedParts / rotationSpeed.toFloat()
-const val rotationSpeed = 200
-
-
-
-

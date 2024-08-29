@@ -13,13 +13,13 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
-    
+
     iosX64()
     iosArm64()
     iosSimulatorArm64()
-    
+
     jvm()
-    
+
     sourceSets {
         commonMain.dependencies {
             implementation(libs.kotlinx.datetime)
