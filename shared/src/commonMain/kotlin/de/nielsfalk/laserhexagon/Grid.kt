@@ -37,15 +37,21 @@ data class Grid(
     }
 
     val sources by lazy {
-       COLOR.entries.map { color ->
-           color to cells.filter { it.source == color }
-       }.flatMap { (color, cells)->
-           cells.map { it to color }
-       }
+        COLOR.entries.map { color ->
+            color to cells.filter { it.source == color }
+        }.flatMap { (color, cells) ->
+            cells.map { it to color }
+        }
     }
 
     val endpoints by lazy {
         cells.filter { it.endPoint.isNotEmpty() }
+    }
+
+    val solved: Boolean by lazy {
+        endpoints.all {
+            glowPath[it.position].containsAll(it.endPoint)
+        }
     }
 }
 
@@ -53,8 +59,14 @@ operator fun Grid.get(cellPosition: Position) = cells.first { it.position == cel
 
 operator fun Grid.get(x: Int, y: Int): Cell = this[Position(x, y)]
 
-val Grid.solved: Boolean
-    get() = endpoints.all { glowPath[it.position].containsAll(it.endPoint) }
+fun Grid.reset(): Grid =
+    initGlowPath()
+        .update(*cells.map {
+            it.copy(
+                rotations = 0,
+                rotatedParts = 0
+            )
+        }.toTypedArray())
 
 val testGrid = Grid(5, 6).run {
     val cellIterator = cells.iterator()
@@ -85,10 +97,11 @@ val testGrid = Grid(5, 6).run {
         cellIterator.next().copy(connections = Direction.entries.toSet()),
         cellIterator.next().copy(connections = Direction.entries.toSet()),
         cellIterator.next().copy(connections = Direction.entries.toSet()),
-        cellIterator.next().copy(connections = setOf(LEFT,TOPLEFT)),
-        cellIterator.next().copy(connections = setOf(LEFT,TOPRIGHT)),
-        cellIterator.next().copy(connections = setOf(LEFT,RIGHT)),
-        cellIterator.next().copy(connections = setOf(LEFT,BOTTOMLEFT)),
-        cellIterator.next().copy(connections = setOf(LEFT,BOTTOMRIGHT))
+        cellIterator.next().copy(connections = setOf(LEFT, TOPLEFT)),
+        cellIterator.next().copy(connections = setOf(LEFT, TOPRIGHT)),
+        cellIterator.next().copy(connections = setOf(LEFT, RIGHT)),
+        cellIterator.next().copy(connections = setOf(LEFT, BOTTOMLEFT)),
+        cellIterator.next().copy(connections = setOf(LEFT, BOTTOMRIGHT)),
+        cellIterator.next().copy(connections = Direction.entries.toSet())
     )
 }
