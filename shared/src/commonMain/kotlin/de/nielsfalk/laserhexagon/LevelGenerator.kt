@@ -27,7 +27,19 @@ class LevelGenerator(
             connectColors()
         }
         setEndPointColors()
+        scramble()
         return grid.copy(glowPath = GlowPath()).initGlowPath()
+    }
+
+    private fun scramble() {
+        grid = grid.update(
+            grid.cells.filter { it.connections.isNotEmpty() && it.connections.size != it.neighbors.size }
+                .map { val initialRotation = random.nextInt(Direction.entries.size)
+                    it.copy(
+                    initialRotation = initialRotation,
+                    rotations = initialRotation
+                ) }
+        )
     }
 
     private fun setEndPointColors() {

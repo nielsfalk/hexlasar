@@ -66,7 +66,7 @@ fun Grid.reset(): Grid =
     initGlowPath()
         .update(*cells.map {
             it.copy(
-                rotations = 0,
+                rotations = it.initialRotation,
                 rotatedParts = 0
             )
         }.toTypedArray())
