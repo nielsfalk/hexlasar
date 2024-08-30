@@ -15,6 +15,7 @@ data class Grid(
     val x: Int = cells.maxOf { it.position.x } + 1,
     val y: Int = cells.maxOf { it.position.y } + 1,
     val glowPath: GlowPath = GlowPath(),
+    val levelType: LevelType= LevelType.entries.first()
 ) {
     constructor(x: Int = 10, y: Int = 13) : this(
         (0 until x).map { x ->

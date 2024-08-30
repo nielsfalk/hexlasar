@@ -15,13 +15,13 @@ enum class LevelType(
 ) {
     ABSOLUTE_BEGINNER(
         "Absolute beginner",
-        LevelProperties(x = 3, y = 1, sourceCount = 1),
-        LevelProperties(x = 2, y = 2, sourceCount = 1)
+        LevelProperties(x = 3, y = 1, sourceCount = 1, rotateObvious = true),
+        LevelProperties(x = 2, y = 2, sourceCount = 1, rotateObvious = true)
     ),
     EASY(
         "Easy",
-        LevelProperties(x = 3, sourceCount = 1),
-        LevelProperties(x = 3, y = 5, sourceCount = 2)
+        LevelProperties(x = 3, sourceCount = 1, rotateObvious = true),
+        LevelProperties(x = 3, y = 5, sourceCount = 2, rotateObvious = true)
     ),
     INTERMEDIATE(
         "Intermediate",
@@ -54,7 +54,7 @@ enum class LevelType(
         LevelProperties(x = 15, sourceCount = 8)
     ),
     NIGHTMARE_PLUS(
-        "Nightmare",
+        "Nightmare +",
         LevelProperties(x = 25, sourceCount = 1),
         LevelProperties(x = 25, sourceCount = 8),
         LevelProperties(x = 25, sourceCount = 12)
@@ -63,19 +63,21 @@ enum class LevelType(
     val levelProperties = properties.toList()
 }
 
+fun LevelType.next(): LevelType =
+    LevelType.entries[(ordinal + 1) % LevelType.entries.size]
+
+
 data class LevelProperties(
     val x: Int = 3,
     val y: Int = x * 2,
-    val sourceCount: Int = 3
+    val sourceCount: Int = 3,
+    val rotateObvious: Boolean = false
 )
 
 class LevelGenerator(
-    val levelProperties: LevelProperties = LevelProperties(
-        x = 3,
-        y = 6,
-        sourceCount = 3
-    ),
-    val random: Random = Random.Default
+    val random: Random = Random.Default,
+    val levelType: LevelType = LevelType.entries.first(),
+    val levelProperties: LevelProperties = levelType.levelProperties.random(random)
 ) {
     var grid = Grid(levelProperties.x, levelProperties.y)
 
@@ -96,7 +98,7 @@ class LevelGenerator(
 
     private fun scramble() {
         grid = grid.update(
-            grid.cells.filter { it.connections.isNotEmpty() && it.connections.size != it.neighbors.size }
+            grid.cells.filter { it.connections.isNotEmpty() && (levelProperties.rotateObvious || it.connections.size != it.neighbors.size) }
                 .map {
                     val initialRotation = random.nextInt(Direction.entries.size)
                     it.copy(
