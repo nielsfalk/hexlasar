@@ -38,14 +38,12 @@ fun <T> randomExecution(random: Random, function: PercentContextBuilder<T>.() ->
 }
 
 data class PercentContextBuilder<T>(val parts: MutableList<Pair<Int, () -> T>> = mutableListOf()) {
-    @Suppress("FunctionName")
-    infix fun Int.`percent do`(function: () -> T) {
+    infix fun Int.percentDo(function: () -> T) {
         parts.add(this to function)
     }
 
-    @Suppress("FunctionName")
-    fun `else do`(function: () -> T) {
-        100 `percent do` function
+    fun elseDo(function: () -> T) {
+        100 percentDo function
     }
 }
 

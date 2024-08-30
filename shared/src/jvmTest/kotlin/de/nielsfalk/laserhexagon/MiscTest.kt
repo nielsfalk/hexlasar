@@ -40,19 +40,19 @@ class MiscTest : FreeSpec({
 
         repeat(givenInts.size) {
             randomExecution(random) {
-                0 `percent do` {
+                0 percentDo {
                     record("should not happen")
                 }
-                1 `percent do` {
+                1 percentDo {
                     record("the one percent")
                 }
-                69 `percent do` {
+                69 percentDo {
                     record("69")
                 }
-                30 `percent do` {
+                30 percentDo {
                     record("last 30")
                 }
-                300 `percent do` {
+                300 percentDo {
                     record("should not happen all 100 percent are defined")
                 }
             }

@@ -80,12 +80,12 @@ class LevelGenerator(
             val freeNeighbors = source.freeNeighbors
             val connectionCount: Int = min(freeNeighbors.size,
                 randomExecution(random) {
-                    1 `percent do` { 6 }
-                    2 `percent do` { 5 }
-                    25 `percent do` { 4 }
-                    25 `percent do` { 3 }
-                    25 `percent do` { 2 }
-                    `else do` { 1 }
+                    1 percentDo { 6 }
+                    2 percentDo { 5 }
+                    25 percentDo { 4 }
+                    25 percentDo { 3 }
+                    25 percentDo { 2 }
+                    elseDo { 1 }
                 }
             )
             grid = grid.connect(source, freeNeighbors.take(random, connectionCount))
@@ -106,11 +106,11 @@ class LevelGenerator(
             ?.let { endpoint ->
                 val freeNeighbors = endpoint.freeNeighbors
                 val connectionCount: Int = min(freeNeighbors.size, randomExecution(random) {
-                    3 `percent do` { 5 }
-                    25 `percent do` { 4 }
-                    25 `percent do` { 3 }
-                    25 `percent do` { 2 }
-                    `else do` { 1 }
+                    3 percentDo { 5 }
+                    25 percentDo { 4 }
+                    25 percentDo { 3 }
+                    25 percentDo { 2 }
+                    elseDo { 1 }
                 })
                 grid = grid.connect(endpoint, freeNeighbors.take(random, connectionCount))
             }
