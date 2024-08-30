@@ -10,8 +10,8 @@ private val Grid.emptyCells: List<Cell>
     get() = cells.filter { it.source == null && it.connections.isEmpty() }
 
 class LevelGenerator(
-    val x: Int = 4,
-    val y: Int = 5,
+    val x: Int = 5,
+    val y: Int = 6,
     val sourceCount: Int = 3,
     val random: Random = Random.Default
 ) {
@@ -105,12 +105,11 @@ class LevelGenerator(
     }
 }
 
-private fun Grid.connect(source: Cell, neighbors: Map<Direction, Cell>): Grid {
-    return update(
-        neighbors.map { (direction, cell) -> cell.copy(connections = setOf(direction.opposite)) } +
-                source.let { it.copy(connections = neighbors.keys + it.connections) }
+private fun Grid.connect(source: Cell, neighbors: Map<Direction, Cell>): Grid =
+    update(
+        neighbors.map { (direction, cell) -> cell.copy(connections = cell.connections + direction.opposite) } +
+                source.let { it.copy(connections = it.connections + neighbors.keys) }
     )
-}
 
 private fun Map<Direction, Cell>.take(random: Random, connectionCount: Int): Map<Direction, Cell> =
     if (size == connectionCount)
