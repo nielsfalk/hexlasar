@@ -22,6 +22,7 @@ fun App() {
 
         GameScreen(
             onCanvasTab = { viewModel.onEvent(CanvasTab(it)) },
+            onCanvasLongPress = {viewModel.onEvent(CanvasLongPress(it)) },
             onRetry = { viewModel.onEvent(Retry) },
             onNext = { viewModel.onEvent(Next) },
             leakCellCenterPoints = {viewModel.cellCenterPoints=it},

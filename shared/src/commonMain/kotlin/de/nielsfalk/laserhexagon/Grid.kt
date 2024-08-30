@@ -71,6 +71,9 @@ fun Grid.reset(): Grid =
             )
         }.toTypedArray())
 
+fun Grid.lockAllCells(): Grid =
+    update(cells.map { it.copy(locked = true) })
+
 val testGrid = Grid(5, 6).run {
     val cellIterator = cells.iterator()
     update(

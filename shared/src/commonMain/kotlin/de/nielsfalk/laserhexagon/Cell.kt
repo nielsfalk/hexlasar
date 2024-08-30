@@ -16,6 +16,7 @@ data class Cell(
     val rotatedParts: Int = 0,
     val rotations: Int = 0,
     val connections: Set<Direction> = setOf(),
+    val locked: Boolean = false
 ) {
     val rotatedConnections: Set<Direction> by lazy {
         connections.map { it.rotate(rotations) }.toSet()
@@ -64,9 +65,12 @@ data class Cell(
 
 data class Position(val x: Int, val y: Int)
 
-enum class COLOR { RED, YELLOW, BLUE;
+enum class COLOR {
+    RED, YELLOW, BLUE;
 
-    companion object }
+    companion object
+}
+
 enum class Direction {
     LEFT, TOPLEFT, TOPRIGHT, RIGHT, BOTTOMRIGHT, BOTTOMLEFT;
 
@@ -77,6 +81,9 @@ enum class Direction {
         rotate(Direction.entries.size / 2)
     }
 }
+
+fun Cell.toggleLock(): Cell =
+    copy(locked = !locked)
 
 val Cell.rotationWithParts: Float get() = rotations + rotatedParts / rotationSpeed.toFloat()
 const val rotationSpeed = 200

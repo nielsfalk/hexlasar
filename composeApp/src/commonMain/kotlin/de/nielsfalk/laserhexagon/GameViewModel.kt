@@ -1,6 +1,7 @@
 package de.nielsfalk.laserhexagon
 
 import androidx.compose.ui.geometry.Offset
+import de.nielsfalk.laserhexagon.GameEvent.CanvasLongPress
 import de.nielsfalk.laserhexagon.GameEvent.CanvasTab
 import de.nielsfalk.laserhexagon.GameEvent.Next
 import de.nielsfalk.laserhexagon.GameEvent.Retry
@@ -41,33 +42,45 @@ class GameViewModel(testGrid: Grid) : dev.icerock.moko.mvvm.viewmodel.ViewModel(
             is CanvasTab ->
                 cellCenterPoints.cellCloseTo(event.offset)
                     ?.let { cellPosition ->
-                        viewModelScope.launch {
-                            (1..rotationSpeed).forEach { idx ->
-                                val isLast = idx == rotationSpeed
-                                _state.update {
-                                    val cell = it[cellPosition]
-                                    val rotated = it.update(
-                                        if (isLast) {
-                                            cell.copy(
-                                                rotations = cell.rotations + 1,
-                                                rotatedParts = cell.rotatedParts + 1 - rotationSpeed
-                                            )
-                                        } else {
-                                            cell.copy(rotatedParts = cell.rotatedParts + 1)
-                                        }
-                                    )
-                                    if (idx == 1 || isLast) {
-                                        rotated.removeDisconnectedFromPaths()
-                                    } else rotated
+                        if (!state.value[cellPosition].locked){
+                            viewModelScope.launch {
+                                (1..rotationSpeed).forEach { idx ->
+                                    val isLast = idx == rotationSpeed
+                                    _state.update {
+                                        val cell = it[cellPosition]
+                                        val rotated = it.update(
+                                            if (isLast) {
+                                                cell.copy(
+                                                    rotations = cell.rotations + 1,
+                                                    rotatedParts = cell.rotatedParts + 1 - rotationSpeed
+                                                )
+                                            } else {
+                                                cell.copy(rotatedParts = cell.rotatedParts + 1)
+                                            }
+                                        )
+                                        if (idx == 1 || isLast) {
+                                            rotated.removeDisconnectedFromPaths()
+                                        } else rotated
+                                    }
+                                    if (isLast) {
+                                        glow()
+                                    }
+                                    if (state.value.solved){
+                                        _state.update(Grid::lockAllCells)
+                                    }
+                                    delay(1)
                                 }
-                                if (isLast) {
-                                    glow()
-                                }
-                                delay(1)
                             }
                         }
                     }
-
+            is CanvasLongPress -> {
+                cellCenterPoints.cellCloseTo(event.offset)
+                    ?.let { cellPosition ->
+                        _state.update {
+                            it.update(it[cellPosition].toggleLock())
+                        }
+                    }
+            }
             Retry -> {
                 _state.update { it.reset() }
                 viewModelScope.launch {

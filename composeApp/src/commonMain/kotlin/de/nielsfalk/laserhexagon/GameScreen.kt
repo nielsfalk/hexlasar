@@ -16,8 +16,9 @@ import kotlin.math.absoluteValue
 
 @Composable
 fun GameScreen(
-    onRetry: () -> Unit,
     onCanvasTab: (Offset) -> Unit,
+    onCanvasLongPress: (Offset) -> Unit,
+    onRetry: () -> Unit,
     onNext: () -> Unit,
     leakCellCenterPoints: (Map<Offset, Position>) -> Unit,
     state: Grid
@@ -34,7 +35,10 @@ fun GameScreen(
         }
         GameCanvas(
             modifier = Modifier.pointerInput(Unit) {
-                detectTapGestures(onTap = onCanvasTab)
+                detectTapGestures(
+                    onTap = onCanvasTab,
+                    onLongPress =  onCanvasLongPress
+                )
             }
                 .weight(1f)
                 .aspectRatio(1f),

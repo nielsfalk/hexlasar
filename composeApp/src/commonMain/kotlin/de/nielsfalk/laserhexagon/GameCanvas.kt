@@ -20,13 +20,14 @@ import kotlin.math.sqrt
 @Composable
 fun GameCanvas(modifier: Modifier, grid: Grid, leakCellCenterPoints: (Map<Offset, Position>) -> Unit) {
     Canvas(
-        modifier = modifier,
+        modifier = modifier
     ) {
         drawRect(color = Color.Black, size = size.maxSquare())
 
         val parts = grid.x * 2 + 3
         val partsPixel = size.width / parts
         drawWhiteCellBorders(grid, partsPixel)
+        drawCellLock(grid, partsPixel)
         drawConnections(grid, partsPixel)
         drawEndpoints(grid, partsPixel)
         drawMiddlePoint(grid, partsPixel)
@@ -135,6 +136,19 @@ private fun DrawScope.drawWhiteCellBorders(grid: Grid, partsPixel: Float) {
             center = cellCenterOffset,
             style = Stroke(partsPixel / 50)
         )
+    }
+}
+
+private fun DrawScope.drawCellLock(grid: Grid, partsPixel: Float) {
+    grid.onAllCells(size.width) {
+        if (cell.locked){
+            drawCircle(
+                color = Color.White,
+                radius = partsPixel*0.9f,
+                center = cellCenterOffset,
+                style = Stroke(partsPixel / 40)
+            )
+        }
     }
 }
 
