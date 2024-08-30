@@ -27,6 +27,7 @@ fun App() {
             onNext = { viewModel.onEvent(Next) },
             onLevelUp = { viewModel.onEvent(LevelUp) },
             leakCellCenterPoints = {viewModel.cellCenterPoints=it},
+            leakCanvasSize={viewModel.canvasSize=it},
             state = state
         )
     }

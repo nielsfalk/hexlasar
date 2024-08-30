@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -14,7 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
@@ -28,6 +27,7 @@ fun GameScreen(
     onNext: () -> Unit,
     onLevelUp: () -> Unit,
     leakCellCenterPoints: (Map<Offset, Position>) -> Unit,
+    leakCanvasSize: (Size) -> Unit,
     state: Grid
 ) {
 
@@ -67,7 +67,9 @@ fun GameScreen(
                 .fillMaxWidth()
                 .fillMaxHeight(),
             grid = state,
-            leakCellCenterPoints = leakCellCenterPoints)
+            leakCellCenterPoints = leakCellCenterPoints,
+            leakCanvasSize=leakCanvasSize
+        )
     }
 }
 

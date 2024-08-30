@@ -13,7 +13,12 @@ import kotlin.math.pow
 import kotlin.math.sqrt
 
 @Composable
-fun GameCanvas(modifier: Modifier, grid: Grid, leakCellCenterPoints: (Map<Offset, Position>) -> Unit) {
+fun GameCanvas(
+    modifier: Modifier,
+    grid: Grid,
+    leakCellCenterPoints: (Map<Offset, Position>) -> Unit,
+    leakCanvasSize: (Size) -> Unit
+) {
     Canvas(
         modifier = modifier
     ) {
@@ -27,12 +32,14 @@ fun GameCanvas(modifier: Modifier, grid: Grid, leakCellCenterPoints: (Map<Offset
         drawEndpoints(grid, partsPixel)
         drawMiddlePoint(grid, partsPixel)
         drawSource(grid, partsPixel)
-        leakCellCenterPoints(mutableMapOf<Offset, Position>().apply {
-            grid.onAllCells(this@Canvas.size.width) {
-                put(cellCenterOffset, cell.position)
+        leakCellCenterPoints(
+            mutableMapOf<Offset, Position>().apply {
+                grid.onAllCells(this@Canvas.size.width) {
+                    put(cellCenterOffset, cell.position)
+                }
             }
-        }
         )
+        leakCanvasSize(size)
     }
 }
 

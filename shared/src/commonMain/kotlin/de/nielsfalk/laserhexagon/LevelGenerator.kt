@@ -15,7 +15,7 @@ enum class LevelType(
 ) {
     ABSOLUTE_BEGINNER(
         "Absolute beginner",
-        LevelProperties(x = 3, y = 1, sourceCount = 1, rotateObvious = true),
+        LevelProperties(x = 1, y = 3, sourceCount = 1, rotateObvious = true),
         LevelProperties(x = 2, y = 2, sourceCount = 1, rotateObvious = true)
     ),
     EASY(
