@@ -21,9 +21,10 @@ fun App() {
         val state: Grid by viewModel.state.collectAsState()
 
         GameScreen(
-            onTabCell = { viewModel.onEvent(Rotate(it)) },
+            onCanvasTab = { viewModel.onEvent(CanvasTab(it)) },
             onRetry = { viewModel.onEvent(Retry) },
             onNext = { viewModel.onEvent(Next) },
+            leakCellCenterPoints = {viewModel.cellCenterPoints=it},
             state = state
         )
     }

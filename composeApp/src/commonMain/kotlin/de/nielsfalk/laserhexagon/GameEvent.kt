@@ -1,7 +1,9 @@
 package de.nielsfalk.laserhexagon
 
+import androidx.compose.ui.geometry.Offset
+
 sealed interface GameEvent {
-    data class Rotate(val cellPosition:Position):GameEvent
+    data class CanvasTab(val offset: Offset):GameEvent
     data object Retry:GameEvent
     data object Next:GameEvent
 }
