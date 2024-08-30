@@ -67,7 +67,8 @@ fun Grid.reset(): Grid =
         .update(*cells.map {
             it.copy(
                 rotations = it.initialRotation,
-                rotatedParts = 0
+                rotatedParts = 0,
+                locked = false
             )
         }.toTypedArray())
 
