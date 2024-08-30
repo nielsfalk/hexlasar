@@ -1,9 +1,11 @@
 package de.nielsfalk.laserhexagon
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
@@ -12,6 +14,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import kotlin.math.absoluteValue
@@ -26,10 +30,11 @@ fun GameScreen(
     state: Grid
 ) {
 
-    Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(Modifier.fillMaxWidth().background(Black), horizontalAlignment = Alignment.CenterHorizontally) {
         Row(
             Modifier
                 .padding(horizontal = 5.dp)
+                .fillMaxWidth()
         ) {
             Button(
                 onClick = onRetry,
@@ -51,8 +56,8 @@ fun GameScreen(
                     onLongPress = onCanvasLongPress
                 )
             }
-                .weight(1f)
-                .aspectRatio(1f),
+                .fillMaxWidth()
+                .fillMaxHeight(),
             grid = state,
             leakCellCenterPoints = leakCellCenterPoints)
     }

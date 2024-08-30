@@ -8,12 +8,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
-import de.nielsfalk.laserhexagon.Direction.BOTTOMLEFT
-import de.nielsfalk.laserhexagon.Direction.BOTTOMRIGHT
-import de.nielsfalk.laserhexagon.Direction.LEFT
-import de.nielsfalk.laserhexagon.Direction.RIGHT
-import de.nielsfalk.laserhexagon.Direction.TOPLEFT
-import de.nielsfalk.laserhexagon.Direction.TOPRIGHT
+import de.nielsfalk.laserhexagon.Direction.*
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -22,7 +17,7 @@ fun GameCanvas(modifier: Modifier, grid: Grid, leakCellCenterPoints: (Map<Offset
     Canvas(
         modifier = modifier
     ) {
-        drawRect(color = Color.Black, size = size.maxSquare())
+        drawRect(color = Color.Black, size = size)
 
         val parts = grid.x * 2 + 3
         val partsPixel = size.width / parts
@@ -69,7 +64,7 @@ private fun DrawScope.drawEndpoints(grid: Grid, partsPixel: Float) {
 
         cell.endPoint.toColor()?.let {
             val connectedColor = grid.glowPath[cell.position]
-            if (connectedColor.containsAll(cell.endPoint)){
+            if (connectedColor.containsAll(cell.endPoint)) {
                 drawCircle(
                     color = Color.White,
                     radius = partsPixel / 3,
@@ -141,10 +136,10 @@ private fun DrawScope.drawWhiteCellBorders(grid: Grid, partsPixel: Float) {
 
 private fun DrawScope.drawCellLock(grid: Grid, partsPixel: Float) {
     grid.onAllCells(size.width) {
-        if (cell.locked){
+        if (cell.locked) {
             drawCircle(
                 color = Color.White,
-                radius = partsPixel*0.9f,
+                radius = partsPixel * 0.9f,
                 center = cellCenterOffset,
                 style = Stroke(partsPixel / 40)
             )
