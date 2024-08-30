@@ -14,8 +14,7 @@ class GameViewModel : dev.icerock.moko.mvvm.viewmodel.ViewModel() {
     private val _state: MutableStateFlow<Grid> = MutableStateFlow(newLevel())
     val state: StateFlow<Grid> get() = _state
     var cellCenterPoints = mapOf<Offset, Position>() // will be leaked while drawing
-    var canvasSize: Size? = null
-    val widthGtHeight get() = canvasSize?.let { it.width > it.height } ?: false
+    private var toggleXYWithLevelGeneration=false
 
     init {
         _state.update { it.initGlowPath() }
@@ -97,12 +96,17 @@ class GameViewModel : dev.icerock.moko.mvvm.viewmodel.ViewModel() {
                 }
             }
 
-            GameEvent.LevelUp -> {
+            LevelUp -> {
                 _state.update {
                     newLevel(it.levelType.next()).copy(
 
                     )
                 }
+            }
+
+            is ToggleXYWithLevelGeneration -> {
+                toggleXYWithLevelGeneration = event.toggle
+                onEvent(Next)
             }
         }
     }
@@ -111,7 +115,7 @@ class GameViewModel : dev.icerock.moko.mvvm.viewmodel.ViewModel() {
         LevelGenerator(
             levelType = levelType,
             levelProperties = levelType.levelProperties.random().let {
-                if (widthGtHeight)
+                if (toggleXYWithLevelGeneration)
                     it.copy(x = it.y, y = it.x)
                 else it
             }

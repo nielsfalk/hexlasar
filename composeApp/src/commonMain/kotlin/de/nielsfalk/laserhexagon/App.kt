@@ -22,13 +22,13 @@ fun App() {
 
         GameScreen(
             onCanvasTab = { viewModel.onEvent(CanvasTab(it)) },
-            onCanvasLongPress = {viewModel.onEvent(CanvasLongPress(it)) },
+            onCanvasLongPress = { viewModel.onEvent(CanvasLongPress(it)) },
             onRetry = { viewModel.onEvent(Retry) },
             onNext = { viewModel.onEvent(Next) },
             onLevelUp = { viewModel.onEvent(LevelUp) },
-            leakCellCenterPoints = {viewModel.cellCenterPoints=it},
-            leakCanvasSize={viewModel.canvasSize=it},
-            state = state
+            leakCellCenterPoints = { viewModel.cellCenterPoints = it },
+            state = state,
+            toggleXYWithLevelGeneration = { viewModel.onEvent(ToggleXYWithLevelGeneration(it)) },
         )
     }
 }

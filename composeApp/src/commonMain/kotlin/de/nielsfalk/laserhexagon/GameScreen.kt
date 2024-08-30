@@ -27,8 +27,8 @@ fun GameScreen(
     onNext: () -> Unit,
     onLevelUp: () -> Unit,
     leakCellCenterPoints: (Map<Offset, Position>) -> Unit,
-    leakCanvasSize: (Size) -> Unit,
-    state: Grid
+    state: Grid,
+    toggleXYWithLevelGeneration: (Boolean) -> Unit
 ) {
 
     Column(Modifier.fillMaxWidth().background(Black), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -68,7 +68,7 @@ fun GameScreen(
                 .fillMaxHeight(),
             grid = state,
             leakCellCenterPoints = leakCellCenterPoints,
-            leakCanvasSize=leakCanvasSize
+            toggleXYWithLevelGeneration = toggleXYWithLevelGeneration,
         )
     }
 }

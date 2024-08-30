@@ -8,4 +8,5 @@ sealed interface GameEvent {
     data object Retry:GameEvent
     data object Next:GameEvent
     data object LevelUp:GameEvent
+    data class ToggleXYWithLevelGeneration(val toggle:Boolean):GameEvent
 }

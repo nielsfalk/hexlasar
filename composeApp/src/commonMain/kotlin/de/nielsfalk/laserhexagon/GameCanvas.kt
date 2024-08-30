@@ -17,29 +17,39 @@ fun GameCanvas(
     modifier: Modifier,
     grid: Grid,
     leakCellCenterPoints: (Map<Offset, Position>) -> Unit,
-    leakCanvasSize: (Size) -> Unit
+    toggleXYWithLevelGeneration: (Boolean) -> Unit,
 ) {
     Canvas(
         modifier = modifier
     ) {
-        drawRect(color = Color.Black, size = size)
-
-        val parts = grid.x * 2 + 3
-        val partsPixel = size.width / parts
-        drawWhiteCellBorders(grid, partsPixel)
-        drawCellLock(grid, partsPixel)
-        drawConnections(grid, partsPixel)
-        drawEndpoints(grid, partsPixel)
-        drawMiddlePoint(grid, partsPixel)
-        drawSource(grid, partsPixel)
-        leakCellCenterPoints(
-            mutableMapOf<Offset, Position>().apply {
-                grid.onAllCells(this@Canvas.size.width) {
-                    put(cellCenterOffset, cell.position)
-                }
+        when {
+            size.run { width > height } && grid.run { x < y } -> {
+                toggleXYWithLevelGeneration(true)
             }
-        )
-        leakCanvasSize(size)
+            size.run { width < height } && grid.run { x > y } -> {
+                toggleXYWithLevelGeneration(false)
+            }
+            else -> {
+                drawRect(color = Color.Black, size = size)
+
+                val parts = grid.x * 2 + 3
+                val partsPixel = size.width / parts
+                drawWhiteCellBorders(grid, partsPixel)
+                drawCellLock(grid, partsPixel)
+                drawConnections(grid, partsPixel)
+                drawEndpoints(grid, partsPixel)
+                drawMiddlePoint(grid, partsPixel)
+                drawSource(grid, partsPixel)
+
+                leakCellCenterPoints(
+                    mutableMapOf<Offset, Position>().apply {
+                        grid.onAllCells(this@Canvas.size.width) {
+                            put(cellCenterOffset, cell.position)
+                        }
+                    }
+                )
+            }
+        }
     }
 }
 
