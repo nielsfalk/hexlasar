@@ -10,6 +10,7 @@ class LevelGeneratorTest:FreeSpec({
             0, //its color
             0, //use source
             60, //percentage
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 
         )
         val levelGenerator = LevelGenerator(
