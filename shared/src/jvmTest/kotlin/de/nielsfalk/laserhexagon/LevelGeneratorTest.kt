@@ -15,9 +15,11 @@ class LevelGeneratorTest:FreeSpec({
             1,1,1,1,1,1,1,1,1
         )
         val levelGenerator = LevelGenerator(
-            x = 3,
-            y = 3,
-            sourceCount = 1,
+            levelProperties = LevelProperties(
+                x = 3,
+                y = 3,
+                sourceCount = 1
+            ),
             random = random
         )
 
