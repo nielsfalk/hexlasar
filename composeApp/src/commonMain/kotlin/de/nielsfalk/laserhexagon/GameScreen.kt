@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -12,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.dp
 import kotlin.math.absoluteValue
 
 @Composable
@@ -25,11 +27,20 @@ fun GameScreen(
 ) {
 
     Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-        Row {
-            Button(onClick = onRetry) {
+        Row(
+            Modifier
+                .padding(horizontal = 5.dp)
+        ) {
+            Button(
+                onClick = onRetry,
+                modifier = Modifier.padding(horizontal = 5.dp)
+            ) {
                 Text(if (state.solved) "You solved it" else "retry")
             }
-            Button(onClick = onNext) {
+            Button(
+                onClick = onNext,
+                modifier = Modifier.padding(horizontal = 5.dp)
+            ) {
                 Text("next")
             }
         }
@@ -37,7 +48,7 @@ fun GameScreen(
             modifier = Modifier.pointerInput(Unit) {
                 detectTapGestures(
                     onTap = onCanvasTab,
-                    onLongPress =  onCanvasLongPress
+                    onLongPress = onCanvasLongPress
                 )
             }
                 .weight(1f)

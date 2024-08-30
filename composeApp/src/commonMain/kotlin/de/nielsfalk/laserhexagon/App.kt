@@ -16,7 +16,7 @@ fun App() {
 
         val viewModel: GameViewModel = getViewModel(
             key = "gameViewModel",
-            factory = viewModelFactory { GameViewModel(testGrid) }
+            factory = viewModelFactory { GameViewModel() }
         )
         val state: Grid by viewModel.state.collectAsState()
 

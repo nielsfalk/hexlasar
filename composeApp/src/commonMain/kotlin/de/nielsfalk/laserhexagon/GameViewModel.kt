@@ -12,8 +12,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
-class GameViewModel(testGrid: Grid) : dev.icerock.moko.mvvm.viewmodel.ViewModel() {
-    private val _state: MutableStateFlow<Grid> = MutableStateFlow(testGrid)
+class GameViewModel : dev.icerock.moko.mvvm.viewmodel.ViewModel() {
+    private val _state: MutableStateFlow<Grid> = MutableStateFlow(newLevel())
     val state: StateFlow<Grid> get() = _state
     var cellCenterPoints = mapOf<Offset, Position>() // will be leaked while drawing
 
@@ -89,12 +89,13 @@ class GameViewModel(testGrid: Grid) : dev.icerock.moko.mvvm.viewmodel.ViewModel(
             }
 
             Next -> {
-                val newGrid = LevelGenerator().generate().initGlowPath()
-                _state.update { newGrid }
+                _state.update { newLevel() }
                 viewModelScope.launch {
                     glow()
                 }
             }
         }
     }
+
+    private fun newLevel() = LevelGenerator().generate().initGlowPath()
 }
