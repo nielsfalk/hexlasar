@@ -10,7 +10,7 @@ private val Grid.emptyCells: List<Cell>
     get() = cells.filter { it.source == null && it.connections.isEmpty() }
 
 class LevelGenerator(
-    val x: Int = 5,
+    val x: Int = 3,
     val y: Int = 6,
     val sourceCount: Int = 3,
     val random: Random = Random.Default
