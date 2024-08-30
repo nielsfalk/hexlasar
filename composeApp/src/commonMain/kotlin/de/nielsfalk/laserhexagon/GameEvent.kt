@@ -7,4 +7,5 @@ sealed interface GameEvent {
     data class CanvasLongPress(val offset: Offset):GameEvent
     data object Retry:GameEvent
     data object Next:GameEvent
+    data object LevelUp:GameEvent
 }

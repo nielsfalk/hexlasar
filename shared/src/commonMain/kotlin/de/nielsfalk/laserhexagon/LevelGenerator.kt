@@ -20,45 +20,65 @@ enum class LevelType(
     ),
     EASY(
         "Easy",
-        LevelProperties(x = 3, sourceCount = 1, rotateObvious = true),
-        LevelProperties(x = 3, y = 5, sourceCount = 2, rotateObvious = true)
+        LevelProperties(x = 2, sourceCount = 1, rotateObvious = true),
+        LevelProperties(x = 2, y = 3, sourceCount = 2, rotateObvious = true)
     ),
     INTERMEDIATE(
         "Intermediate",
-        LevelProperties(x = 5, sourceCount = 3),
-        LevelProperties(x = 5, sourceCount = 4),
-        LevelProperties(x = 5, sourceCount = 5)
+        LevelProperties(x = 3, sourceCount = 2),
+        LevelProperties(x = 3, sourceCount = 3),
+        LevelProperties(x = 3, sourceCount = 4)
     ),
     HARD(
         "Hard",
-        LevelProperties(x = 7, sourceCount = 3),
-        LevelProperties(x = 7, sourceCount = 4),
-        LevelProperties(x = 7, sourceCount = 5)
+        LevelProperties(x = 4, sourceCount = 1),
+        LevelProperties(x = 4, sourceCount = 2),
+        LevelProperties(x = 4, sourceCount = 3),
+        LevelProperties(x = 4, sourceCount = 4),
+        LevelProperties(x = 4, sourceCount = 5)
     ),
     HARDER(
         "Harder",
-        LevelProperties(x = 9, sourceCount = 3),
-        LevelProperties(x = 9, sourceCount = 4),
-        LevelProperties(x = 9, sourceCount = 5)
-    ),
-    INSANE(
-        "Insane",
-        LevelProperties(x = 10, sourceCount = 5),
-        LevelProperties(x = 10, sourceCount = 6),
-        LevelProperties(x = 10, sourceCount = 7)
+        LevelProperties(x = 5, sourceCount = 1),
+        LevelProperties(x = 5, sourceCount = 2),
+        LevelProperties(x = 5, sourceCount = 3),
+        LevelProperties(x = 5, sourceCount = 4),
+        LevelProperties(x = 5, sourceCount = 4),
+        LevelProperties(x = 5, sourceCount = 5),
+        LevelProperties(x = 5, sourceCount = 6),
+        LevelProperties(x = 5, sourceCount = 7),
+        LevelProperties(x = 5, sourceCount = 8)
+    ),INSANE(
+        "Harder",
+        LevelProperties(x = 6, sourceCount = 1),
+        LevelProperties(x = 6, sourceCount = 2),
+        LevelProperties(x = 6, sourceCount = 3),
+        LevelProperties(x = 6, sourceCount = 4),
+        LevelProperties(x = 6, sourceCount = 4),
+        LevelProperties(x = 6, sourceCount = 5),
+        LevelProperties(x = 6, sourceCount = 6),
+        LevelProperties(x = 6, sourceCount = 7),
+        LevelProperties(x = 6, sourceCount = 8)
     ),
     NIGHTMARE(
         "Nightmare",
-        LevelProperties(x = 15, sourceCount = 1),
-        LevelProperties(x = 15, sourceCount = 7),
-        LevelProperties(x = 15, sourceCount = 8)
+        LevelProperties(x = 8, sourceCount = 1),
+        LevelProperties(x = 8, sourceCount = 2),
+        LevelProperties(x = 8, sourceCount = 3),
+        LevelProperties(x = 8, sourceCount = 4),
+        LevelProperties(x = 8, sourceCount = 4),
+        LevelProperties(x = 8, sourceCount = 5),
+        LevelProperties(x = 8, sourceCount = 6),
+        LevelProperties(x = 8, sourceCount = 7),
+        LevelProperties(x = 8, sourceCount = 8)
     ),
-    NIGHTMARE_PLUS(
-        "Nightmare +",
-        LevelProperties(x = 25, sourceCount = 1),
-        LevelProperties(x = 25, sourceCount = 8),
-        LevelProperties(x = 25, sourceCount = 12)
-    );
+    //NIGHTMARE_PLUS(
+    //    "Nightmare +",
+    //    LevelProperties(x = 25, sourceCount = 1),
+    //    LevelProperties(x = 25, sourceCount = 8),
+    //    LevelProperties(x = 25, sourceCount = 12)
+    //)
+    ;
 
     val levelProperties = properties.toList()
 }
@@ -83,6 +103,7 @@ class LevelGenerator(
 
     fun generate(): Grid =
         levelProperties.run {
+            grid = grid.copy(levelType = levelType)
             repeat(sourceCount) { generateSource() }
             repeat(sourceCount) { generateSourceConnections() }
             repeat(x * y) { generateNextPart() }

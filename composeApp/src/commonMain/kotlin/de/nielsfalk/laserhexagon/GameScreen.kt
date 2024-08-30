@@ -26,6 +26,7 @@ fun GameScreen(
     onCanvasLongPress: (Offset) -> Unit,
     onRetry: () -> Unit,
     onNext: () -> Unit,
+    onLevelUp: () -> Unit,
     leakCellCenterPoints: (Map<Offset, Position>) -> Unit,
     state: Grid
 ) {
@@ -36,6 +37,13 @@ fun GameScreen(
                 .padding(horizontal = 5.dp)
                 .fillMaxWidth()
         ) {
+
+            Button(
+                onClick = onLevelUp,
+                modifier = Modifier.padding(horizontal = 5.dp)
+            ) {
+                Text(state.levelType.lable)
+            }
             Button(
                 onClick = onRetry,
                 modifier = Modifier.padding(horizontal = 5.dp)

@@ -25,6 +25,7 @@ fun App() {
             onCanvasLongPress = {viewModel.onEvent(CanvasLongPress(it)) },
             onRetry = { viewModel.onEvent(Retry) },
             onNext = { viewModel.onEvent(Next) },
+            onLevelUp = { viewModel.onEvent(LevelUp) },
             leakCellCenterPoints = {viewModel.cellCenterPoints=it},
             state = state
         )

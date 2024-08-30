@@ -89,13 +89,21 @@ class GameViewModel : dev.icerock.moko.mvvm.viewmodel.ViewModel() {
             }
 
             Next -> {
-                _state.update { newLevel() }
+                _state.update { newLevel(it.levelType) }
                 viewModelScope.launch {
                     glow()
+                }
+            }
+
+            GameEvent.LevelUp -> {
+                _state.update {
+                    newLevel(it.levelType.next()).copy(
+
+                    )
                 }
             }
         }
     }
 
-    private fun newLevel() = LevelGenerator().generate().initGlowPath()
+    private fun newLevel(levelType: LevelType=LevelType.entries.first()) = LevelGenerator(levelType = levelType).generate().initGlowPath()
 }
