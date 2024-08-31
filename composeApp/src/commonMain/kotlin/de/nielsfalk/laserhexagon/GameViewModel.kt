@@ -1,7 +1,6 @@
 package de.nielsfalk.laserhexagon
 
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import de.nielsfalk.laserhexagon.GameEvent.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,7 +12,7 @@ import kotlin.time.Duration.Companion.milliseconds
 class GameViewModel : dev.icerock.moko.mvvm.viewmodel.ViewModel() {
     private val _state: MutableStateFlow<Grid> = MutableStateFlow(newLevel())
     val state: StateFlow<Grid> get() = _state
-    var cellCenterPoints = mapOf<Offset, Position>() // will be leaked while drawing
+    private var cellCenterPoints = mapOf<Offset, Position>() // will be leaked while drawing
     private var toggleXYWithLevelGeneration=false
 
     init {
@@ -38,7 +37,7 @@ class GameViewModel : dev.icerock.moko.mvvm.viewmodel.ViewModel() {
 
     fun onEvent(event: GameEvent) {
         when (event) {
-            is CanvasTab ->
+            is RotateCell ->
                 cellCenterPoints.cellCloseTo(event.offset)
                     ?.let { cellPosition ->
                         if (!state.value[cellPosition].locked) {
@@ -73,7 +72,7 @@ class GameViewModel : dev.icerock.moko.mvvm.viewmodel.ViewModel() {
                         }
                     }
 
-            is CanvasLongPress -> {
+            is LockCell -> {
                 cellCenterPoints.cellCloseTo(event.offset)
                     ?.let { cellPosition ->
                         _state.update {
@@ -108,6 +107,8 @@ class GameViewModel : dev.icerock.moko.mvvm.viewmodel.ViewModel() {
                 toggleXYWithLevelGeneration = event.toggle
                 onEvent(Next)
             }
+
+            is LeakCellPositions -> cellCenterPoints=event.cellCenterPoints
         }
     }
 

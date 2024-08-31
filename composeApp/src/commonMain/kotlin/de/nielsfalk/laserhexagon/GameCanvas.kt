@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import de.nielsfalk.laserhexagon.Direction.*
+import de.nielsfalk.laserhexagon.GameEvent.LeakCellPositions
 import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sin
@@ -18,19 +19,18 @@ import kotlin.math.sqrt
 fun GameCanvas(
     modifier: Modifier,
     grid: Grid,
-    leakCellCenterPoints: (Map<Offset, Position>) -> Unit,
-    toggleXYWithLevelGeneration: (Boolean) -> Unit,
+    onEvent: (GameEvent) -> Unit,
 ) {
     Canvas(
         modifier = modifier
     ) {
         when {
             size.run { width > height } && grid.run { x < y } -> {
-                toggleXYWithLevelGeneration(true)
+                onEvent(GameEvent.ToggleXYWithLevelGeneration(true))
             }
 
             size.run { width < height } && grid.run { x > y } -> {
-                toggleXYWithLevelGeneration(false)
+                onEvent(GameEvent.ToggleXYWithLevelGeneration(false))
             }
 
             else -> {
@@ -38,13 +38,13 @@ fun GameCanvas(
 
                 drawGame(grid)
 
-                leakCellCenterPoints(
+                onEvent(LeakCellPositions(
                     mutableMapOf<Offset, Position>().apply {
                         this@Canvas.onAllCells(grid, this@Canvas.size.width) {
                             put(cellCenterOffset, cell.position)
                         }
                     }
-                )
+                ))
             }
         }
     }

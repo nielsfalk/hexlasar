@@ -13,22 +13,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
+import de.nielsfalk.laserhexagon.GameEvent.*
 import kotlin.math.absoluteValue
 
 @Composable
 fun GameScreen(
-    onCanvasTab: (Offset) -> Unit,
-    onCanvasLongPress: (Offset) -> Unit,
-    onRetry: () -> Unit,
-    onNext: () -> Unit,
-    onLevelUp: () -> Unit,
-    leakCellCenterPoints: (Map<Offset, Position>) -> Unit,
     state: Grid,
-    toggleXYWithLevelGeneration: (Boolean) -> Unit
+    onEvent: (GameEvent) -> Unit
 ) {
 
     Column(Modifier.fillMaxWidth().background(Black), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -39,19 +33,19 @@ fun GameScreen(
         ) {
 
             Button(
-                onClick = onLevelUp,
+                onClick = { onEvent(LevelUp) },
                 modifier = Modifier.padding(horizontal = 5.dp)
             ) {
                 Text(state.levelType.lable)
             }
             Button(
-                onClick = onRetry,
+                onClick = { onEvent(Retry) },
                 modifier = Modifier.padding(horizontal = 5.dp)
             ) {
                 Text(if (state.solved) "You solved it" else "retry")
             }
             Button(
-                onClick = onNext,
+                onClick = { onEvent(Next) },
                 modifier = Modifier.padding(horizontal = 5.dp)
             ) {
                 Text("next")
@@ -60,15 +54,14 @@ fun GameScreen(
         GameCanvas(
             modifier = Modifier.pointerInput(Unit) {
                 detectTapGestures(
-                    onTap = onCanvasTab,
-                    onLongPress = onCanvasLongPress
+                    onTap = { onEvent(RotateCell(it))},
+                    onLongPress = { onEvent(LockCell(it)) }
                 )
             }
                 .fillMaxWidth()
                 .fillMaxHeight(),
             grid = state,
-            leakCellCenterPoints = leakCellCenterPoints,
-            toggleXYWithLevelGeneration = toggleXYWithLevelGeneration,
+            onEvent=onEvent,
         )
     }
 }
