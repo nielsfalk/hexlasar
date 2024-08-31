@@ -1,126 +1,131 @@
 package de.nielsfalk.laserhexagon
 
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.runtime.*
 import de.nielsfalk.laserhexagon.GameEvent.*
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
-class GameViewModel : dev.icerock.moko.mvvm.viewmodel.ViewModel() {
-    private val _state: MutableStateFlow<Grid> = MutableStateFlow(newLevel())
-    val state: StateFlow<Grid> get() = _state
-    private var cellCenterPoints = mapOf<Offset, Position>() // will be leaked while drawing
-    private var toggleXYWithLevelGeneration=false
+@Composable
+fun GameViewModel(): ViewModel<GameState, GameEvent> {
+    val viewModelScope = rememberCoroutineScope()
 
-    init {
-        _state.update { it.initGlowPath() }
-        viewModelScope.launch {
-            glow()
+    @Suppress("LocalVariableName")
+    var state by remember { mutableStateOf(GameState(newLevel())) }
+
+    return object : ViewModel<GameState, GameEvent>(state, { state = it }) {
+
+
+        private fun updateGrid(function: (Grid) -> Grid) {
+            state.update { it.copy(grid = function(it.grid)) }
         }
-    }
 
-    private suspend fun glow() {
-        var ongoing = true
-        while (ongoing) {
-            _state.update {
-                val oldState = it
-                val newState = it.followPath()
-                ongoing = oldState != newState
-                newState
+        private suspend fun glow() {
+            var ongoing = true
+            while (ongoing) {
+                updateGrid {
+                    val oldState = it
+                    val newState = it.followPath()
+                    ongoing = oldState != newState
+                    newState
+                }
+                delay(glowSpeed.milliseconds)
             }
-            delay(glowSpeed.milliseconds)
         }
-    }
 
-    fun onEvent(event: GameEvent) {
-        when (event) {
-            is RotateCell ->
-                cellCenterPoints.cellCloseTo(event.offset)
-                    ?.let { cellPosition ->
-                        if (!state.value[cellPosition].locked) {
-                            viewModelScope.launch {
-                                (1..rotationSpeed).forEach { idx ->
-                                    val isLast = idx == rotationSpeed
-                                    _state.update {
-                                        val cell = it[cellPosition]
-                                        val rotated = it.update(
-                                            if (isLast) {
-                                                cell.copy(
-                                                    rotations = cell.rotations + 1,
-                                                    rotatedParts = cell.rotatedParts + 1 - rotationSpeed
-                                                )
-                                            } else {
-                                                cell.copy(rotatedParts = cell.rotatedParts + 1)
-                                            }
-                                        )
-                                        if (idx == 1 || isLast) {
-                                            rotated.removeDisconnectedFromPaths()
-                                        } else rotated
-                                    }
-                                    if (isLast) {
-                                        glow()
-                                    }
-                                    if (state.value.solved) {
-                                        _state.update(Grid::lockAllCells)
-                                    }
-                                    delay(1)
+        override fun onEvent(event: GameEvent) {
+            when (event) {
+                is RotateCell -> {
+                    if (!state.grid[event.cellPosition].locked) {
+                        viewModelScope.launch {
+                            (1..rotationSpeed).forEach { idx ->
+                                val isLast = idx == rotationSpeed
+                                updateGrid {
+                                    val cell = it[event.cellPosition]
+                                    val rotated = it.update(
+                                        if (isLast) {
+                                            cell.copy(
+                                                rotations = cell.rotations + 1,
+                                                rotatedParts = cell.rotatedParts + 1 - rotationSpeed
+                                            )
+                                        } else {
+                                            cell.copy(rotatedParts = cell.rotatedParts + 1)
+                                        }
+                                    )
+                                    if (idx == 1 || isLast) {
+                                        rotated.removeDisconnectedFromPaths()
+                                    } else rotated
                                 }
+                                if (isLast) {
+                                    glow()
+                                }
+                                if (state.grid.solved) {
+                                    updateGrid(Grid::lockAllCells)
+                                }
+                                delay(1)
                             }
                         }
                     }
+                }
 
-            is LockCell -> {
-                cellCenterPoints.cellCloseTo(event.offset)
-                    ?.let { cellPosition ->
-                        _state.update {
-                            it.update(it[cellPosition].toggleLock())
-                        }
+                is LockCell -> {
+                    updateGrid {
+                        it.update(it[event.cellPosition].toggleLock())
                     }
-            }
+                }
 
-            Retry -> {
-                _state.update { it.reset() }
-                viewModelScope.launch {
-                    glow()
+                Retry -> {
+                    updateGrid { it.reset() }
+                    viewModelScope.launch {
+                        glow()
+                    }
+                }
+
+                Next -> {
+                    updateGrid { newLevel(state.levelType, state.toggleXYWithLevelGeneration) }
+                    viewModelScope.launch {
+                        glow()
+                    }
+                }
+
+                LevelUp -> {
+                    state.update {
+                        val levelType = state.levelType.next()
+                        it.copy(
+                            grid = newLevel(
+                                levelType = levelType,
+                                toggleXYWithLevelGeneration = state.toggleXYWithLevelGeneration
+                            ),
+                            levelType = levelType
+                        )
+                    }
+                    viewModelScope.launch {
+                        glow()
+                    }
+                }
+
+                is ToggleXYWithLevelGeneration -> {
+                    state.update {
+                        state.copy(toggleXYWithLevelGeneration = event.toggle)
+                    }
+                    onEvent(Next)
                 }
             }
-
-            Next -> {
-                _state.update { newLevel(it.levelType) }
-                viewModelScope.launch {
-                    glow()
-                }
-            }
-
-            LevelUp -> {
-                _state.update {
-                    newLevel(it.levelType.next()).copy(
-
-                    )
-                }
-            }
-
-            is ToggleXYWithLevelGeneration -> {
-                toggleXYWithLevelGeneration = event.toggle
-                onEvent(Next)
-            }
-
-            is LeakCellPositions -> cellCenterPoints=event.cellCenterPoints
         }
     }
-
-    private fun newLevel(levelType: LevelType = LevelType.entries.first()) =
-        LevelGenerator(
-            levelType = levelType,
-            levelProperties = levelType.levelProperties.random().let {
-                if (toggleXYWithLevelGeneration)
-                    it.copy(x = it.y, y = it.x)
-                else it
-            }
-        )
-            .generate()
-            .initGlowPath()
 }
+
+fun newLevel(
+    levelType: LevelType = LevelType.entries.first(),
+    toggleXYWithLevelGeneration: Boolean = false
+) =
+    LevelGenerator(
+        levelType = levelType,
+        levelProperties = levelType.levelProperties.random().let {
+            if (toggleXYWithLevelGeneration)
+                it.copy(x = it.y, y = it.x)
+            else it
+        }
+    )
+        .generate()
+        .initGlowPath()

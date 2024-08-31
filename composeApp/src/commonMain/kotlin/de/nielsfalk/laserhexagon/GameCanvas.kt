@@ -1,35 +1,49 @@
 package de.nielsfalk.laserhexagon
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.pointerInput
 import de.nielsfalk.laserhexagon.Direction.*
-import de.nielsfalk.laserhexagon.GameEvent.LeakCellPositions
-import kotlin.math.cos
-import kotlin.math.pow
-import kotlin.math.sin
-import kotlin.math.sqrt
+import de.nielsfalk.laserhexagon.GameEvent.RotateCell
+import kotlin.math.*
 
 @Composable
 fun GameCanvas(
-    modifier: Modifier,
     grid: Grid,
     onEvent: (GameEvent) -> Unit,
 ) {
+    var cellCenterPoints by remember { mutableStateOf(mapOf<Offset, Position>()) }
+
     Canvas(
-        modifier = modifier
-    ) {
+        modifier = Modifier.pointerInput(Unit) {
+            detectTapGestures(
+                onTap = { offset ->
+                    cellCenterPoints.cellCloseTo(offset)
+                        ?.let { onEvent(RotateCell(it)) }
+                },
+                onLongPress = { offset ->
+                    cellCenterPoints.cellCloseTo(offset)
+                        ?.let { onEvent(GameEvent.LockCell(it)) }
+                }
+            )
+        }
+            .fillMaxWidth()
+            .fillMaxHeight()) {
         when {
             size.run { width > height } && grid.run { x < y } && !grid.started -> {
                 onEvent(GameEvent.ToggleXYWithLevelGeneration(true))
             }
 
-            size.run { width < height } && grid.run { x > y } && !grid.started-> {
+            size.run { width < height } && grid.run { x > y } && !grid.started -> {
                 onEvent(GameEvent.ToggleXYWithLevelGeneration(false))
             }
 
@@ -37,14 +51,11 @@ fun GameCanvas(
                 drawRect(color = Color.Black, size = size)
 
                 drawGame(grid)
-
-                onEvent(LeakCellPositions(
-                    mutableMapOf<Offset, Position>().apply {
-                        this@Canvas.onAllCells(grid, this@Canvas.size.width) {
-                            put(cellCenterOffset, cell.position)
-                        }
+                cellCenterPoints = mutableMapOf<Offset, Position>().apply {
+                    this@Canvas.onAllCells(grid, this@Canvas.size.width) {
+                        put(cellCenterOffset, cell.position)
                     }
-                ))
+                }
             }
         }
     }
@@ -66,10 +77,10 @@ private fun CellDrawScope.drawMiddlePoint(
     partsPixel: Float,
     glowPath: GlowPath
 ) {
-    onLayer(1){
+    onLayer(1) {
         drawCircle(
             color = Color.White,
-            radius = partsPixel *0.345f,
+            radius = partsPixel * 0.345f,
             center = cellCenterOffset
         )
     }
@@ -106,12 +117,12 @@ private fun CellDrawScope.drawEndpoint(
     cell.endPoint.toColor()?.let {
         val connectedColor = glowPath[cell.position]
         if (connectedColor.containsAll(cell.endPoint)) {
-            onLayer(4){
+            onLayer(4) {
                 drawCircle(
                     color = Color.White,
-                    radius = partsPixel *0.75f,
+                    radius = partsPixel * 0.75f,
                     center = cellCenterOffset,
-                    style = Stroke(partsPixel *0.2f)
+                    style = Stroke(partsPixel * 0.2f)
                 )
             }
         }
@@ -142,7 +153,7 @@ private fun CellDrawScope.drawConnections(
                 strokeWidth = partsPixel * 0.36f
             )
         }
-        onLayer(2){
+        onLayer(2) {
             drawLine(
                 color = Color.DarkGray,
                 start = cellCenterOffset,
@@ -150,7 +161,7 @@ private fun CellDrawScope.drawConnections(
                 strokeWidth = partsPixel * 0.33f
             )
         }
-        onLayer(3){
+        onLayer(3) {
             connectedColor?.let {
                 drawLine(
                     color = it,
@@ -271,3 +282,7 @@ private fun Size.maxSquare(): Size {
     val width = if (width > height) height else width
     return Size(width, width)
 }
+
+internal fun Map<Offset, Position>.cellCloseTo(tapOffset: Offset): Position? =
+    keys.minByOrNull { (it.x - tapOffset.x).absoluteValue + (it.y - tapOffset.y).absoluteValue }
+        ?.let { this[it] }

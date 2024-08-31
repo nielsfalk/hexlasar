@@ -50,7 +50,7 @@ fun GlowPathEntry.removeDisconnected(grid: Grid): GlowPathEntry =
         .map { it.removeDisconnected(grid) })
 
 fun Grid.followPath(): Grid =
-    copy(glowPath = glowPath.copy(glowPath.sources.map { it.follow(this) }))
+    copy(glowPath = glowPath.copy(sources = glowPath.sources.map { it.follow(this) }))
 
 fun GlowPathEntry.follow(grid: Grid, root: GlowPathEntry = this): GlowPathEntry {
     val cell = grid[position]

@@ -104,7 +104,6 @@ class LevelGenerator(
 
     fun generate(): Grid =
         levelProperties.run {
-            grid = grid.copy(levelType = levelType)
             repeat(sourceCount) { generateSource() }
             repeat(sourceCount) { generateSourceConnections() }
             repeat(x * y) { generateNextPart() }
