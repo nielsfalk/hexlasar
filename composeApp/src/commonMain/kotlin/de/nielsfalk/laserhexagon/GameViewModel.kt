@@ -20,6 +20,12 @@ fun GameViewModel(): ViewModel<GameState, GameEvent> {
             state.update { it.copy(grid = function(it.grid)) }
         }
 
+        private fun updateCell(position: Position, function: (Cell) -> Cell) {
+            updateGrid {
+                it.update(function(it[position]))
+            }
+        }
+
         private suspend fun glow() {
             var ongoing = true
             while (ongoing) {
@@ -36,42 +42,11 @@ fun GameViewModel(): ViewModel<GameState, GameEvent> {
         override fun onEvent(event: GameEvent) {
             when (event) {
                 is RotateCell -> {
-                    if (!state.grid[event.cellPosition].locked) {
-                        viewModelScope.launch {
-                            (1..rotationSpeed).forEach { idx ->
-                                val isLast = idx == rotationSpeed
-                                updateGrid {
-                                    val cell = it[event.cellPosition]
-                                    val rotated = it.update(
-                                        if (isLast) {
-                                            cell.copy(
-                                                rotations = cell.rotations + 1,
-                                                rotatedParts = cell.rotatedParts + 1 - rotationSpeed
-                                            )
-                                        } else {
-                                            cell.copy(rotatedParts = cell.rotatedParts + 1)
-                                        }
-                                    )
-                                    if (idx == 1 || isLast) {
-                                        rotated.removeDisconnectedFromPaths()
-                                    } else rotated
-                                }
-                                if (isLast) {
-                                    glow()
-                                }
-                                if (state.grid.solved) {
-                                    updateGrid(Grid::lockAllCells)
-                                }
-                                delay(1)
-                            }
-                        }
-                    }
+                    rotate(event.cellPosition)
                 }
 
                 is LockCell -> {
-                    updateGrid {
-                        it.update(it[event.cellPosition].toggleLock())
-                    }
+                    updateCell(event.cellPosition) { it.toggleLock() }
                 }
 
                 Retry -> {
@@ -109,6 +84,39 @@ fun GameViewModel(): ViewModel<GameState, GameEvent> {
                         state.copy(toggleXYWithLevelGeneration = event.toggle)
                     }
                     onEvent(Next)
+                }
+            }
+        }
+
+        private fun rotate(position: Position) {
+            if (!state.grid[position].locked) {
+                viewModelScope.launch {
+                    (1..rotationSpeed).forEach { idx ->
+                        val isLast = idx == rotationSpeed
+                        updateGrid {
+                            val cell = it[position]
+                            val rotated = it.update(
+                                if (isLast) {
+                                    cell.copy(
+                                        rotations = cell.rotations + 1,
+                                        rotatedParts = cell.rotatedParts + 1 - rotationSpeed
+                                    )
+                                } else {
+                                    cell.copy(rotatedParts = cell.rotatedParts + 1)
+                                }
+                            )
+                            if (idx == 1 || isLast) {
+                                rotated.removeDisconnectedFromPaths()
+                            } else rotated
+                        }
+                        if (isLast) {
+                            glow()
+                        }
+                        if (state.grid.solved) {
+                            updateGrid(Grid::lockAllCells)
+                        }
+                        delay(1)
+                    }
                 }
             }
         }
