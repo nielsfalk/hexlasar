@@ -9,7 +9,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import de.nielsfalk.laserhexagon.Direction.*
+import kotlin.math.cos
 import kotlin.math.pow
+import kotlin.math.sin
 import kotlin.math.sqrt
 
 @Composable
@@ -26,9 +28,11 @@ fun GameCanvas(
             size.run { width > height } && grid.run { x < y } -> {
                 toggleXYWithLevelGeneration(true)
             }
+
             size.run { width < height } && grid.run { x > y } -> {
                 toggleXYWithLevelGeneration(false)
             }
+
             else -> {
                 drawRect(color = Color.Black, size = size)
 
@@ -102,43 +106,62 @@ private fun DrawScope.drawEndpoints(grid: Grid, partsPixel: Float) {
 
 private fun DrawScope.drawConnections(grid: Grid, partsPixel: Float) {
     grid.onAllCells(size.width) {
+        cell.openCircleParts.forEach { circlePart ->
+            val angleOffset = -90f - 360 / 12 / 2
+            val startAngle = ((angleOffset + 360 * circlePart / 12) + cell.rotationWithParts * 360 / 6) % 360f
+            val middleAngle = startAngle + 360 / 12 / 2
+            drawLine(
+                color = Color.White,
+                start = cellCenterOffset,
+                end = plusAngle(angle = middleAngle, length = partsPixel),
+                strokeWidth = partsPixel * 0.36f
+            )
+        }
+    }
+    grid.onAllCells(size.width) {
         val connectedColor = grid.glowPath[cell.position].toColor()
         cell.openCircleParts.forEach { circlePart ->
             val angleOffset = -90f - 360 / 12 / 2
             val startAngle = ((angleOffset + 360 * circlePart / 12) + cell.rotationWithParts * 360 / 6) % 360f
-            drawArc(
-                color = Color.White,
-                topLeft = cellCenterOffset - Offset(partsPixel * 0.50f, partsPixel * 0.50f),
-                size = Size(partsPixel, partsPixel),
-                startAngle = startAngle - 1,
-                sweepAngle = 360f / 12 + 2,
-                useCenter = false,
-                style = Stroke(partsPixel)
+            val middleAngle = startAngle + 360 / 12 / 2
+            drawLine(
+                color = Color.DarkGray,
+                start = cellCenterOffset,
+                end = plusAngle(angle = middleAngle, length = partsPixel),
+                strokeWidth = partsPixel * 0.33f
             )
             connectedColor?.let {
-                drawArc(
+                drawLine(
                     color = it,
-                    topLeft = cellCenterOffset - Offset(partsPixel * 0.55f, partsPixel * 0.55f),
-                    size = Size(partsPixel * 1.1f, partsPixel * 1.1f),
-                    startAngle = startAngle,
-                    sweepAngle = 360f / 12,
-                    useCenter = false,
-                    style = Stroke(partsPixel)
+                    start = cellCenterOffset,
+                    end = plusAngle(angle = middleAngle, length = partsPixel),
+                    strokeWidth = partsPixel * 0.1f
                 )
             }
+
                 ?: drawArc(
                     color = Color.DarkGray,
                     topLeft = cellCenterOffset - Offset(partsPixel * 0.52f, partsPixel * 0.52f),
                     size = Size(partsPixel * 1.04f, partsPixel * 1.04f),
-                    startAngle = startAngle,
-                    sweepAngle = 360f / 12,
+                    startAngle = middleAngle - 1,
+                    sweepAngle = 2f,
                     useCenter = false,
-                    style = Stroke(partsPixel)
+                    style = Stroke(partsPixel, miter = 20f)
                 )
 
         }
     }
 }
+
+private fun CellDrawContext.plusAngle(
+    length: Float,
+    angle: Float // 0 => 3 oclock
+) = cellCenterOffset + Offset(
+        x = cos(angle.toRadians()) * length,
+        y = sin(angle.toRadians()) * length
+    )
+
+private fun Float.toRadians(): Float = this * 0.017453292519943295f
 
 private fun DrawScope.drawWhiteCellBorders(grid: Grid, partsPixel: Float) {
     grid.onAllCells(size.width) {
