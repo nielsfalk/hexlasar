@@ -47,7 +47,7 @@ fun GameCanvas(
 
                 leakCellCenterPoints(
                     mutableMapOf<Offset, Position>().apply {
-                        grid.onAllCells(this@Canvas.size.width) {
+                        this@Canvas.onAllCells(grid, this@Canvas.size.width) {
                             put(cellCenterOffset, cell.position)
                         }
                     }
@@ -58,7 +58,7 @@ fun GameCanvas(
 }
 
 private fun DrawScope.drawMiddlePoint(grid: Grid, partsPixel: Float) {
-    grid.onAllCells(size.width) {
+    this.onAllCells(grid, size.width) {
         val connectedColor = grid.glowPath[cell.position].toColor()
         drawCircle(
             color = connectedColor ?: Color.DarkGray,
@@ -69,7 +69,7 @@ private fun DrawScope.drawMiddlePoint(grid: Grid, partsPixel: Float) {
 }
 
 private fun DrawScope.drawSource(grid: Grid, partsPixel: Float) {
-    grid.onAllCells(size.width) {
+    this.onAllCells(grid, size.width) {
         cell.source?.toColor()?.let {
             drawCircle(
                 color = it,
@@ -81,7 +81,7 @@ private fun DrawScope.drawSource(grid: Grid, partsPixel: Float) {
 }
 
 private fun DrawScope.drawEndpoints(grid: Grid, partsPixel: Float) {
-    grid.onAllCells(size.width) {
+    this.onAllCells(grid, size.width) {
 
         cell.endPoint.toColor()?.let {
             val connectedColor = grid.glowPath[cell.position]
@@ -105,7 +105,7 @@ private fun DrawScope.drawEndpoints(grid: Grid, partsPixel: Float) {
 }
 
 private fun DrawScope.drawConnections(grid: Grid, partsPixel: Float) {
-    grid.onAllCells(size.width) {
+    this.onAllCells(grid, size.width) {
         cell.openCircleParts.forEach { circlePart ->
             val angleOffset = -90f - 360 / 12 / 2
             val startAngle = ((angleOffset + 360 * circlePart / 12) + cell.rotationWithParts * 360 / 6) % 360f
@@ -118,7 +118,7 @@ private fun DrawScope.drawConnections(grid: Grid, partsPixel: Float) {
             )
         }
     }
-    grid.onAllCells(size.width) {
+    this.onAllCells(grid, size.width) {
         val connectedColor = grid.glowPath[cell.position].toColor()
         cell.openCircleParts.forEach { circlePart ->
             val angleOffset = -90f - 360 / 12 / 2
@@ -153,18 +153,18 @@ private fun DrawScope.drawConnections(grid: Grid, partsPixel: Float) {
     }
 }
 
-private fun CellDrawContext.plusAngle(
+private fun CellDrawScope.plusAngle(
     length: Float,
     angle: Float // 0 => 3 oclock
 ) = cellCenterOffset + Offset(
-        x = cos(angle.toRadians()) * length,
-        y = sin(angle.toRadians()) * length
-    )
+    x = cos(angle.toRadians()) * length,
+    y = sin(angle.toRadians()) * length
+)
 
 private fun Float.toRadians(): Float = this * 0.017453292519943295f
 
 private fun DrawScope.drawWhiteCellBorders(grid: Grid, partsPixel: Float) {
-    grid.onAllCells(size.width) {
+    this.onAllCells(grid, size.width) {
         drawCircle(
             color = Color.White,
             radius = partsPixel,
@@ -175,7 +175,7 @@ private fun DrawScope.drawWhiteCellBorders(grid: Grid, partsPixel: Float) {
 }
 
 private fun DrawScope.drawCellLock(grid: Grid, partsPixel: Float) {
-    grid.onAllCells(size.width) {
+    this.onAllCells(grid, size.width) {
         if (cell.locked) {
             drawCircle(
                 color = Color.White,
@@ -206,16 +206,17 @@ private fun Set<COLOR>.toColor() =
         else -> null
     }
 
-private fun Grid.onAllCells(width: Float, function: CellDrawContext.() -> Unit) {
-    val parts = x * 2 + 3
+private fun DrawScope.onAllCells(grid: Grid, width: Float, function: CellDrawScope.() -> Unit) {
+    val parts = grid.x * 2 + 3
     val partsPixel = width / parts
 
-    (0 until x).forEach { x ->
-        (0 until y).forEach { y ->
-            CellDrawContext(
+    (0 until grid.x).forEach { x ->
+        (0 until grid.y).forEach { y ->
+            CellDrawScope(
+                drawScope = this,
                 parts = parts,
                 partsPixel = partsPixel,
-                cell = this[x, y],
+                cell = grid[x, y],
                 cellCenterOffset = Offset(
                     x = ((if (y.odd) 3 else 2) + x * 2) * partsPixel,
                     y = (1 + y) * sqrt((2 * partsPixel).pow(2) - partsPixel.pow(2))
@@ -225,12 +226,13 @@ private fun Grid.onAllCells(width: Float, function: CellDrawContext.() -> Unit) 
     }
 }
 
-data class CellDrawContext(
+data class CellDrawScope(
+    val drawScope: DrawScope,
     val parts: Int,
     val partsPixel: Float,
     val cell: Cell,
     val cellCenterOffset: Offset
-)
+) : DrawScope by drawScope
 
 private fun Cell.isOpen(circlePart: Int): Boolean =
     when (circlePart) {
