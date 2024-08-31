@@ -25,11 +25,11 @@ fun GameCanvas(
         modifier = modifier
     ) {
         when {
-            size.run { width > height } && grid.run { x < y } -> {
+            size.run { width > height } && grid.run { x < y } && !grid.started -> {
                 onEvent(GameEvent.ToggleXYWithLevelGeneration(true))
             }
 
-            size.run { width < height } && grid.run { x > y } -> {
+            size.run { width < height } && grid.run { x > y } && !grid.started-> {
                 onEvent(GameEvent.ToggleXYWithLevelGeneration(false))
             }
 

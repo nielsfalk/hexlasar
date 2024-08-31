@@ -57,6 +57,10 @@ data class Grid(
             glowPath[it.position].containsAll(it.endPoint)
         }
     }
+
+    val started: Boolean by lazy {
+        cells.any { it.rotations != it.initialRotation }
+    }
 }
 
 operator fun Grid.get(cellPosition: Position) = cells.first { it.position == cellPosition }
