@@ -2,6 +2,7 @@ package de.nielsfalk.laserhexagon
 
 import androidx.compose.runtime.*
 import de.nielsfalk.laserhexagon.GameEvent.*
+import de.nielsfalk.laserhexagon.TimingContext.Companion.repeatWithTiming
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
@@ -91,31 +92,42 @@ fun GameViewModel(): ViewModel<GameState, GameEvent> {
         private fun rotate(position: Position) {
             if (!state.grid[position].locked) {
                 viewModelScope.launch {
-                    (1..rotationSpeed).forEach { idx ->
-                        val isLast = idx == rotationSpeed
-                        updateGrid {
-                            val cell = it[position]
-                            val rotated = it.update(
-                                if (isLast) {
-                                    cell.copy(
-                                        rotations = cell.rotations + 1,
-                                        rotatedParts = cell.rotatedParts + 1 - rotationSpeed
+                    updateGrid {
+                        val cell = it[position]
+                        it.update(
+                            cell.copy(rotatedParts = cell.rotatedParts + 1)
+                        )
+                            .removeDisconnectedFromPaths()
+                    }
+                    repeatWithTiming {
+                        val lastIteration = spendTime >= rotationSpeed
+                        if (delta == 0)
+                            delay(1)
+                        else {
+                            if (lastIteration) {
+                                updateGrid {
+                                    val cell = it[position]
+                                    it.update(
+                                        cell.copy(
+                                            rotatedParts = cell.rotatedParts + delta - spendTime - 1,
+                                            rotations = cell.rotations + 1
+                                        )
                                     )
-                                } else {
-                                    cell.copy(rotatedParts = cell.rotatedParts + 1)
+                                        .removeDisconnectedFromPaths()
                                 }
-                            )
-                            if (idx == 1 || isLast) {
-                                rotated.removeDisconnectedFromPaths()
-                            } else rotated
+                                delay(1)
+                                glow()
+                                if (state.grid.solved) {
+                                    updateGrid(Grid::lockAllCells)
+                                }
+                            } else {
+                                updateCell(position) {
+                                    it.copy(rotatedParts = it.rotatedParts + delta)
+                                }
+                            }
+
                         }
-                        if (isLast) {
-                            glow()
-                        }
-                        if (state.grid.solved) {
-                            updateGrid(Grid::lockAllCells)
-                        }
-                        delay(1)
+                        !lastIteration
                     }
                 }
             }
