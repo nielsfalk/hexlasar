@@ -48,7 +48,8 @@ enum class LevelType(
         LevelProperties(x = 5, sourceCount = 6),
         LevelProperties(x = 5, sourceCount = 7),
         LevelProperties(x = 5, sourceCount = 8)
-    ),INSANE(
+    ),
+    INSANE(
         "Harder",
         LevelProperties(x = 6, sourceCount = 1),
         LevelProperties(x = 6, sourceCount = 2),
@@ -140,14 +141,22 @@ class LevelGenerator(
 
     private fun connectColors() {
         glow()
-        val cell = grid.cells.filter { it.source == null }.random()
-        val colors = grid.glowPath[cell.position]
-        if (colors.size == 1) {
-            val neighborWithOtherColor = cell.neighbors.filter { (_, neighbor) ->
-                neighbor.source == null && colors.first() !in grid.glowPath[neighbor.position]
-            }
-            grid = grid.connect(cell, neighborWithOtherColor.take(random, 1))
+        val cell = grid.cells.filter { cell ->
+            cell.source == null &&
+                    cell.getNeighborWithOtherColor().isNotEmpty()
+        }.randomOrNull(random)
+        cell?.let {
+            grid = grid.connect(cell, it.getNeighborWithOtherColor().take(random, 1))
         }
+    }
+
+    private fun Cell.getNeighborWithOtherColor(): Map<Direction, Cell> {
+        val colors = this@LevelGenerator.grid.glowPath[position]
+        return if (colors.size == 1) {
+            neighbors.filter { (_, neighbor) ->
+                neighbor.source == null && colors.first() !in this@LevelGenerator.grid.glowPath[neighbor.position]
+            }
+        } else mapOf()
     }
 
     private fun glow() {
