@@ -23,8 +23,10 @@ class LevelGenerator(
 
     fun generate(): Grid =
         levelProperties.run {
-            repeat(sourceCount) { generateSource() }
-            repeat(sourceCount) { generateSourceConnections() }
+            repeat(sourceCount) {
+                generateSource()
+                generateSourceConnections()
+            }
             repeat(x * y) { generateNextPart() }
             removeUnconnectedSources()
             repeat(sourceCount - 1) { generateNextPart() }
@@ -88,6 +90,18 @@ class LevelGenerator(
         )
     }
 
+    private fun generateSource() {
+        grid.emptyCells.filter {
+            it.neighbors.any { (_,neighbor)-> neighbor.connections.isEmpty()}
+        }.randomOrNull()?.let {
+            grid = grid.update(
+                it.copy(
+                    source = Color.random(random),
+                )
+            )
+        }
+    }
+
     private fun generateSourceConnections() {
         val unconnectedSource = grid.cells.filter { it.source != null && it.connections.isEmpty() }
         if (unconnectedSource.isNotEmpty()) {
@@ -107,13 +121,7 @@ class LevelGenerator(
         }
     }
 
-    private fun generateSource() {
-        grid = grid.update(
-            grid.emptyCells.random(random).copy(
-                source = Color.random(random),
-            )
-        )
-    }
+
 
     private fun generateNextPart() {
         grid.cells.filter { it.connections.size == 1 && it.source == null && it.freeNeighbors.isNotEmpty() }
