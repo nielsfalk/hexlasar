@@ -93,8 +93,8 @@ enum class LevelType(
         LevelProperties(x = 10, sourceCount = 4),
         LevelProperties(x = 10, sourceCount = 5),
         LevelProperties(x = 10, sourceCount = 6),
-        LevelProperties(x = 10, sourceCount = 79),
-        LevelProperties(x = 10, sourceCount = 80),
+        LevelProperties(x = 10, sourceCount = 59),
+        LevelProperties(x = 10, sourceCount = 60),
         connectBorders = true
     );
 
