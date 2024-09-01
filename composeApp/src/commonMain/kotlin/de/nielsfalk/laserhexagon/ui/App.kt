@@ -1,4 +1,4 @@
-package de.nielsfalk.laserhexagon
+package de.nielsfalk.laserhexagon.ui
 
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*

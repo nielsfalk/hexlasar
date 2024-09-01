@@ -1,8 +1,9 @@
-package de.nielsfalk.laserhexagon
+package de.nielsfalk.laserhexagon.ui
 
 import androidx.compose.runtime.*
-import de.nielsfalk.laserhexagon.GameEvent.*
-import de.nielsfalk.laserhexagon.TimingContext.Companion.repeatWithTiming
+import de.nielsfalk.laserhexagon.*
+import de.nielsfalk.laserhexagon.ui.GameEvent.*
+import de.nielsfalk.laserhexagon.ui.TimingContext.Companion.repeatWithTiming
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds

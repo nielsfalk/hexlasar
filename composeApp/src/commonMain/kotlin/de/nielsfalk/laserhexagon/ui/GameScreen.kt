@@ -1,4 +1,4 @@
-package de.nielsfalk.laserhexagon
+package de.nielsfalk.laserhexagon.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -12,7 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.unit.dp
-import de.nielsfalk.laserhexagon.GameEvent.*
+import de.nielsfalk.laserhexagon.ui.GameEvent.*
 
 @Composable
 fun GameScreen(

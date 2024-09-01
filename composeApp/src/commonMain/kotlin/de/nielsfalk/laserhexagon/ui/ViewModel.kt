@@ -1,4 +1,4 @@
-package de.nielsfalk.laserhexagon
+package de.nielsfalk.laserhexagon.ui
 
 abstract class ViewModel<S, E>(
     val state: S,

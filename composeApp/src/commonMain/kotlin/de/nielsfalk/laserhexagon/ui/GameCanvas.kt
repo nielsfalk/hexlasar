@@ -1,4 +1,4 @@
-package de.nielsfalk.laserhexagon
+package de.nielsfalk.laserhexagon.ui
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -11,10 +11,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
-import de.nielsfalk.laserhexagon.BorderConnectWrapper.Companion.borderConnectWrapper
+import de.nielsfalk.laserhexagon.*
+import de.nielsfalk.laserhexagon.ui.BorderConnectWrapper.Companion.borderConnectWrapper
 import de.nielsfalk.laserhexagon.Direction.*
-import de.nielsfalk.laserhexagon.GameEvent.RotateCell
+import de.nielsfalk.laserhexagon.ui.GameEvent.RotateCell
 import kotlin.math.*
+import de.nielsfalk.laserhexagon.COLOR as CellColor
+
 
 @Composable
 fun GameCanvas(
@@ -222,26 +225,29 @@ private fun CellDrawScope.drawCellLock(partsPixel: Float) {
     }
 }
 
-private fun COLOR.toColor() =
+private fun CellColor.toColor() =
     when (this) {
-        COLOR.RED -> Color.Red
-        COLOR.YELLOW -> Color.Yellow
-        COLOR.BLUE -> Color.Blue
+        CellColor.RED -> Color.Red
+        CellColor.YELLOW -> Color.Yellow
+        CellColor.BLUE -> Color.Blue
     }
 
-private fun Set<COLOR>.toColor() =
+private fun Set<CellColor>.toColor() =
     usedColors.firstOrNull { (_, set) -> set == this }?.first
 
 private val usedColors = listOf(
-    Color.Yellow to setOf(COLOR.YELLOW),
-    Color(0xffFF9900) to setOf(COLOR.YELLOW, COLOR.RED),
-    Color.Red to setOf(COLOR.RED),
-    Color(0xffa818cc) to setOf(COLOR.RED, COLOR.BLUE),
-    Color.Blue to setOf(COLOR.BLUE),
-    Color.Green to setOf(COLOR.BLUE, COLOR.YELLOW),
+    Color.White to setOf(CellColor.RED, CellColor.YELLOW,CellColor.BLUE),
+    Color.Yellow to setOf(CellColor.YELLOW),
+    Color(0xffFF9900) to setOf(CellColor.YELLOW, CellColor.RED),
+    Color.Red to setOf(CellColor.RED),
+    Color(0xffa818cc) to setOf(CellColor.RED, CellColor.BLUE),
+    Color.Blue to setOf(CellColor.BLUE),
+    Color.Green to setOf(CellColor.BLUE, CellColor.YELLOW),
 )
 
-private val winningColors = listOf(Color.White) + usedColors.map { it.first } + usedColors.first().first + Color.White
+
+
+private val winningColors =  usedColors.map { it.first } + usedColors.first().first + Color.White
 
 private fun DrawScope.onAllCells(originalGrid: Grid, width: Float, function: CellDrawScope.() -> Unit) {
     val grid = originalGrid.borderConnectWrapper()
