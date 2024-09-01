@@ -18,7 +18,7 @@ import kotlin.math.*
 
 @Composable
 fun GameCanvas(
-    grid: Grid,
+    state: GameState,
     onEvent: (GameEvent) -> Unit,
 ) {
     var cellCenterPoints by remember { mutableStateOf(mapOf<Offset, Position>()) }
@@ -38,6 +38,7 @@ fun GameCanvas(
         }
             .fillMaxWidth()
             .fillMaxHeight()) {
+        val grid = state.grid
         when {
             size.run { width > height } && grid.run { x < y } && !grid.started -> {
                 onEvent(GameEvent.ToggleXYWithLevelGeneration(true))
@@ -50,7 +51,7 @@ fun GameCanvas(
             else -> {
                 drawRect(color = Color.Black, size = size)
 
-                drawGame(grid)
+                drawGame(state)
                 cellCenterPoints = mutableMapOf<Offset, Position>().apply {
                     this@Canvas.onAllCells(grid, this@Canvas.size.width) {
                         put(cellCenterOffset, cell.position)
@@ -61,15 +62,31 @@ fun GameCanvas(
     }
 }
 
-private fun DrawScope.drawGame(grid: Grid) {
+private fun DrawScope.drawGame(state: GameState) {
+    val grid = state.grid
     onAllCells(grid, size.width) {
         drawCellBorder(partsPixel)
         drawCellLock(partsPixel)
-
         drawConnections(partsPixel, grid.glowPath)
         drawEndpoint(partsPixel, grid.glowPath)
         drawMiddlePoint(partsPixel, grid.glowPath)
         drawSource(partsPixel)
+    }
+    drawWinning(state.solvingAnimationSpendTime)
+}
+
+private fun DrawScope.drawWinning(solvingAnimationStart: Int?) {
+    solvingAnimationStart?.let {
+        val percentOfAnimation = it * 100000 / winningAnimationSpeed /max(size.width, size.height)
+        (winningColors).forEachIndexed { idx, color ->
+            val radius = (percentOfAnimation - idx) * 100f
+            if (radius > 0)
+                drawCircle(
+                    color = color,
+                    radius = radius,
+                    style = Stroke(200f)
+                )
+        }
     }
 }
 
@@ -140,7 +157,7 @@ private fun CellDrawScope.drawConnections(
     partsPixel: Float,
     glowPath: GlowPath
 ) {
-    val connectedColor = glowPath[cell.position].toColor()
+    val connectedColor = glowPath[cell.position]?.toColor()
     cell.openCircleParts.forEach { circlePart ->
         val angleOffset = -90f - 360 / 12 / 2
         val startAngle = ((angleOffset + 360 * circlePart / 12) + cell.rotationWithParts * 360 / 6) % 360f
@@ -213,16 +230,18 @@ private fun COLOR.toColor() =
     }
 
 private fun Set<COLOR>.toColor() =
-    when (this) {
-        setOf(COLOR.RED) -> Color.Red
-        setOf(COLOR.RED, COLOR.BLUE) -> Color(0xffa818cc)
-        setOf(COLOR.BLUE) -> Color.Blue
-        setOf(COLOR.BLUE, COLOR.YELLOW) -> Color.Green
-        setOf(COLOR.YELLOW) -> Color.Yellow
-        setOf(COLOR.YELLOW, COLOR.RED) -> Color(0xffFF9900)
-        setOf(COLOR.YELLOW, COLOR.RED, COLOR.BLUE) -> Color.White
-        else -> null
-    }
+    usedColors.firstOrNull { (_, set) -> set == this }?.first
+
+private val usedColors = listOf(
+    Color.Yellow to setOf(COLOR.YELLOW),
+    Color(0xffFF9900) to setOf(COLOR.YELLOW, COLOR.RED),
+    Color.Red to setOf(COLOR.RED),
+    Color(0xffa818cc) to setOf(COLOR.RED, COLOR.BLUE),
+    Color.Blue to setOf(COLOR.BLUE),
+    Color.Green to setOf(COLOR.BLUE, COLOR.YELLOW),
+)
+
+private val winningColors = listOf(Color.White) + usedColors.map { it.first } + usedColors.first().first + Color.White
 
 private fun DrawScope.onAllCells(grid: Grid, width: Float, function: CellDrawScope.() -> Unit) {
     val parts = grid.x * 2 + 3

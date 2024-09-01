@@ -12,7 +12,7 @@ data class TimingContext(
     val spendTime: Int by lazy { (iterationStart - start).toInt() }
 
     companion object {
-        private fun currentMillis(): Long =
+        fun currentMillis(): Long =
             Clock.System.now().toEpochMilliseconds()
 
         suspend fun repeatWithTiming(function: suspend TimingContext.() -> Boolean) {

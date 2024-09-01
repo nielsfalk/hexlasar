@@ -118,7 +118,7 @@ fun GameViewModel(): ViewModel<GameState, GameEvent> {
                                 delay(1)
                                 glow()
                                 if (state.grid.solved) {
-                                    updateGrid(Grid::lockAllCells)
+                                    winning()
                                 }
                             } else {
                                 updateCell(position) {
@@ -132,8 +132,24 @@ fun GameViewModel(): ViewModel<GameState, GameEvent> {
                 }
             }
         }
+
+        private suspend fun winning() {
+            updateGrid(Grid::lockAllCells)
+            repeatWithTiming {
+                state.update {
+                    it.copy(solvingAnimationSpendTime = spendTime)
+                }
+                delay(1)
+                spendTime < winningAnimationSpeed
+            }
+            state.update {
+                it.copy(solvingAnimationSpendTime = null)
+            }
+        }
     }
 }
+
+const val winningAnimationSpeed=3000
 
 fun newLevel(
     levelType: LevelType = LevelType.entries.first(),

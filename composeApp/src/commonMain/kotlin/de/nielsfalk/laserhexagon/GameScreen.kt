@@ -47,7 +47,7 @@ fun GameScreen(
             }
         }
         GameCanvas(
-            grid = state.grid,
+            state = state,
             onEvent = onEvent,
         )
     }
