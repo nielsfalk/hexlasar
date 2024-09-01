@@ -59,7 +59,7 @@ fun GameCanvas(
 
                 drawGame(state)
                 cellCenterPoints = mutableMapOf<Offset, Position>().apply {
-                    onAllCells(grid, this@Canvas.size.width) {
+                    onAllCells(grid) {
                         put(cellCenterOffset, cell.position)
                     }
                 }
@@ -70,7 +70,7 @@ fun GameCanvas(
 
 private fun DrawScope.drawGame(state: GameState) {
     val grid = state.grid
-    onAllCells(grid, size.width) {
+    onAllCells(grid) {
         drawCellBorder(partsPixel)
         drawCellLock(partsPixel)
         drawConnections(partsPixel, grid.glowPath)
@@ -228,17 +228,18 @@ private fun CellDrawScope.drawCellLock(partsPixel: Float) {
     }
 }
 
-private fun DrawScope.onAllCells(originalGrid: Grid, width: Float, function: CellDrawScope.() -> Unit) {
+private fun DrawScope.onAllCells(originalGrid: Grid, function: CellDrawScope.() -> Unit) {
     val grid = originalGrid.borderConnectWrapper()
-    val parts = grid.x * 2 + 3
-    val partsPixel = width / parts
+    val horizontalParts = grid.x * 2 + 3
+    val verticalParts = grid.y * 2 + 0.7f
+    val partsPixel = min(size.width / horizontalParts, size.height / verticalParts)
+
     val layerFutures: MutableList<Pair<Int, () -> Unit>> = mutableListOf()
 
     (0 until grid.x).forEach { x ->
         (0 until grid.y).forEach { y ->
             val cellDrawScope = CellDrawScope(
                 drawScope = this,
-                parts = parts,
                 partsPixel = partsPixel,
                 cell = grid[x, y],
                 cellCenterOffset = Offset(
@@ -256,7 +257,6 @@ private fun DrawScope.onAllCells(originalGrid: Grid, width: Float, function: Cel
 
 data class CellDrawScope(
     val drawScope: DrawScope,
-    val parts: Int,
     val partsPixel: Float,
     val cell: Cell,
     val cellCenterOffset: Offset

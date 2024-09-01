@@ -26,8 +26,8 @@ enum class LevelType(
         LevelProperties(x = 4, sourceCount = 1),
         LevelProperties(x = 4, sourceCount = 2),
         LevelProperties(x = 4, sourceCount = 3),
-        LevelProperties(x = 4, sourceCount = 4),
-        LevelProperties(x = 4, sourceCount = 5),
+        LevelProperties(x = 4, sourceCount = 9),
+        LevelProperties(x = 4, sourceCount = 10),
     ),
     HARDER(
         "Harder",
@@ -36,6 +36,8 @@ enum class LevelType(
         LevelProperties(x = 5, sourceCount = 3),
         LevelProperties(x = 5, sourceCount = 19),
         LevelProperties(x = 5, sourceCount = 20),
+        LevelProperties(x = 7, sourceCount = 49),
+        LevelProperties(x = 6, sourceCount = 30),
     ),
     VERY_HARD(
         "Very hard",
