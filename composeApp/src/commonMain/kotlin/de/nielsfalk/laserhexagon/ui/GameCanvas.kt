@@ -14,7 +14,6 @@ import de.nielsfalk.laserhexagon.*
 import de.nielsfalk.laserhexagon.Direction.*
 import de.nielsfalk.laserhexagon.ui.BorderConnectWrapper.Companion.borderConnectWrapper
 import de.nielsfalk.laserhexagon.ui.Color.Companion.Black
-import de.nielsfalk.laserhexagon.ui.Color.Companion.DarkGray
 import de.nielsfalk.laserhexagon.ui.Color.Companion.White
 import de.nielsfalk.laserhexagon.ui.Color.Companion.toColor
 import de.nielsfalk.laserhexagon.ui.Color.Companion.winningColors
@@ -81,8 +80,8 @@ private fun DrawScope.drawGame(state: GameState) {
     drawWinning(state.solvingAnimationSpendTime)
 }
 
-private fun DrawScope.drawWinning(solvingAnimationStart: Int?) {
-    solvingAnimationStart?.let {
+private fun DrawScope.drawWinning(solvingAnimationSpendTime: Int?) {
+    solvingAnimationSpendTime?.let {
         val percentOfAnimation = it * 100000 / winningAnimationSpeed / max(size.width, size.height)
         (winningColors).forEachIndexed { idx, color ->
             val radius = (percentOfAnimation - idx) * 100f
@@ -109,7 +108,7 @@ private fun CellDrawScope.drawMiddlePoint(
     }
     onLayer(2) {
         drawCircle(
-            color = DarkGray,
+            color = Black,
             radius = partsPixel * 0.33f,
             center = cellCenterOffset
         )
@@ -140,7 +139,7 @@ private fun CellDrawScope.drawEndpoint(
     cell.endPoint.toColor()?.let {
         val connectedColor = glowPath[cell.position]
         if (connectedColor.containsAll(cell.endPoint)) {
-            onLayer(4) {
+            onLayer(1) {
                 drawCircle(
                     color = White,
                     radius = partsPixel * 0.75f,
@@ -178,7 +177,7 @@ private fun CellDrawScope.drawConnections(
         }
         onLayer(2) {
             drawLine(
-                color = DarkGray,
+                color = Black,
                 start = cellCenterOffset,
                 end = plusAngle(angle = middleAngle, length = partsPixel),
                 strokeWidth = partsPixel * 0.33f

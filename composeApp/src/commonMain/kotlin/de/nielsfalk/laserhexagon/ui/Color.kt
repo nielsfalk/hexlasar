@@ -13,7 +13,6 @@ class Color {
         val Blue = ComposeColor.Blue
         val Green = ComposeColor.Green
         val Black = ComposeColor.Black
-        val DarkGray = ComposeColor.DarkGray
 
         private val usedColorsToCellColors: List<Pair<ComposeColor, Set<CellColor>>> = listOf(
             White to setOf(CellColor.Red, CellColor.Yellow, CellColor.Blue),
