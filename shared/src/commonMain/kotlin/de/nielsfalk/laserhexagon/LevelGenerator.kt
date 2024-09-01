@@ -9,98 +9,17 @@ private val Cell.freeNeighbors: Map<Direction, Cell>
 private val Grid.emptyCells: List<Cell>
     get() = cells.filter { it.source == null && it.connections.isEmpty() }
 
-enum class LevelType(
-    val lable: String,
-    vararg properties: LevelProperties
-) {
-    ABSOLUTE_BEGINNER(
-        "Absolute beginner",
-        LevelProperties(x = 1, y = 3, sourceCount = 1, rotateObvious = true),
-        LevelProperties(x = 2, y = 2, sourceCount = 1, rotateObvious = true)
-    ),
-    EASY(
-        "Easy",
-        LevelProperties(x = 2, sourceCount = 1, rotateObvious = true),
-        LevelProperties(x = 2, y = 3, sourceCount = 2, rotateObvious = true)
-    ),
-    INTERMEDIATE(
-        "Intermediate",
-        LevelProperties(x = 3, sourceCount = 2),
-        LevelProperties(x = 3, sourceCount = 3),
-        LevelProperties(x = 3, sourceCount = 4)
-    ),
-    HARD(
-        "Hard",
-        LevelProperties(x = 4, sourceCount = 1),
-        LevelProperties(x = 4, sourceCount = 2),
-        LevelProperties(x = 4, sourceCount = 3),
-        LevelProperties(x = 4, sourceCount = 4),
-        LevelProperties(x = 4, sourceCount = 5)
-    ),
-    HARDER(
-        "Harder",
-        LevelProperties(x = 5, sourceCount = 1),
-        LevelProperties(x = 5, sourceCount = 2),
-        LevelProperties(x = 5, sourceCount = 3),
-        LevelProperties(x = 5, sourceCount = 4),
-        LevelProperties(x = 5, sourceCount = 4),
-        LevelProperties(x = 5, sourceCount = 5),
-        LevelProperties(x = 5, sourceCount = 6),
-        LevelProperties(x = 5, sourceCount = 7),
-        LevelProperties(x = 5, sourceCount = 8)
-    ),
-    INSANE(
-        "Harder",
-        LevelProperties(x = 6, sourceCount = 1),
-        LevelProperties(x = 6, sourceCount = 2),
-        LevelProperties(x = 6, sourceCount = 3),
-        LevelProperties(x = 6, sourceCount = 4),
-        LevelProperties(x = 6, sourceCount = 4),
-        LevelProperties(x = 6, sourceCount = 5),
-        LevelProperties(x = 6, sourceCount = 6),
-        LevelProperties(x = 6, sourceCount = 7),
-        LevelProperties(x = 6, sourceCount = 8)
-    ),
-    NIGHTMARE(
-        "Nightmare",
-        LevelProperties(x = 8, sourceCount = 1),
-        LevelProperties(x = 8, sourceCount = 2),
-        LevelProperties(x = 8, sourceCount = 3),
-        LevelProperties(x = 8, sourceCount = 4),
-        LevelProperties(x = 8, sourceCount = 4),
-        LevelProperties(x = 8, sourceCount = 5),
-        LevelProperties(x = 8, sourceCount = 6),
-        LevelProperties(x = 8, sourceCount = 7),
-        LevelProperties(x = 8, sourceCount = 8)
-    ),
-    //NIGHTMARE_PLUS(
-    //    "Nightmare +",
-    //    LevelProperties(x = 25, sourceCount = 1),
-    //    LevelProperties(x = 25, sourceCount = 8),
-    //    LevelProperties(x = 25, sourceCount = 12)
-    //)
-    ;
-
-    val levelProperties = properties.toList()
-}
-
-fun LevelType.next(): LevelType =
-    LevelType.entries[(ordinal + 1) % LevelType.entries.size]
-
-
-data class LevelProperties(
-    val x: Int = 3,
-    val y: Int = x * 2,
-    val sourceCount: Int = 3,
-    val rotateObvious: Boolean = false
-)
 
 class LevelGenerator(
     val random: Random = Random.Default,
     val levelType: LevelType = LevelType.entries.first(),
     val levelProperties: LevelProperties = levelType.levelProperties.random(random)
 ) {
-    var grid = Grid(levelProperties.x, levelProperties.y)
+    var grid = Grid(
+        levelProperties.x,
+        levelProperties.y,
+        levelType.connectBorders
+    )
 
     fun generate(): Grid =
         levelProperties.run {

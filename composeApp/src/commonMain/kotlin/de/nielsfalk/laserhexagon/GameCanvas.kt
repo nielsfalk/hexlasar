@@ -7,11 +7,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
+import de.nielsfalk.laserhexagon.BorderConnectWrapper.Companion.borderConnectWrapper
 import de.nielsfalk.laserhexagon.Direction.*
 import de.nielsfalk.laserhexagon.GameEvent.RotateCell
 import kotlin.math.*
@@ -53,7 +53,7 @@ fun GameCanvas(
 
                 drawGame(state)
                 cellCenterPoints = mutableMapOf<Offset, Position>().apply {
-                    this@Canvas.onAllCells(grid, this@Canvas.size.width) {
+                    onAllCells(grid, this@Canvas.size.width) {
                         put(cellCenterOffset, cell.position)
                     }
                 }
@@ -77,7 +77,7 @@ private fun DrawScope.drawGame(state: GameState) {
 
 private fun DrawScope.drawWinning(solvingAnimationStart: Int?) {
     solvingAnimationStart?.let {
-        val percentOfAnimation = it * 100000 / winningAnimationSpeed /max(size.width, size.height)
+        val percentOfAnimation = it * 100000 / winningAnimationSpeed / max(size.width, size.height)
         (winningColors).forEachIndexed { idx, color ->
             val radius = (percentOfAnimation - idx) * 100f
             if (radius > 0)
@@ -243,7 +243,8 @@ private val usedColors = listOf(
 
 private val winningColors = listOf(Color.White) + usedColors.map { it.first } + usedColors.first().first + Color.White
 
-private fun DrawScope.onAllCells(grid: Grid, width: Float, function: CellDrawScope.() -> Unit) {
+private fun DrawScope.onAllCells(originalGrid: Grid, width: Float, function: CellDrawScope.() -> Unit) {
+    val grid = originalGrid.borderConnectWrapper()
     val parts = grid.x * 2 + 3
     val partsPixel = width / parts
     val layerFutures: MutableList<Pair<Int, () -> Unit>> = mutableListOf()
@@ -297,11 +298,22 @@ private val Cell.openCircleParts: List<Int>
         return (0 until 12).filter { isOpen(it) }
     }
 
-private fun Size.maxSquare(): Size {
-    val width = if (width > height) height else width
-    return Size(width, width)
-}
-
 internal fun Map<Offset, Position>.cellCloseTo(tapOffset: Offset): Position? =
     keys.minByOrNull { (it.x - tapOffset.x).absoluteValue + (it.y - tapOffset.y).absoluteValue }
         ?.let { this[it] }
+
+private class BorderConnectWrapper private constructor(val grid: Grid) {
+    operator fun get(x: Int, y: Int): Cell =
+        if (x < grid.x && y < grid.y) {
+            grid[x, y]
+        } else {
+            grid[x % grid.x, y % grid.y]
+        }
+
+    val x: Int = if (grid.connectBorders) grid.x + 1 else grid.x
+    val y: Int = if (grid.connectBorders) grid.y + 1 else grid.y
+
+    companion object {
+        fun Grid.borderConnectWrapper() = BorderConnectWrapper(this)
+    }
+}

@@ -14,16 +14,18 @@ data class Grid(
     val cells: List<Cell>,
     val x: Int = cells.maxOf { it.position.x } + 1,
     val y: Int = cells.maxOf { it.position.y } + 1,
+    val connectBorders: Boolean = false,
     val glowPath: GlowPath = GlowPath()
 ) {
-    constructor(x: Int = 10, y: Int = 13) : this(
+    constructor(x: Int = 10, y: Int = 13,connectBorders: Boolean = false) : this(
         (0 until x).map { x ->
             (0 until y).map { y ->
                 Cell(Position(x, y))
             }
         }.flatten(),
         x,
-        y
+        y,
+        connectBorders
     )
 
     init {

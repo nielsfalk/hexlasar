@@ -1,11 +1,6 @@
 package de.nielsfalk.laserhexagon
 
-import de.nielsfalk.laserhexagon.Direction.BOTTOMLEFT
-import de.nielsfalk.laserhexagon.Direction.BOTTOMRIGHT
-import de.nielsfalk.laserhexagon.Direction.LEFT
-import de.nielsfalk.laserhexagon.Direction.RIGHT
-import de.nielsfalk.laserhexagon.Direction.TOPLEFT
-import de.nielsfalk.laserhexagon.Direction.TOPRIGHT
+import de.nielsfalk.laserhexagon.Direction.*
 
 
 data class Cell(
@@ -18,16 +13,16 @@ data class Cell(
     val connections: Set<Direction> = setOf(),
     val locked: Boolean = false
 ) {
-    val rotatedConnections: Set<Direction> by lazy {
+    private val rotatedConnections: Set<Direction> by lazy {
         connections.map { it.rotate(rotations) }.toSet()
     }
 
-    val futureRotatedConnections: Set<Direction> by lazy {
+    private val futureRotatedConnections: Set<Direction> by lazy {
         connections.map { it.rotate(rotationWithParts.roundUp()) }.toSet()
     }
     lateinit var grid: Grid
     val neighborsPositions: Map<Direction, Position> by lazy {
-        mapOf(
+        val neighbors = mapOf(
             LEFT to Position(position.x - 1, position.y),
             TOPLEFT to
                     if (position.y.even) Position(position.x - 1, position.y - 1)
@@ -42,13 +37,22 @@ data class Cell(
             BOTTOMLEFT to
                     if (position.y.even) Position(position.x - 1, position.y + 1)
                     else Position(position.x, position.y + 1)
-        ).filterValues {
-            it.x >= 0
-                    && it.y >= 0
-                    && it.x < grid.x
-                    && it.y < grid.y
+        )
+        if (grid.connectBorders) {
+            neighbors.mapValues { (_, position) ->
+                position.copy(
+                    x = (position.x + grid.x) % grid.x,
+                    y = (position.y + grid.y) % grid.y
+                )
+            }
+        } else {
+            neighbors.filterValues {
+                it.x >= 0
+                        && it.y >= 0
+                        && it.x < grid.x
+                        && it.y < grid.y
+            }
         }
-
     }
     val neighbors: Map<Direction, Cell>
         get() = neighborsPositions.mapValues { (_, position) -> grid[position] }
