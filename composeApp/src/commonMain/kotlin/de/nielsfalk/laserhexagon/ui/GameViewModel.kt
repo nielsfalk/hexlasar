@@ -12,7 +12,6 @@ import kotlin.time.Duration.Companion.milliseconds
 fun GameViewModel(): ViewModel<GameState, GameEvent> {
     val viewModelScope = rememberCoroutineScope()
 
-    @Suppress("LocalVariableName")
     var state by remember { mutableStateOf(GameState(newLevel())) }
 
     return object : ViewModel<GameState, GameEvent>(state, { state = it }) {
@@ -44,7 +43,7 @@ fun GameViewModel(): ViewModel<GameState, GameEvent> {
         override fun onEvent(event: GameEvent) {
             when (event) {
                 is RotateCell -> {
-                    rotate(event.cellPosition)
+                    launchRotation(event.cellPosition)
                 }
 
                 is LockCell -> {
@@ -87,50 +86,71 @@ fun GameViewModel(): ViewModel<GameState, GameEvent> {
                     }
                     onEvent(Next)
                 }
+
+                Hint -> {
+                    if (!state.grid.solved) {
+                        state.grid.getPendingCell()?.let {
+                            val position = it.position
+                            updateCell(position) { cell ->
+                                cell.copy(locked = true)
+                            }
+                            val pendingRotations = Direction.entries.size - (it.rotations % Direction.entries.size)
+                            repeat(pendingRotations) {
+                                viewModelScope.launch {
+                                    rotate(position)
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 
-        private fun rotate(position: Position) {
+        private fun launchRotation(position: Position) {
             if (!state.grid[position].locked) {
                 viewModelScope.launch {
-                    updateGrid {
-                        val cell = it[position]
-                        it.update(
-                            cell.copy(rotatedParts = cell.rotatedParts + 1)
-                        )
-                            .removeDisconnectedFromPaths()
-                    }
-                    repeatWithTiming {
-                        val lastIteration = spendTime >= rotationSpeed
-                        if (delta == 0)
-                            delay(1)
-                        else {
-                            if (lastIteration) {
-                                updateGrid {
-                                    val cell = it[position]
-                                    it.update(
-                                        cell.copy(
-                                            rotatedParts = cell.rotatedParts + delta - spendTime - 1,
-                                            rotations = cell.rotations + 1
-                                        )
-                                    )
-                                        .removeDisconnectedFromPaths()
-                                }
-                                delay(1)
-                                glow()
-                                if (state.grid.solved) {
-                                    winning()
-                                }
-                            } else {
-                                updateCell(position) {
-                                    it.copy(rotatedParts = it.rotatedParts + delta)
-                                }
-                            }
-
-                        }
-                        !lastIteration
-                    }
+                    rotate(position)
                 }
+            }
+        }
+
+        private suspend fun rotate(position: Position) {
+            updateGrid {
+                val cell = it[position]
+                it.update(
+                    cell.copy(rotatedParts = cell.rotatedParts + 1)
+                )
+                    .removeDisconnectedFromPaths()
+            }
+            repeatWithTiming {
+                val lastIteration = spendTime >= rotationSpeed
+                if (delta == 0)
+                    delay(1)
+                else {
+                    if (lastIteration) {
+                        updateGrid {
+                            val cell = it[position]
+                            it.update(
+                                cell.copy(
+                                    rotatedParts = cell.rotatedParts + delta - spendTime - 1,
+                                    rotations = cell.rotations + 1
+                                )
+                            )
+                                .removeDisconnectedFromPaths()
+                        }
+                        delay(1)
+                        glow()
+                        if (state.grid.solved) {
+                            winning()
+                        }
+                    } else {
+                        updateCell(position) {
+                            it.copy(rotatedParts = it.rotatedParts + delta)
+                        }
+                    }
+
+                }
+                !lastIteration
             }
         }
 
@@ -150,7 +170,12 @@ fun GameViewModel(): ViewModel<GameState, GameEvent> {
     }
 }
 
-const val winningAnimationSpeed=3000
+private fun Grid.getPendingCell(): Cell? =
+    cells.filter { it.rotations % Direction.entries.size != 0 && it.locked }.randomOrNull()
+        ?: cells.filter { it.rotations % Direction.entries.size != 0 && it.endPoint.isEmpty() }.randomOrNull()
+        ?: cells.filter { it.rotations % Direction.entries.size != 0 }.randomOrNull()
+
+const val winningAnimationSpeed = 3000
 
 fun newLevel(
     levelType: LevelType = LevelType.entries.first(),

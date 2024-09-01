@@ -1,4 +1,4 @@
-#Heylaser
+# Hexlaser
 
 is a kmp puzzle game
 
