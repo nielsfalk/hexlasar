@@ -6,7 +6,7 @@ import kotlin.random.Random
 private val Cell.freeNeighbors: Map<Direction, Cell>
     get() = neighbors.filter { (_, cell) -> cell.source == null && cell.connections.isEmpty() }
 
-private val Grid.emptyCells: List<Cell>
+internal val Grid.emptyCells: List<Cell>
     get() = cells.filter { it.source == null && it.connections.isEmpty() }
 
 
@@ -93,7 +93,7 @@ class LevelGenerator(
     private fun generateSource() {
         grid.emptyCells.filter {
             it.neighbors.any { (_,neighbor)-> neighbor.connections.isEmpty()}
-        }.randomOrNull()?.let {
+        }.randomOrNull(random)?.let {
             grid = grid.update(
                 it.copy(
                     source = Color.random(random),

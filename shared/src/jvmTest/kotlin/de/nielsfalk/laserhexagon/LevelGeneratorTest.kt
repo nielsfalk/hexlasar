@@ -1,6 +1,7 @@
 package de.nielsfalk.laserhexagon
 
 import io.kotest.core.spec.style.FreeSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 
 class LevelGeneratorTest:FreeSpec({
@@ -9,7 +10,7 @@ class LevelGeneratorTest:FreeSpec({
             0, //first Source
             0, //its color
             0, //use source
-            60, //percentage
+            0, //percentage
             0,0,0,0,0,0,0,0,0,
             //scramble
             1,1,1,1,1,1,1,1,1
@@ -23,8 +24,10 @@ class LevelGeneratorTest:FreeSpec({
             random = random
         )
 
-        val grid = levelGenerator.generate()
+        val grid = levelGenerator.generate().followPathComplete()
 
-        grid.sources.size shouldBe 1
+        grid.sources shouldHaveSize  1
+        grid.endpoints shouldHaveSize 4
+        grid.emptyCells shouldHaveSize 0
     }
 })
