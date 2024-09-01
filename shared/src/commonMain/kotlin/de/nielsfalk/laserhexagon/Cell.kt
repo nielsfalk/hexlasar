@@ -5,8 +5,8 @@ import de.nielsfalk.laserhexagon.Direction.*
 
 data class Cell(
     val position: Position,
-    val source: COLOR? = null,
-    val endPoint: Set<COLOR> = emptySet(),
+    val source: Color? = null,
+    val endPoint: Set<Color> = emptySet(),
     val initialRotation: Int = 0,
     val rotatedParts: Int = 0,
     val rotations: Int = 0,
@@ -69,8 +69,8 @@ data class Cell(
 
 data class Position(val x: Int, val y: Int)
 
-enum class COLOR {
-    RED, YELLOW, BLUE;
+enum class Color {
+    Red, Yellow, Blue;
 
     companion object
 }

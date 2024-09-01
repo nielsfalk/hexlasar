@@ -110,7 +110,7 @@ class LevelGenerator(
     private fun generateSource() {
         grid = grid.update(
             grid.emptyCells.random(random).copy(
-                source = COLOR.random(random),
+                source = Color.random(random),
             )
         )
     }
@@ -151,5 +151,5 @@ private fun Map<Direction, Cell>.take(random: Random, connectionCount: Int): Map
         result
     }
 
-private fun COLOR.Companion.random(random: Random): COLOR =
-    COLOR.entries[random.nextInt(COLOR.entries.size)]
+private fun Color.Companion.random(random: Random): Color =
+    Color.entries[random.nextInt(Color.entries.size)]

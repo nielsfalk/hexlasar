@@ -10,8 +10,8 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.unit.dp
+import de.nielsfalk.laserhexagon.ui.Color.Companion.Black
 import de.nielsfalk.laserhexagon.ui.GameEvent.*
 
 @Composable

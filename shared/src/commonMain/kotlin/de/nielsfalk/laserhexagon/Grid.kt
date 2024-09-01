@@ -1,8 +1,8 @@
 package de.nielsfalk.laserhexagon
 
-import de.nielsfalk.laserhexagon.COLOR.BLUE
-import de.nielsfalk.laserhexagon.COLOR.RED
-import de.nielsfalk.laserhexagon.COLOR.YELLOW
+import de.nielsfalk.laserhexagon.Color.Blue
+import de.nielsfalk.laserhexagon.Color.Red
+import de.nielsfalk.laserhexagon.Color.Yellow
 import de.nielsfalk.laserhexagon.Direction.BOTTOMLEFT
 import de.nielsfalk.laserhexagon.Direction.BOTTOMRIGHT
 import de.nielsfalk.laserhexagon.Direction.LEFT
@@ -42,7 +42,7 @@ data class Grid(
         update(*modifiedCells.toTypedArray())
 
     val sources by lazy {
-        COLOR.entries.map { color ->
+        Color.entries.map { color ->
             color to cells.filter { it.source == color }
         }.flatMap { (color, cells) ->
             cells.map { it to color }
@@ -86,23 +86,23 @@ val testGrid = Grid(5, 6).run {
     update(
         cellIterator.next().copy(
             connections = setOf(LEFT),
-            source = RED
+            source = Red
         ),
         cellIterator.next().copy(
             connections = setOf(TOPLEFT),
-            source = BLUE
+            source = Blue
         ),
         cellIterator.next().copy(
             connections = setOf(TOPRIGHT),
-            source = YELLOW
+            source = Yellow
         ),
         cellIterator.next().copy(
             connections = setOf(RIGHT),
-            endPoint = setOf(RED)
+            endPoint = setOf(Red)
         ),
         cellIterator.next().copy(
             connections = setOf(BOTTOMRIGHT),
-            endPoint = setOf(RED, YELLOW)
+            endPoint = setOf(Red, Yellow)
         ),
         cellIterator.next().copy(connections = setOf(BOTTOMLEFT)),
         cellIterator.next().copy(connections = Direction.entries.toSet()),

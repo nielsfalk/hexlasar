@@ -1,7 +1,7 @@
 package de.nielsfalk.laserhexagon
 
-import de.nielsfalk.laserhexagon.COLOR.RED
-import de.nielsfalk.laserhexagon.COLOR.YELLOW
+import de.nielsfalk.laserhexagon.Color.Red
+import de.nielsfalk.laserhexagon.Color.Yellow
 import de.nielsfalk.laserhexagon.Direction.LEFT
 import de.nielsfalk.laserhexagon.Direction.RIGHT
 import io.kotest.core.spec.style.FreeSpec
@@ -13,7 +13,7 @@ class GlowPathTest : FreeSpec({
         val grid = Grid(3, 1).let {
             it.update(
                 it[0, 0].copy(
-                    source = RED,
+                    source = Red,
                     connections = setOf(RIGHT)
                 ),
                 it[1, 0].copy(
@@ -32,7 +32,7 @@ class GlowPathTest : FreeSpec({
             sources = listOf(
                 GlowPathEntry(
                     position = Position(x = 0, y = 0),
-                    color = RED,
+                    color = Red,
                 )
             )
         )
@@ -42,7 +42,7 @@ class GlowPathTest : FreeSpec({
         val grid = Grid(3, 1).let {
             it.update(
                 it[0, 0].copy(
-                    source = RED,
+                    source = Red,
                     connections = setOf(RIGHT)
                 ),
                 it[1, 0].copy(
@@ -61,7 +61,7 @@ class GlowPathTest : FreeSpec({
             sources = listOf(
                 GlowPathEntry(
                     position = Position(x = 0, y = 0),
-                    color = RED,
+                    color = Red,
                 )
             )
         )
@@ -71,7 +71,7 @@ class GlowPathTest : FreeSpec({
         val grid = Grid(3, 1).let {
             it.update(
                 it[0, 0].copy(
-                    source = RED,
+                    source = Red,
                     connections = setOf(RIGHT)
                 ),
                 it[1, 0].copy(
@@ -89,17 +89,17 @@ class GlowPathTest : FreeSpec({
             sources = listOf(
                 GlowPathEntry(
                     position = Position(x = 0, y = 0),
-                    color = RED,
+                    color = Red,
                     children = listOf(
                         GlowPathEntry(
                             position = Position(x = 1, y = 0),
                             parentPostition = Position(x = 0, y = 0),
-                            color = RED,
+                            color = Red,
                             children = listOf(
                                 GlowPathEntry(
                                     position = Position(x = 2, y = 0),
                                     parentPostition = Position(x = 1, y = 0),
-                                    color = RED,
+                                    color = Red,
                                     children = listOf()
                                 )
                             )
@@ -113,7 +113,7 @@ class GlowPathTest : FreeSpec({
         val grid = Grid(3, 1).let {
             it.update(
                 it[0, 0].copy(
-                    source = RED,
+                    source = Red,
                     connections = setOf(RIGHT)
                 ),
                 it[1, 0].copy(
@@ -121,29 +121,29 @@ class GlowPathTest : FreeSpec({
                 ),
                 it[2, 0].copy(
                     connections = setOf(LEFT),
-                    source = YELLOW
+                    source = Yellow
                 )
             )
         }
 
             .initGlowPath().followPathComplete().removeDisconnectedFromPaths()
 
-        grid.glowPath[1, 0] shouldContainExactly setOf(RED, YELLOW)
+        grid.glowPath[1, 0] shouldContainExactly setOf(Red, Yellow)
     }
     "not solved"{
         Grid(3, 1).let {
             it.update(
                 it[0, 0].copy(
-                    source = RED,
+                    source = Red,
                     connections = setOf(RIGHT)
                 ),
                 it[1, 0].copy(
                     connections = setOf(LEFT, RIGHT),
-                    endPoint = setOf(RED, YELLOW)
+                    endPoint = setOf(Red, Yellow)
                 ),
                 it[2, 0].copy(
                     connections = setOf(),
-                    source = YELLOW
+                    source = Yellow
                 )
             )
         }.initGlowPath().followPathComplete()
@@ -154,16 +154,16 @@ class GlowPathTest : FreeSpec({
         Grid(3, 1).let {
             it.update(
                 it[0, 0].copy(
-                    source = RED,
+                    source = Red,
                     connections = setOf(RIGHT)
                 ),
                 it[1, 0].copy(
                     connections = setOf(LEFT, RIGHT),
-                    endPoint = setOf(RED, YELLOW)
+                    endPoint = setOf(Red, Yellow)
                 ),
                 it[2, 0].copy(
                     connections = setOf(LEFT),
-                    source = YELLOW
+                    source = Yellow
                 )
             )
         }.initGlowPath().followPathComplete()

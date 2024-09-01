@@ -7,16 +7,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import de.nielsfalk.laserhexagon.*
-import de.nielsfalk.laserhexagon.ui.BorderConnectWrapper.Companion.borderConnectWrapper
 import de.nielsfalk.laserhexagon.Direction.*
+import de.nielsfalk.laserhexagon.ui.BorderConnectWrapper.Companion.borderConnectWrapper
+import de.nielsfalk.laserhexagon.ui.Color.Companion.Black
+import de.nielsfalk.laserhexagon.ui.Color.Companion.DarkGray
+import de.nielsfalk.laserhexagon.ui.Color.Companion.White
+import de.nielsfalk.laserhexagon.ui.Color.Companion.toColor
+import de.nielsfalk.laserhexagon.ui.Color.Companion.winningColors
 import de.nielsfalk.laserhexagon.ui.GameEvent.RotateCell
 import kotlin.math.*
-import de.nielsfalk.laserhexagon.COLOR as CellColor
 
 
 @Composable
@@ -52,7 +55,7 @@ fun GameCanvas(
             }
 
             else -> {
-                drawRect(color = Color.Black, size = size)
+                drawRect(color = Black, size = size)
 
                 drawGame(state)
                 cellCenterPoints = mutableMapOf<Offset, Position>().apply {
@@ -99,14 +102,14 @@ private fun CellDrawScope.drawMiddlePoint(
 ) {
     onLayer(1) {
         drawCircle(
-            color = Color.White,
+            color = White,
             radius = partsPixel * 0.345f,
             center = cellCenterOffset
         )
     }
     onLayer(2) {
         drawCircle(
-            color = Color.DarkGray,
+            color = DarkGray,
             radius = partsPixel * 0.33f,
             center = cellCenterOffset
         )
@@ -139,7 +142,7 @@ private fun CellDrawScope.drawEndpoint(
         if (connectedColor.containsAll(cell.endPoint)) {
             onLayer(4) {
                 drawCircle(
-                    color = Color.White,
+                    color = White,
                     radius = partsPixel * 0.75f,
                     center = cellCenterOffset,
                     style = Stroke(partsPixel * 0.2f)
@@ -167,7 +170,7 @@ private fun CellDrawScope.drawConnections(
         val middleAngle = startAngle + 360 / 12 / 2
         onLayer(1) {
             drawLine(
-                color = Color.White,
+                color = White,
                 start = cellCenterOffset,
                 end = plusAngle(angle = middleAngle, length = partsPixel),
                 strokeWidth = partsPixel * 0.36f
@@ -175,7 +178,7 @@ private fun CellDrawScope.drawConnections(
         }
         onLayer(2) {
             drawLine(
-                color = Color.DarkGray,
+                color = DarkGray,
                 start = cellCenterOffset,
                 end = plusAngle(angle = middleAngle, length = partsPixel),
                 strokeWidth = partsPixel * 0.33f
@@ -207,7 +210,7 @@ private fun Float.toRadians(): Float = this * 0.017453292519943295f
 
 private fun CellDrawScope.drawCellBorder(partsPixel: Float) {
     drawCircle(
-        color = Color.White,
+        color = White,
         radius = partsPixel,
         center = cellCenterOffset,
         style = Stroke(partsPixel / 50)
@@ -217,37 +220,13 @@ private fun CellDrawScope.drawCellBorder(partsPixel: Float) {
 private fun CellDrawScope.drawCellLock(partsPixel: Float) {
     if (cell.locked) {
         drawCircle(
-            color = Color.White,
+            color = White,
             radius = partsPixel * 0.9f,
             center = cellCenterOffset,
             style = Stroke(partsPixel / 40)
         )
     }
 }
-
-private fun CellColor.toColor() =
-    when (this) {
-        CellColor.RED -> Color.Red
-        CellColor.YELLOW -> Color.Yellow
-        CellColor.BLUE -> Color.Blue
-    }
-
-private fun Set<CellColor>.toColor() =
-    usedColors.firstOrNull { (_, set) -> set == this }?.first
-
-private val usedColors = listOf(
-    Color.White to setOf(CellColor.RED, CellColor.YELLOW,CellColor.BLUE),
-    Color.Yellow to setOf(CellColor.YELLOW),
-    Color(0xffFF9900) to setOf(CellColor.YELLOW, CellColor.RED),
-    Color.Red to setOf(CellColor.RED),
-    Color(0xffa818cc) to setOf(CellColor.RED, CellColor.BLUE),
-    Color.Blue to setOf(CellColor.BLUE),
-    Color.Green to setOf(CellColor.BLUE, CellColor.YELLOW),
-)
-
-
-
-private val winningColors =  usedColors.map { it.first } + usedColors.first().first + Color.White
 
 private fun DrawScope.onAllCells(originalGrid: Grid, width: Float, function: CellDrawScope.() -> Unit) {
     val grid = originalGrid.borderConnectWrapper()
