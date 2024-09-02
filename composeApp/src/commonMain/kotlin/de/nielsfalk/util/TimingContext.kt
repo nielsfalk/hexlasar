@@ -1,4 +1,4 @@
-package de.nielsfalk.laserhexagon.ui
+package de.nielsfalk.util
 
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock

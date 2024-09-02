@@ -1,171 +1,163 @@
 package de.nielsfalk.laserhexagon.ui
 
-import androidx.compose.runtime.*
 import de.nielsfalk.laserhexagon.*
 import de.nielsfalk.laserhexagon.ui.HexlaserEvent.*
-import de.nielsfalk.laserhexagon.ui.TimingContext.Companion.repeatWithTiming
+import de.nielsfalk.util.TimingContext.Companion.repeatWithTiming
+import de.nielsfalk.util.ViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
-@Composable
-fun HexlaserViewModel(): ViewModel<HexLaserState, HexlaserEvent> {
-    val viewModelScope = rememberCoroutineScope()
+class HexlaserViewModel : ViewModel<HexLaserState, HexlaserEvent>() {
 
-    var state by remember { mutableStateOf(HexLaserState(newLevel())) }
+    private fun updateGrid(function: (Grid) -> Grid) {
+        state.update { it.copy(grid = function(it.grid)) }
+    }
 
-    return object : ViewModel<HexLaserState, HexlaserEvent>(state, { state = it }) {
-
-
-        private fun updateGrid(function: (Grid) -> Grid) {
-            state.update { it.copy(grid = function(it.grid)) }
+    private fun updateCell(position: Position, function: (Cell) -> Cell) {
+        updateGrid {
+            it.update(function(it[position]))
         }
+    }
 
-        private fun updateCell(position: Position, function: (Cell) -> Cell) {
+    private suspend fun glow() {
+        var ongoing = true
+        while (ongoing) {
             updateGrid {
-                it.update(function(it[position]))
+                val oldState = it
+                val newState = it.followPath()
+                ongoing = oldState != newState
+                newState
             }
+            delay(glowSpeed.milliseconds)
         }
+    }
 
-        private suspend fun glow() {
-            var ongoing = true
-            while (ongoing) {
-                updateGrid {
-                    val oldState = it
-                    val newState = it.followPath()
-                    ongoing = oldState != newState
-                    newState
-                }
-                delay(glowSpeed.milliseconds)
+    override fun onEvent(event: HexlaserEvent) {
+        when (event) {
+            is RotateCell -> {
+                launchRotation(event.cellPosition)
             }
-        }
 
-        override fun onEvent(event: HexlaserEvent) {
-            when (event) {
-                is RotateCell -> {
-                    launchRotation(event.cellPosition)
-                }
-
-                is LockCell -> {
-                    updateCell(event.cellPosition) { it.toggleLock() }
-                }
-
-                Retry -> {
-                    updateGrid { it.reset() }
-                    viewModelScope.launch {
-                        glow()
-                    }
-                }
-
-                Next -> {
-                    updateGrid { newLevel(state.levelType, state.toggleXYWithLevelGeneration) }
-                    viewModelScope.launch {
-                        glow()
-                    }
-                }
-
-                LevelUp -> {
-                    state.update {
-                        val levelType = state.levelType.next()
-                        it.copy(
-                            grid = newLevel(
-                                levelType = levelType,
-                                toggleXYWithLevelGeneration = state.toggleXYWithLevelGeneration
-                            ),
-                            levelType = levelType
-                        )
-                    }
-                    viewModelScope.launch {
-                        glow()
-                    }
-                }
-
-                is ToggleXYWithLevelGeneration -> {
-                    state.update {
-                        state.copy(toggleXYWithLevelGeneration = event.toggle)
-                    }
-                    onEvent(Next)
-                }
-
-                Hint -> {
-                    if (!state.grid.solved) {
-                        state.grid.getPendingCell()?.let {
-                            val position = it.position
-                            updateCell(position) { cell ->
-                                cell.copy(locked = true)
-                            }
-                            val pendingRotations = Direction.entries.size - (it.rotations % Direction.entries.size)
-                            repeat(pendingRotations) {
-                                viewModelScope.launch {
-                                    rotate(position)
-                                }
-                            }
-                        }
-                    }
-                }
+            is LockCell -> {
+                updateCell(event.cellPosition) { it.toggleLock() }
             }
-        }
 
-        private fun launchRotation(position: Position) {
-            if (!state.grid[position].locked) {
+            Retry -> {
+                updateGrid { it.reset() }
                 viewModelScope.launch {
-                    rotate(position)
+                    glow()
                 }
             }
-        }
 
-        private suspend fun rotate(position: Position) {
-            updateGrid {
-                val cell = it[position]
-                it.update(
-                    cell.copy(rotatedParts = cell.rotatedParts + 1)
-                )
-                    .removeDisconnectedFromPaths()
+            Next -> {
+                updateGrid { newLevel(state.levelType, state.toggleXYWithLevelGeneration) }
+                viewModelScope.launch {
+                    glow()
+                }
             }
-            repeatWithTiming {
-                val lastIteration = spendTime >= rotationSpeed
-                if (delta == 0)
-                    delay(1)
-                else {
-                    if (lastIteration) {
-                        updateGrid {
-                            val cell = it[position]
-                            it.update(
-                                cell.copy(
-                                    rotatedParts = cell.rotatedParts + delta - spendTime - 1,
-                                    rotations = cell.rotations + 1
-                                )
-                            )
-                                .removeDisconnectedFromPaths()
+
+            LevelUp -> {
+                state.update {
+                    val levelType = state.levelType.next()
+                    it.copy(
+                        grid = newLevel(
+                            levelType = levelType,
+                            toggleXYWithLevelGeneration = state.toggleXYWithLevelGeneration
+                        ),
+                        levelType = levelType
+                    )
+                }
+                viewModelScope.launch {
+                    glow()
+                }
+            }
+
+            is ToggleXYWithLevelGeneration -> {
+                state.update {
+                    state.copy(toggleXYWithLevelGeneration = event.toggle)
+                }
+                onEvent(Next)
+            }
+
+            Hint -> {
+                if (!state.grid.solved) {
+                    state.grid.getPendingCell()?.let {
+                        val position = it.position
+                        updateCell(position) { cell ->
+                            cell.copy(locked = true)
                         }
-                        delay(1)
-                        glow()
-                        if (state.grid.solved) {
-                            winning()
-                        }
-                    } else {
-                        updateCell(position) {
-                            it.copy(rotatedParts = it.rotatedParts + delta)
+                        val pendingRotations = Direction.entries.size - (it.rotations % Direction.entries.size)
+                        repeat(pendingRotations) {
+                            viewModelScope.launch {
+                                rotate(position)
+                            }
                         }
                     }
-
                 }
-                !lastIteration
             }
         }
+    }
 
-        private suspend fun winning() {
-            updateGrid(Grid::lockAllCells)
-            repeatWithTiming {
-                state.update {
-                    it.copy(solvingAnimationSpendTime = spendTime)
-                }
+    private fun launchRotation(position: Position) {
+        if (!state.grid[position].locked) {
+            viewModelScope.launch {
+                rotate(position)
+            }
+        }
+    }
+
+    private suspend fun rotate(position: Position) {
+        updateGrid {
+            val cell = it[position]
+            it.update(
+                cell.copy(rotatedParts = cell.rotatedParts + 1)
+            )
+                .removeDisconnectedFromPaths()
+        }
+        repeatWithTiming {
+            val lastIteration = spendTime >= rotationSpeed
+            if (delta == 0)
                 delay(1)
-                spendTime < winningAnimationSpeed
+            else {
+                if (lastIteration) {
+                    updateGrid {
+                        val cell = it[position]
+                        it.update(
+                            cell.copy(
+                                rotatedParts = cell.rotatedParts + delta - spendTime - 1,
+                                rotations = cell.rotations + 1
+                            )
+                        )
+                            .removeDisconnectedFromPaths()
+                    }
+                    delay(1)
+                    glow()
+                    if (state.grid.solved) {
+                        winning()
+                    }
+                } else {
+                    updateCell(position) {
+                        it.copy(rotatedParts = it.rotatedParts + delta)
+                    }
+                }
+
             }
+            !lastIteration
+        }
+    }
+
+    private suspend fun winning() {
+        updateGrid(Grid::lockAllCells)
+        repeatWithTiming {
             state.update {
-                it.copy(solvingAnimationSpendTime = null)
+                it.copy(solvingAnimationSpendTime = spendTime)
             }
+            delay(1)
+            spendTime < winningAnimationSpeed
+        }
+        state.update {
+            it.copy(solvingAnimationSpendTime = null)
         }
     }
 }
