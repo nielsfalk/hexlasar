@@ -14,14 +14,14 @@ import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
-import de.nielsfalk.laserhexagon.ui.GameEvent.*
+import de.nielsfalk.laserhexagon.ui.HexlaserEvent.*
 import de.nielsfalk.laserhexagon.ui.Icons.Companion.hint
 import de.nielsfalk.laserhexagon.ui.Icons.Companion.next
 
 @Composable
 fun Buttons(
-    onEvent: (GameEvent) -> Unit,
-    state: GameState
+    onEvent: (HexlaserEvent) -> Unit,
+    state: HexLaserState
 ) {
     Row(
         Modifier

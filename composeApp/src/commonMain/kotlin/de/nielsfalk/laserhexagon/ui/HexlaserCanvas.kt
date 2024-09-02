@@ -2,6 +2,7 @@ package de.nielsfalk.laserhexagon.ui
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.*
@@ -17,57 +18,60 @@ import de.nielsfalk.laserhexagon.ui.Color.Companion.Black
 import de.nielsfalk.laserhexagon.ui.Color.Companion.White
 import de.nielsfalk.laserhexagon.ui.Color.Companion.toColor
 import de.nielsfalk.laserhexagon.ui.Color.Companion.winningColors
-import de.nielsfalk.laserhexagon.ui.GameEvent.RotateCell
+import de.nielsfalk.laserhexagon.ui.HexlaserEvent.RotateCell
 import kotlin.math.*
 
 
 @Composable
-fun GameCanvas(
-    state: GameState,
-    onEvent: (GameEvent) -> Unit,
+fun HexlaserCanvas(
+    state: HexLaserState,
+    onEvent: (HexlaserEvent) -> Unit,
 ) {
     var cellCenterPoints by remember { mutableStateOf(mapOf<Offset, Position>()) }
-
-    Canvas(
-        modifier = Modifier.pointerInput(Unit) {
-            detectTapGestures(
-                onTap = { offset ->
-                    cellCenterPoints.cellCloseTo(offset)
-                        ?.let { onEvent(RotateCell(it)) }
-                },
-                onLongPress = { offset ->
-                    cellCenterPoints.cellCloseTo(offset)
-                        ?.let { onEvent(GameEvent.LockCell(it)) }
+    Box(){
+        Canvas(
+            modifier = Modifier.pointerInput(Unit) {
+                detectTapGestures(
+                    onTap = { offset ->
+                        cellCenterPoints.cellCloseTo(offset)
+                            ?.let { onEvent(RotateCell(it)) }
+                    },
+                    onLongPress = { offset ->
+                        cellCenterPoints.cellCloseTo(offset)
+                            ?.let { onEvent(HexlaserEvent.LockCell(it)) }
+                    }
+                )
+            }
+                .fillMaxWidth()
+                .fillMaxHeight()) {
+            val grid = state.grid
+            when {
+                size.run { width > height } && grid.run { x < y } && !grid.started -> {
+                    onEvent(HexlaserEvent.ToggleXYWithLevelGeneration(true))
                 }
-            )
-        }
-            .fillMaxWidth()
-            .fillMaxHeight()) {
-        val grid = state.grid
-        when {
-            size.run { width > height } && grid.run { x < y } && !grid.started -> {
-                onEvent(GameEvent.ToggleXYWithLevelGeneration(true))
-            }
 
-            size.run { width < height } && grid.run { x > y } && !grid.started -> {
-                onEvent(GameEvent.ToggleXYWithLevelGeneration(false))
-            }
+                size.run { width < height } && grid.run { x > y } && !grid.started -> {
+                    onEvent(HexlaserEvent.ToggleXYWithLevelGeneration(false))
+                }
 
-            else -> {
-                drawRect(color = Black, size = size)
+                else -> {
+                    drawRect(color = Black, size = size)
 
-                drawGame(state)
-                cellCenterPoints = mutableMapOf<Offset, Position>().apply {
-                    onAllCells(grid) {
-                        put(cellCenterOffset, cell.position)
+                    drawGame(state)
+                    cellCenterPoints = mutableMapOf<Offset, Position>().apply {
+                        onAllCells(grid) {
+                            put(cellCenterOffset, cell.position)
+                        }
                     }
                 }
             }
         }
+
     }
+
 }
 
-private fun DrawScope.drawGame(state: GameState) {
+private fun DrawScope.drawGame(state: HexLaserState) {
     val grid = state.grid
     onAllCells(grid) {
         drawCellBorder(partsPixel)

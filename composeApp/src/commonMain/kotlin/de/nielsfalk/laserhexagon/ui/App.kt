@@ -8,10 +8,10 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Preview
 fun App() {
     MaterialTheme {
-        val viewModel = GameViewModel()
+        val viewModel = HexlaserViewModel()
 
 
-        GameScreen(
+        HexlaserScreen(
             state = viewModel.state,
             onEvent = viewModel::onEvent,
         )

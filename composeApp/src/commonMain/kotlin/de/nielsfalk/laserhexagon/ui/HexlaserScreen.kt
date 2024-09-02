@@ -9,14 +9,14 @@ import androidx.compose.ui.Modifier
 import de.nielsfalk.laserhexagon.ui.Color.Companion.Black
 
 @Composable
-fun GameScreen(
-    state: GameState,
-    onEvent: (GameEvent) -> Unit
+fun HexlaserScreen(
+    state: HexLaserState,
+    onEvent: (HexlaserEvent) -> Unit
 ) {
 
     Column(Modifier.fillMaxWidth().background(Black), horizontalAlignment = Alignment.CenterHorizontally) {
         Buttons(onEvent, state)
-        GameCanvas(
+        HexlaserCanvas(
             state = state,
             onEvent = onEvent,
         )

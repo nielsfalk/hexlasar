@@ -2,19 +2,19 @@ package de.nielsfalk.laserhexagon.ui
 
 import androidx.compose.runtime.*
 import de.nielsfalk.laserhexagon.*
-import de.nielsfalk.laserhexagon.ui.GameEvent.*
+import de.nielsfalk.laserhexagon.ui.HexlaserEvent.*
 import de.nielsfalk.laserhexagon.ui.TimingContext.Companion.repeatWithTiming
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
-fun GameViewModel(): ViewModel<GameState, GameEvent> {
+fun HexlaserViewModel(): ViewModel<HexLaserState, HexlaserEvent> {
     val viewModelScope = rememberCoroutineScope()
 
-    var state by remember { mutableStateOf(GameState(newLevel())) }
+    var state by remember { mutableStateOf(HexLaserState(newLevel())) }
 
-    return object : ViewModel<GameState, GameEvent>(state, { state = it }) {
+    return object : ViewModel<HexLaserState, HexlaserEvent>(state, { state = it }) {
 
 
         private fun updateGrid(function: (Grid) -> Grid) {
@@ -40,7 +40,7 @@ fun GameViewModel(): ViewModel<GameState, GameEvent> {
             }
         }
 
-        override fun onEvent(event: GameEvent) {
+        override fun onEvent(event: HexlaserEvent) {
             when (event) {
                 is RotateCell -> {
                     launchRotation(event.cellPosition)

@@ -3,7 +3,7 @@ package de.nielsfalk.laserhexagon.ui
 import de.nielsfalk.laserhexagon.Grid
 import de.nielsfalk.laserhexagon.LevelType
 
-data class GameState(
+data class HexLaserState(
     val grid: Grid,
     val toggleXYWithLevelGeneration:Boolean=false,
     val levelType: LevelType = LevelType.entries.first(),
