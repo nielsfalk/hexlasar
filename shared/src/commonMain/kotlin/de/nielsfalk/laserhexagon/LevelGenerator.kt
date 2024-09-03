@@ -30,10 +30,11 @@ class LevelGenerator(
             repeat(x * y) { generateNextPart() }
             removeUnconnectedSources()
             repeat(sourceCount - 1) { generateNextPart() }
-            repeat(random.nextInt(3)) {
-                connectColors()
-            }
-            if (maxPrismaCount > 0) {
+            if (maxPrismaCount == 0) {
+                repeat(random.nextInt(3)) {
+                    connectColors()
+                }
+            } else {
                 repeat(random.nextInt(maxPrismaCount)) {
                     addPrisma()
                 }
@@ -44,7 +45,10 @@ class LevelGenerator(
         }
 
     private fun addPrisma() {
-        grid.cells.filter { it.source == null && it.connections.size == 2 }
+        glow()
+        grid.cells.filter {
+            it.source == null && it.connections.size == 2 && grid.glowPath[it.position].size == 1
+        }
             .randomOrNull(random)
             ?.let {
                 grid = grid.update(

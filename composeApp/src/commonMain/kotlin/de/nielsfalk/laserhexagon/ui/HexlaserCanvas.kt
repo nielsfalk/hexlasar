@@ -195,7 +195,7 @@ private fun CellDrawScope.drawConnections(
     partsPixel: Float,
     glowPath: GlowPath
 ) {
-    val connectedColor = glowPath[cell.position]?.toColor()
+    val connectedColor = glowPath[cell.position].toColor()
     cell.openCircleParts.forEach { circlePart ->
         val angleOffset = -90f - 360 / 12 / 2
         val startAngle = ((angleOffset + 360 * circlePart / 12) + cell.rotationWithParts * 360 / 6) % 360f
@@ -225,6 +225,7 @@ private fun CellDrawScope.drawConnections(
                     strokeWidth = partsPixel * 0.1f
                 )
             }
+
         }
 
     }

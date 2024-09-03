@@ -76,6 +76,8 @@ enum class Color {
     companion object
 }
 
+val Color.next get() = Color.entries[(ordinal + 1) % Color.entries.size]
+
 enum class Direction {
     LEFT, TOPLEFT, TOPRIGHT, RIGHT, BOTTOMRIGHT, BOTTOMLEFT;
 

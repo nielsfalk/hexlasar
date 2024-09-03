@@ -26,6 +26,7 @@ data class GlowPathEntry(
     val position: Position,
     val parentPostition: Position? = null,
     val color: Color,
+    val prismaFrom: Pair<Direction, Color>? = null,
     val children: List<GlowPathEntry> = listOf(),
 )
 
@@ -54,15 +55,24 @@ fun Grid.followPath(): Grid =
 
 fun GlowPathEntry.follow(grid: Grid, root: GlowPathEntry = this): GlowPathEntry {
     val cell = grid[position]
-    val newChildren = cell.connectedNeighborPositions.filter {
-        it !in root
+    val newChildren = cell.connectedNeighbors.filter { (_, cell) ->
+        cell.position !in root
     }
-        .map {
-            GlowPathEntry(
-                position = it,
-                parentPostition = position,
-                color = color
-            )
+        .map { (direction, cell) ->
+            if (cell.prisma) {
+                GlowPathEntry(
+                    position = cell.position,
+                    parentPostition = position,
+                    color = color.next,
+                    prismaFrom= direction.opposite to color
+                )
+            } else {
+                GlowPathEntry(
+                    position = cell.position,
+                    parentPostition = position,
+                    color = color
+                )
+            }
         }
 
     return copy(children = children.map {
