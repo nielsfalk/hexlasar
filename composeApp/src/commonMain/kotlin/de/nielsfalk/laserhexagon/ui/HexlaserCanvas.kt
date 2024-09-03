@@ -2,22 +2,22 @@ package de.nielsfalk.laserhexagon.ui
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import de.nielsfalk.laserhexagon.*
 import de.nielsfalk.laserhexagon.Direction.*
-import de.nielsfalk.laserhexagon.ui.BorderConnectWrapper.Companion.borderConnectWrapper
 import de.nielsfalk.laserhexagon.ui.Color.Companion.Black
 import de.nielsfalk.laserhexagon.ui.Color.Companion.White
 import de.nielsfalk.laserhexagon.ui.Color.Companion.toColor
 import de.nielsfalk.laserhexagon.ui.Color.Companion.winningColors
+import de.nielsfalk.laserhexagon.ui.Grid.Companion.wrapBorderConnectionsAsCellsAgain
 import de.nielsfalk.laserhexagon.ui.HexlaserEvent.RotateCell
 import kotlin.math.*
 
@@ -28,52 +28,50 @@ fun HexlaserCanvas(
     onEvent: (HexlaserEvent) -> Unit,
 ) {
     var cellCenterPoints by remember { mutableStateOf(mapOf<Offset, Position>()) }
-    Box(){
-        Canvas(
-            modifier = Modifier.pointerInput(Unit) {
-                detectTapGestures(
-                    onTap = { offset ->
-                        cellCenterPoints.cellCloseTo(offset)
-                            ?.let { onEvent(RotateCell(it)) }
-                    },
-                    onLongPress = { offset ->
-                        cellCenterPoints.cellCloseTo(offset)
-                            ?.let { onEvent(HexlaserEvent.LockCell(it)) }
-                    }
-                )
+    Canvas(
+        modifier = Modifier.pointerInput(Unit) {
+            detectTapGestures(
+                onTap = { offset ->
+                    cellCenterPoints.cellCloseTo(offset)
+                        ?.let { onEvent(RotateCell(it)) }
+                },
+                onLongPress = { offset ->
+                    cellCenterPoints.cellCloseTo(offset)
+                        ?.let { onEvent(HexlaserEvent.LockCell(it)) }
+                }
+            )
+        }
+            .fillMaxWidth()
+            .fillMaxHeight()) {
+        val grid = state.grid
+        when {
+            size.run { width > height } && grid.run { x < y && !started } -> {
+                onEvent(HexlaserEvent.ToggleXYWithLevelGeneration(true))
             }
-                .fillMaxWidth()
-                .fillMaxHeight()) {
-            val grid = state.grid
-            when {
-                size.run { width > height } && grid.run { x < y } && !grid.started -> {
-                    onEvent(HexlaserEvent.ToggleXYWithLevelGeneration(true))
-                }
 
-                size.run { width < height } && grid.run { x > y } && !grid.started -> {
-                    onEvent(HexlaserEvent.ToggleXYWithLevelGeneration(false))
-                }
+            size.run { width < height } && grid.run { x > y && !started } -> {
+                onEvent(HexlaserEvent.ToggleXYWithLevelGeneration(false))
+            }
 
-                else -> {
-                    drawRect(color = Black, size = size)
+            else -> {
+                drawRect(color = Black, size = size)
 
-                    drawGame(state)
-                    cellCenterPoints = mutableMapOf<Offset, Position>().apply {
-                        onAllCells(grid) {
-                            put(cellCenterOffset, cell.position)
-                        }
-                    }
+                val cellDrawingData = CellDrawingData(
+                    grid = grid.wrapBorderConnectionsAsCellsAgain(),
+                    size = size
+                )
+                drawGame(state, cellDrawingData)
+                cellCenterPoints = cellDrawingData.cellOffsets.associate { (offset, cell) ->
+                    offset to cell.position
                 }
             }
         }
-
     }
-
 }
 
-private fun DrawScope.drawGame(state: HexLaserState) {
+private fun DrawScope.drawGame(state: HexLaserState, cellDrawingData: CellDrawingData) {
     val grid = state.grid
-    onAllCells(grid) {
+    onAllCells(cellDrawingData) {
         drawCellBorder(partsPixel)
         drawCellLock(partsPixel)
         drawConnections(partsPixel, grid.glowPath)
@@ -231,28 +229,37 @@ private fun CellDrawScope.drawCellLock(partsPixel: Float) {
     }
 }
 
-private fun DrawScope.onAllCells(originalGrid: Grid, function: CellDrawScope.() -> Unit) {
-    val grid = originalGrid.borderConnectWrapper()
-    val horizontalParts = grid.x * 2 + 3
-    val verticalParts = grid.y * 2 + 0.7f
-    val partsPixel = min(size.width / horizontalParts, size.height / verticalParts)
-
-    val layerFutures: MutableList<Pair<Int, () -> Unit>> = mutableListOf()
-
-    (0 until grid.x).forEach { x ->
-        (0 until grid.y).forEach { y ->
-            val cellDrawScope = CellDrawScope(
-                drawScope = this,
-                partsPixel = partsPixel,
-                cell = grid[x, y],
-                cellCenterOffset = Offset(
-                    x = ((if (y.odd) 3 else 2) + x * 2) * partsPixel,
-                    y = (1 + y) * sqrt((2 * partsPixel).pow(2) - partsPixel.pow(2))
-                )
-            )
-            cellDrawScope.function()
-            layerFutures += cellDrawScope.layerFutures
+private data class CellDrawingData(
+    val grid: Grid,
+    val size: Size,
+    val horizontalParts: Int = grid.x * 2 + 3,
+    val verticalParts: Float = grid.y * 2 + 0.7f,
+    val radius: Float = min(size.width / horizontalParts, size.height / verticalParts),
+    val cellOffsets: List<Pair<Offset, Cell>> =
+        (0 until grid.x).flatMap { x ->
+            (0 until grid.y).map { y ->
+                Offset(
+                    x = ((if (y.odd) 3 else 2) + x * 2) * radius,
+                    y = (1 + y) * sqrt((2 * radius).pow(2) - radius.pow(2))
+                ) to grid[x, y]
+            }
         }
+)
+
+private fun DrawScope.onAllCells(
+    cellDrawingData: CellDrawingData,
+    function: CellDrawScope.() -> Unit
+) {
+    val layerFutures: MutableList<Pair<Int, () -> Unit>> = mutableListOf()
+    cellDrawingData.cellOffsets.forEach { (offset, cell) ->
+        val cellDrawScope = CellDrawScope(
+            drawScope = this,
+            partsPixel = cellDrawingData.radius,
+            cell = cell,
+            cellCenterOffset = offset
+        )
+            .apply(function)
+        layerFutures += cellDrawScope.layerFutures
     }
     layerFutures.sortedBy { (layer, _) -> layer }
         .forEach { (_, future) -> future() }
@@ -290,18 +297,20 @@ internal fun Map<Offset, Position>.cellCloseTo(tapOffset: Offset): Position? =
     keys.minByOrNull { (it.x - tapOffset.x).absoluteValue + (it.y - tapOffset.y).absoluteValue }
         ?.let { this[it] }
 
-private class BorderConnectWrapper private constructor(val grid: Grid) {
+private class Grid private constructor(
+    private val wrapped: de.nielsfalk.laserhexagon.Grid
+) {
     operator fun get(x: Int, y: Int): Cell =
-        if (x < grid.x && y < grid.y) {
-            grid[x, y]
+        if (x < wrapped.x && y < wrapped.y) {
+            wrapped[x, y]
         } else {
-            grid[x % grid.x, y % grid.y]
+            wrapped[x % wrapped.x, y % wrapped.y]
         }
 
-    val x: Int = if (grid.connectBorders) grid.x + 1 else grid.x
-    val y: Int = if (grid.connectBorders) grid.y + 1 else grid.y
+    val x: Int = if (wrapped.connectBorders) wrapped.x + 1 else wrapped.x
+    val y: Int = if (wrapped.connectBorders) wrapped.y + 1 else wrapped.y
 
     companion object {
-        fun Grid.borderConnectWrapper() = BorderConnectWrapper(this)
+        fun de.nielsfalk.laserhexagon.Grid.wrapBorderConnectionsAsCellsAgain() = Grid(this)
     }
 }
