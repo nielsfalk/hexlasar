@@ -2,8 +2,7 @@ package de.nielsfalk.laserhexagon.ui
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -29,7 +28,7 @@ fun HexlaserCanvas(
     state: HexLaserState,
     onEvent: (HexlaserEvent) -> Unit,
 ) {
-    var cellCenterPoints by remember { mutableStateOf(mapOf<Offset, Position>()) }
+    var cellCenterPoints by remember { mutableStateOf(listOf<Pair<Offset, Position>>()) }
     Canvas(
         modifier = Modifier.pointerInput(Unit) {
             detectTapGestures(
@@ -43,8 +42,7 @@ fun HexlaserCanvas(
                 }
             )
         }
-            .fillMaxWidth()
-            .fillMaxHeight()) {
+            .fillMaxSize()) {
         val grid = state.grid
         when {
             size.run { width > height } && grid.run { x < y && !started } -> {
@@ -63,7 +61,7 @@ fun HexlaserCanvas(
                     size = size
                 )
                 drawGame(state, cellDrawingData)
-                cellCenterPoints = cellDrawingData.cellOffsets.associate { (offset, cell) ->
+                cellCenterPoints = cellDrawingData.cellOffsets.map { (offset, cell) ->
                     offset to cell.position
                 }
             }
@@ -285,9 +283,9 @@ private fun Cell.isOpen(circlePart: Int): Boolean =
 private val Cell.openCircleParts: List<Int>
     get() = (0 until 12).filter { isOpen(it) }
 
-internal fun Map<Offset, Position>.cellCloseTo(tapOffset: Offset): Position? =
-    keys.minByOrNull { (it.x - tapOffset.x).absoluteValue + (it.y - tapOffset.y).absoluteValue }
-        ?.let { this[it] }
+internal fun List<Pair<Offset, Position>>.cellCloseTo(tapOffset: Offset): Position? =
+    minByOrNull { (offset, _) -> (offset.x - tapOffset.x).absoluteValue + (offset.y - tapOffset.y).absoluteValue }
+        ?.let { (_, position) -> position }
 
 private class Grid private constructor(
     private val wrapped: de.nielsfalk.laserhexagon.Grid
