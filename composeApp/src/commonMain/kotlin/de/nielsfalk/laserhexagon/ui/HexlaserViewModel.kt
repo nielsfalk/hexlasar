@@ -133,7 +133,7 @@ class HexlaserViewModel : ViewModel<HexLaserState, HexlaserEvent>() {
                     }
                     delay(1)
                     glow()
-                    if (state.grid.solved) {
+                    if (state.grid.solved && state.solvingAnimationSpendTime ==null) {
                         winning()
                     }
                 } else {
