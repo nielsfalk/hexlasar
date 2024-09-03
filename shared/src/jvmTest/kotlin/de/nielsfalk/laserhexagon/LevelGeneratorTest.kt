@@ -19,7 +19,8 @@ class LevelGeneratorTest:FreeSpec({
             levelProperties = LevelProperties(
                 x = 3,
                 y = 3,
-                sourceCount = 1
+                sourceCount = 1,
+                maxPrismaCount = 0
             ),
             random = random
         )

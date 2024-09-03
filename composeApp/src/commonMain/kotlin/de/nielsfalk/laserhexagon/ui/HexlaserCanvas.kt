@@ -7,6 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
@@ -77,6 +78,7 @@ private fun DrawScope.drawGame(state: HexLaserState, cellDrawingData: CellDrawin
             drawConnections(partsPixel, state.grid.glowPath)
             drawEndpoint(partsPixel, state.grid.glowPath)
             drawMiddlePoint(partsPixel, state.grid.glowPath)
+            drawPrisma(partsPixel)
             drawSource(partsPixel)
         }
     }
@@ -117,9 +119,37 @@ private fun CellDrawScope.drawMiddlePoint(
         )
         glowPath[cell.position].toColor()?.let {
             drawCircle(
-                color = it,
+                color = if (cell.prisma) White else it,
                 radius = partsPixel * 0.1f,
                 center = cellCenterOffset
+            )
+        }
+    }
+}
+
+private fun CellDrawScope.drawPrisma(partsPixel: Float) {
+    if (cell.prisma) {
+        onLayer(4) {
+            drawCircle(
+                color = White,
+                radius = partsPixel * 0.345f,
+                center = cellCenterOffset,
+                style = Stroke(partsPixel / 50)
+            )
+            drawPath(
+                Path().apply {
+                    val x = cellCenterOffset.x
+                    val y = cellCenterOffset.y
+                    val top = y - partsPixel * 0.345f
+                    moveTo(x = x, y = top)
+                    val h = partsPixel * 0.345f * sqrt(3f) * sqrt(3f) / 2
+
+                    lineTo(x = x + h / 2, y = y + h - partsPixel * 0.345f)
+                    lineTo(x = x - h / 2, y = y + h - partsPixel * 0.345f)
+                    lineTo(x = x, y = top)
+                },
+                color = White,
+                style = Stroke(partsPixel / 50)
             )
         }
     }

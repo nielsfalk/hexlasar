@@ -7,19 +7,19 @@ enum class LevelType(
 ) {
     ABSOLUTE_BEGINNER(
         "Absolute beginner",
-        LevelProperties(x = 1, y = 3, sourceCount = 1, rotateObvious = true),
-        LevelProperties(x = 2, y = 2, sourceCount = 1, rotateObvious = true)
+        LevelProperties(x = 1, y = 3, sourceCount = 1, rotateObvious = true, maxPrismaCount = 0),
+        LevelProperties(x = 2, y = 2, sourceCount = 1, rotateObvious = true, maxPrismaCount = 0)
     ),
     EASY(
         "Easy",
-        LevelProperties(x = 2, sourceCount = 1, rotateObvious = true),
-        LevelProperties(x = 2, y = 3, sourceCount = 2, rotateObvious = true)
+        LevelProperties(x = 2, sourceCount = 1, rotateObvious = true, maxPrismaCount = 0),
+        LevelProperties(x = 2, y = 3, sourceCount = 2, rotateObvious = true, maxPrismaCount = 0)
     ),
     INTERMEDIATE(
         "Intermediate",
         LevelProperties(x = 3, sourceCount = 2),
-        LevelProperties(x = 3, sourceCount = 3),
-        LevelProperties(x = 3, sourceCount = 4)
+        LevelProperties(x = 3, sourceCount = 3, maxPrismaCount = 1),
+        LevelProperties(x = 3, sourceCount = 4, maxPrismaCount = 2)
     ),
     HARD(
         "Hard",
@@ -110,5 +110,6 @@ data class LevelProperties(
     val x: Int = 3,
     val y: Int = x * 2,
     val sourceCount: Int = 3,
-    val rotateObvious: Boolean = false
+    val rotateObvious: Boolean = false,
+    val maxPrismaCount: Int = 4
 )

@@ -33,10 +33,27 @@ class LevelGenerator(
             repeat(random.nextInt(3)) {
                 connectColors()
             }
+            if (maxPrismaCount > 0) {
+                repeat(random.nextInt(maxPrismaCount)) {
+                    addPrisma()
+                }
+            }
             setEndPointColors()
             scramble()
             grid.copy(glowPath = GlowPath()).initGlowPath()
         }
+
+    private fun addPrisma() {
+        grid.cells.filter { it.source == null && it.connections.size == 2 }
+            .randomOrNull(random)
+            ?.let {
+                grid = grid.update(
+                    it.copy(
+                        prisma = true,
+                    )
+                )
+            }
+    }
 
     private fun scramble() {
         grid = grid.update(
@@ -92,7 +109,7 @@ class LevelGenerator(
 
     private fun generateSource() {
         grid.emptyCells.filter {
-            it.neighbors.any { (_,neighbor)-> neighbor.connections.isEmpty()}
+            it.neighbors.any { (_, neighbor) -> neighbor.connections.isEmpty() }
         }.randomOrNull(random)?.let {
             grid = grid.update(
                 it.copy(
@@ -120,8 +137,6 @@ class LevelGenerator(
             grid = grid.connect(source, freeNeighbors.take(random, connectionCount))
         }
     }
-
-
 
     private fun generateNextPart() {
         grid.cells.filter { it.connections.size == 1 && it.source == null && it.freeNeighbors.isNotEmpty() }
