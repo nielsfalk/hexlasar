@@ -19,6 +19,8 @@ import de.nielsfalk.laserhexagon.ui.Color.Companion.toColor
 import de.nielsfalk.laserhexagon.ui.Color.Companion.winningColors
 import de.nielsfalk.laserhexagon.ui.Grid.Companion.wrapBorderConnectionsAsCellsAgain
 import de.nielsfalk.laserhexagon.ui.HexlaserEvent.RotateCell
+import de.nielsfalk.util.LayerDrawScope
+import de.nielsfalk.util.layers
 import kotlin.math.*
 
 
@@ -70,14 +72,15 @@ fun HexlaserCanvas(
 }
 
 private fun DrawScope.drawGame(state: HexLaserState, cellDrawingData: CellDrawingData) {
-    val grid = state.grid
-    onAllCells(cellDrawingData) {
-        drawCellBorder(partsPixel)
-        drawCellLock(partsPixel)
-        drawConnections(partsPixel, grid.glowPath)
-        drawEndpoint(partsPixel, grid.glowPath)
-        drawMiddlePoint(partsPixel, grid.glowPath)
-        drawSource(partsPixel)
+    layers {
+        onAllCells(cellDrawingData) {
+            drawCellBorder(partsPixel)
+            drawCellLock(partsPixel)
+            drawConnections(partsPixel, state.grid.glowPath)
+            drawEndpoint(partsPixel, state.grid.glowPath)
+            drawMiddlePoint(partsPixel, state.grid.glowPath)
+            drawSource(partsPixel)
+        }
     }
     drawWinning(state.solvingAnimationSpendTime)
 }
@@ -246,36 +249,27 @@ private data class CellDrawingData(
         }
 )
 
-private fun DrawScope.onAllCells(
+private fun LayerDrawScope.onAllCells(
     cellDrawingData: CellDrawingData,
     function: CellDrawScope.() -> Unit
 ) {
-    val layerFutures: MutableList<Pair<Int, () -> Unit>> = mutableListOf()
     cellDrawingData.cellOffsets.forEach { (offset, cell) ->
-        val cellDrawScope = CellDrawScope(
+        CellDrawScope(
             drawScope = this,
             partsPixel = cellDrawingData.radius,
             cell = cell,
             cellCenterOffset = offset
         )
             .apply(function)
-        layerFutures += cellDrawScope.layerFutures
     }
-    layerFutures.sortedBy { (layer, _) -> layer }
-        .forEach { (_, future) -> future() }
 }
 
 data class CellDrawScope(
-    val drawScope: DrawScope,
+    val drawScope: LayerDrawScope,
     val partsPixel: Float,
     val cell: Cell,
     val cellCenterOffset: Offset
-) : DrawScope by drawScope {
-    val layerFutures: MutableList<Pair<Int, () -> Unit>> = mutableListOf()
-    fun onLayer(layer: Int, function: () -> Unit) {
-        layerFutures += Pair(layer, function)
-    }
-}
+) : LayerDrawScope(drawScope)
 
 private fun Cell.isOpen(circlePart: Int): Boolean =
     when (circlePart) {
@@ -289,9 +283,7 @@ private fun Cell.isOpen(circlePart: Int): Boolean =
     }
 
 private val Cell.openCircleParts: List<Int>
-    get() {
-        return (0 until 12).filter { isOpen(it) }
-    }
+    get() = (0 until 12).filter { isOpen(it) }
 
 internal fun Map<Offset, Position>.cellCloseTo(tapOffset: Offset): Position? =
     keys.minByOrNull { (it.x - tapOffset.x).absoluteValue + (it.y - tapOffset.y).absoluteValue }
