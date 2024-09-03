@@ -30,11 +30,10 @@ class LevelGenerator(
             repeat(x * y) { generateNextPart() }
             removeUnconnectedSources()
             repeat(sourceCount - 1) { generateNextPart() }
-            if (maxPrismaCount == 0) {
-                repeat(random.nextInt(3)) {
-                    connectColors()
-                }
-            } else {
+            repeat(random.nextInt(3)) {
+                connectColors()
+            }
+            if (maxPrismaCount != 0) {
                 repeat(random.nextInt(maxPrismaCount)) {
                     addPrisma()
                 }
@@ -47,7 +46,7 @@ class LevelGenerator(
     private fun addPrisma() {
         glow()
         grid.cells.filter {
-            it.source == null && it.connections.size == 2 && grid.glowPath[it.position].size == 1
+            it.source == null && it.connections.size == 2
         }
             .randomOrNull(random)
             ?.let {
@@ -76,7 +75,7 @@ class LevelGenerator(
         glow()
         grid = grid.update(
             grid.cells.filter { it.source == null && it.connections.size == 1 }
-                .map { it.copy(endPoint = grid.glowPath[it.position]) }
+                .map { it.copy(endPoint = grid.glowPath.colors(it.position)) }
         )
     }
 
@@ -92,10 +91,10 @@ class LevelGenerator(
     }
 
     private fun Cell.getNeighborWithOtherColor(): Map<Direction, Cell> {
-        val colors = this@LevelGenerator.grid.glowPath[position]
+        val colors = this@LevelGenerator.grid.glowPath.colors(position)
         return if (colors.size == 1) {
             neighbors.filter { (_, neighbor) ->
-                neighbor.source == null && colors.first() !in this@LevelGenerator.grid.glowPath[neighbor.position]
+                neighbor.source == null && colors.first() !in this@LevelGenerator.grid.glowPath.colors(neighbor.position)
             }
         } else mapOf()
     }

@@ -123,7 +123,7 @@ class CellTest : FreeSpec({
             BOTTOMRIGHT to BOTTOMLEFT,
             BOTTOMLEFT to LEFT,
         ).forEach { (given, expected) ->
-            "$given rotated is $expected" {
+            "$given rotated by 1 is $expected" {
                 given.rotate(1) shouldBe expected
             }
         }

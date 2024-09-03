@@ -17,17 +17,17 @@ enum class LevelType(
     ),
     INTERMEDIATE(
         "Intermediate",
-        LevelProperties(x = 3, sourceCount = 2),
+        LevelProperties(x = 3, sourceCount = 2, maxPrismaCount = 1),
         LevelProperties(x = 3, sourceCount = 3, maxPrismaCount = 1),
         LevelProperties(x = 3, sourceCount = 4, maxPrismaCount = 2)
     ),
     HARD(
         "Hard",
-        LevelProperties(x = 4, sourceCount = 1),
-        LevelProperties(x = 4, sourceCount = 2),
-        LevelProperties(x = 4, sourceCount = 3),
-        LevelProperties(x = 4, sourceCount = 9),
-        LevelProperties(x = 4, sourceCount = 10),
+        LevelProperties(x = 4, sourceCount = 1, maxPrismaCount = 3),
+        LevelProperties(x = 4, sourceCount = 2, maxPrismaCount = 3),
+        LevelProperties(x = 4, sourceCount = 3, maxPrismaCount = 3),
+        LevelProperties(x = 4, sourceCount = 9, maxPrismaCount = 3),
+        LevelProperties(x = 4, sourceCount = 10, maxPrismaCount = 3),
     ),
     HARDER(
         "Harder",
@@ -49,9 +49,9 @@ enum class LevelType(
     ),
     INSANE(
         "Insane",
-        LevelProperties(x = 4, y = 4, sourceCount = 2),
-        LevelProperties(x = 4, y = 4, sourceCount = 3),
-        LevelProperties(x = 4, y = 4, sourceCount = 4),
+        LevelProperties(x = 4, y = 4, sourceCount = 2, maxPrismaCount = 0),
+        LevelProperties(x = 4, y = 4, sourceCount = 3, maxPrismaCount = 0),
+        LevelProperties(x = 4, y = 4, sourceCount = 4, maxPrismaCount = 0),
         connectBorders = true
     ),
     NIGHTMARE(
@@ -111,5 +111,5 @@ data class LevelProperties(
     val y: Int = x * 2,
     val sourceCount: Int = 3,
     val rotateObvious: Boolean = false,
-    val maxPrismaCount: Int = 4
+    val maxPrismaCount: Int = 17
 )

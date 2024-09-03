@@ -27,7 +27,7 @@ class Color {
         fun Set<CellColor>.toColor(): ComposeColor? =
             usedColorsToCellColors.firstOrNull() { (_, cellColor) -> cellColor == this }?.first
 
-        fun CellColor.toColor() = basicColors[this]!!
+        fun CellColor.toColor(): ComposeColor = basicColors[this]!!
 
         val winningColors = usedColorsToCellColors.map { (composeColor, _) -> composeColor } + Yellow + White
         val basicColors = usedColorsToCellColors.filter { (_, cellColors) -> cellColors.size == 1 }

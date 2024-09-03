@@ -7,6 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -117,7 +118,9 @@ private fun CellDrawScope.drawMiddlePoint(
             radius = partsPixel * 0.33f,
             center = cellCenterOffset
         )
-        glowPath[cell.position].toColor()?.let {
+    }
+    onLayer(4){
+        glowPath.colors(cell.position).toColor()?.let {
             drawCircle(
                 color = if (cell.prisma) White else it,
                 radius = partsPixel * 0.1f,
@@ -170,7 +173,7 @@ private fun CellDrawScope.drawEndpoint(
     glowPath: GlowPath
 ) {
     cell.endPoint.toColor()?.let {
-        val connectedColor = glowPath[cell.position]
+        val connectedColor = glowPath.colors(cell.position)
         if (connectedColor.containsAll(cell.endPoint)) {
             onLayer(1) {
                 drawCircle(
@@ -195,8 +198,7 @@ private fun CellDrawScope.drawConnections(
     partsPixel: Float,
     glowPath: GlowPath
 ) {
-    val connectedColor = glowPath[cell.position].toColor()
-    cell.openCircleParts.forEach { circlePart ->
+    cell.openCircleParts.forEach { (circlePart, direction) ->
         val angleOffset = -90f - 360 / 12 / 2
         val startAngle = ((angleOffset + 360 * circlePart / 12) + cell.rotationWithParts * 360 / 6) % 360f
         val middleAngle = startAngle + 360 / 12 / 2
@@ -217,15 +219,28 @@ private fun CellDrawScope.drawConnections(
             )
         }
         onLayer(3) {
+            val connectedColor: Color? =
+                if (cell.prisma) {
+                    glowPath[cell.position].flatMap {
+                        it.prismaFrom?.let { prismaFrom ->
+                            if (direction.rotate(cell.rotations) == prismaFrom) {
+                                val sourceNe = cell.neighborsPositions[prismaFrom]
+                                sourceNe?.let { glowPath.colors(it) }
+                            } else setOf(it.color)
+                        }
+                            ?: setOf(it.color)
+                    }.toSet().toColor()
+                } else {
+                    glowPath.colors(cell.position).toColor()
+                }
             connectedColor?.let {
                 drawLine(
-                    color = it,
+                    color = connectedColor,
                     start = cellCenterOffset,
                     end = plusAngle(angle = middleAngle, length = partsPixel),
                     strokeWidth = partsPixel * 0.1f
                 )
             }
-
         }
 
     }
@@ -300,19 +315,17 @@ data class CellDrawScope(
     val cellCenterOffset: Offset
 ) : LayerDrawScope(drawScope)
 
-private fun Cell.isOpen(circlePart: Int): Boolean =
-    when (circlePart) {
-        1 -> TOPRIGHT in connections
-        3 -> RIGHT in connections
-        5 -> BOTTOMRIGHT in connections
-        7 -> BOTTOMLEFT in connections
-        9 -> LEFT in connections
-        11 -> TOPLEFT in connections
-        else -> false
+private val Cell.openCircleParts: List<Pair<Int, Direction>>
+    get() {
+        return listOfNotNull(
+            if (TOPRIGHT in connections) 1 to TOPRIGHT else null,
+            if (RIGHT in connections) 3 to RIGHT else null,
+            if (BOTTOMRIGHT in connections) 5 to BOTTOMRIGHT else null,
+            if (BOTTOMLEFT in connections) 7 to BOTTOMLEFT else null,
+            if (LEFT in connections) 9 to LEFT else null,
+            if (TOPLEFT in connections) 11 to TOPLEFT else null
+        )
     }
-
-private val Cell.openCircleParts: List<Int>
-    get() = (0 until 12).filter { isOpen(it) }
 
 internal fun List<Pair<Offset, Position>>.cellCloseTo(tapOffset: Offset): Position? =
     minByOrNull { (offset, _) -> (offset.x - tapOffset.x).absoluteValue + (offset.y - tapOffset.y).absoluteValue }

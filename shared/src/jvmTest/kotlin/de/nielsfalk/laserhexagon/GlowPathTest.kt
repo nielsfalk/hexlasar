@@ -128,7 +128,7 @@ class GlowPathTest : FreeSpec({
 
             .initGlowPath().followPathComplete().removeDisconnectedFromPaths()
 
-        grid.glowPath[1, 0] shouldContainExactly setOf(Red, Yellow)
+        grid.glowPath.colors(1, 0) shouldContainExactly setOf(Red, Yellow)
     }
     "not solved"{
         Grid(3, 1).let {

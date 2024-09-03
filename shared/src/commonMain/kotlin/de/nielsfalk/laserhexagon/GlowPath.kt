@@ -1,7 +1,5 @@
 package de.nielsfalk.laserhexagon
 
-val Cell.connectedNeighborPositions: List<Position>
-    get() = connectedNeighbors.map { (_, cell) -> cell.position }
 val Cell.futureConnectedNeighborPositions: List<Position>
     get() = futureConnectedNeighbors.map { (_, cell) -> cell.position }
 
@@ -9,24 +7,37 @@ data class GlowPath(
     val sources: List<GlowPathEntry> = listOf()
 )
 
-operator fun GlowPath.get(x: Int, y: Int): Set<Color> =
-    sources.flatMap { it[x, y] }.toSet()
+fun GlowPath.colors(x: Int, y: Int): Set<Color> =
+    sources.mapNotNull { it.color(x, y) }.toSet()
 
-operator fun GlowPath.get(position: Position): Set<Color> =
+operator fun GlowPath.get(position: Position): List<GlowPathEntry> =
     this[position.x, position.y]
 
-private operator fun GlowPathEntry.get(x: Int, y: Int): Set<Color> =
+private fun GlowPathEntry.color(x: Int, y: Int): Color? =
     if (position.x == x && position.y == y) {
-        setOf(color)
+        color
     } else {
-        children.flatMap { it[x, y] }.toSet()
+        children.mapNotNull { it.color(x, y) }.firstOrNull()
+    }
+
+fun GlowPath.colors(position: Position): Set<Color> =
+    this.colors(position.x, position.y)
+
+operator fun GlowPath.get(x: Int, y: Int): List<GlowPathEntry> =
+    sources.mapNotNull { it[x, y] }
+
+private operator fun GlowPathEntry.get(x: Int, y: Int): GlowPathEntry? =
+    if (position.x == x && position.y == y) {
+        this
+    } else {
+        children.mapNotNull { it[x, y] }.firstOrNull()
     }
 
 data class GlowPathEntry(
     val position: Position,
     val parentPostition: Position? = null,
     val color: Color,
-    val prismaFrom: Pair<Direction, Color>? = null,
+    val prismaFrom: Direction? = null,
     val children: List<GlowPathEntry> = listOf(),
 )
 
@@ -64,7 +75,7 @@ fun GlowPathEntry.follow(grid: Grid, root: GlowPathEntry = this): GlowPathEntry 
                     position = cell.position,
                     parentPostition = position,
                     color = color.next,
-                    prismaFrom= direction.opposite to color
+                    prismaFrom= direction.opposite
                 )
             } else {
                 GlowPathEntry(

@@ -55,7 +55,7 @@ data class Grid(
 
     val solved: Boolean by lazy {
         endpoints.all {
-            glowPath[it.position].containsAll(it.endPoint)
+            glowPath.colors(it.position).containsAll(it.endPoint)
         }
     }
 
