@@ -19,7 +19,7 @@ import de.nielsfalk.laserhexagon.ui.Color.Companion.White
 import de.nielsfalk.laserhexagon.ui.Color.Companion.toColor
 import de.nielsfalk.laserhexagon.ui.Color.Companion.winningColors
 import de.nielsfalk.laserhexagon.ui.Grid.Companion.wrapBorderConnectionsAsCellsAgain
-import de.nielsfalk.laserhexagon.ui.HexlaserEvent.RotateCell
+import de.nielsfalk.laserhexagon.ui.HexlaserEvent.TabCell
 import de.nielsfalk.util.LayerDrawScope
 import de.nielsfalk.util.layers
 import kotlin.math.*
@@ -36,7 +36,7 @@ fun HexlaserCanvas(
             detectTapGestures(
                 onTap = { offset ->
                     cellCenterPoints.cellCloseTo(offset)
-                        ?.let { onEvent(RotateCell(it)) }
+                        ?.let { onEvent(TabCell(it)) }
                 },
                 onLongPress = { offset ->
                     cellCenterPoints.cellCloseTo(offset)

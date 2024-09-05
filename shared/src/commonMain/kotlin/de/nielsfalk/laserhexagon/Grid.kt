@@ -1,14 +1,7 @@
 package de.nielsfalk.laserhexagon
 
-import de.nielsfalk.laserhexagon.Color.Blue
-import de.nielsfalk.laserhexagon.Color.Red
-import de.nielsfalk.laserhexagon.Color.Yellow
-import de.nielsfalk.laserhexagon.Direction.BOTTOMLEFT
-import de.nielsfalk.laserhexagon.Direction.BOTTOMRIGHT
-import de.nielsfalk.laserhexagon.Direction.LEFT
-import de.nielsfalk.laserhexagon.Direction.RIGHT
-import de.nielsfalk.laserhexagon.Direction.TOPLEFT
-import de.nielsfalk.laserhexagon.Direction.TOPRIGHT
+import de.nielsfalk.laserhexagon.Color.*
+import de.nielsfalk.laserhexagon.Direction.*
 
 data class Grid(
     val cells: List<Cell>,
@@ -17,7 +10,7 @@ data class Grid(
     val connectBorders: Boolean = false,
     val glowPath: GlowPath = GlowPath()
 ) {
-    constructor(x: Int = 10, y: Int = 13,connectBorders: Boolean = false) : this(
+    constructor(x: Int = 10, y: Int = 13, connectBorders: Boolean = false) : this(
         (0 until x).map { x ->
             (0 until y).map { y ->
                 Cell(Position(x, y))
@@ -57,6 +50,10 @@ data class Grid(
         endpoints.all {
             glowPath.colors(it.position).containsAll(it.endPoint)
         }
+    }
+
+    val solvedAndLocked by lazy {
+        cells.all { it.locked } && solved
     }
 
     val started: Boolean by lazy {

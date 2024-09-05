@@ -35,8 +35,9 @@ class HexlaserViewModel : ViewModel<HexLaserState, HexlaserEvent>() {
 
     override fun onEvent(event: HexlaserEvent) {
         when (event) {
-            is RotateCell -> {
-                launchRotation(event.cellPosition)
+            is TabCell -> {
+                if (state.grid.solvedAndLocked) next()
+                else launchRotation(event.cellPosition)
             }
 
             is LockCell -> {
@@ -51,10 +52,7 @@ class HexlaserViewModel : ViewModel<HexLaserState, HexlaserEvent>() {
             }
 
             Next -> {
-                updateGrid { newLevel(state.levelType, state.toggleXYWithLevelGeneration) }
-                viewModelScope.launch {
-                    glow()
-                }
+                next()
             }
 
             LevelUp -> {
@@ -99,6 +97,13 @@ class HexlaserViewModel : ViewModel<HexLaserState, HexlaserEvent>() {
         }
     }
 
+    private fun next() {
+        updateGrid { newLevel(state.levelType, state.toggleXYWithLevelGeneration) }
+        viewModelScope.launch {
+            glow()
+        }
+    }
+
     private fun launchRotation(position: Position) {
         if (!state.grid[position].locked) {
             viewModelScope.launch {
@@ -133,7 +138,7 @@ class HexlaserViewModel : ViewModel<HexLaserState, HexlaserEvent>() {
                     }
                     delay(1)
                     glow()
-                    if (state.grid.solved && state.solvingAnimationSpendTime ==null) {
+                    if (state.grid.solved && state.solvingAnimationSpendTime == null) {
                         winning()
                     }
                 } else {
