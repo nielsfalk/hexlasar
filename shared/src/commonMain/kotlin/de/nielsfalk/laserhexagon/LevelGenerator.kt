@@ -35,7 +35,7 @@ class LevelGenerator(
                 connectColors()
             }
             if (maxPrismaCount != 0) {
-                repeat(random.nextInt(maxPrismaCount)) {
+                repeat(random.nextInt(maxPrismaCount)+1) {
                     addPrisma()
                 }
             }

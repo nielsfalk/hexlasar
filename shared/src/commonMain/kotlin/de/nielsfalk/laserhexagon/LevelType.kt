@@ -2,21 +2,27 @@ package de.nielsfalk.laserhexagon
 
 enum class LevelType(
     vararg properties: LevelProperties,
-    val infiniteX: Boolean = false,
+    val infiniteX: Boolean = true,
     val infiniteY: Boolean = false
 ) {
     ABSOLUTE_BEGINNER(
         LevelProperties(x = 1, y = 3, sourceCount = 1, rotateObvious = true, maxPrismaCount = 0),
-        LevelProperties(x = 2, y = 2, sourceCount = 1, rotateObvious = true, maxPrismaCount = 0)
+        LevelProperties(x = 2, y = 2, sourceCount = 1, rotateObvious = true, maxPrismaCount = 0),
+        infiniteX = false
     ),
     EASY(
         LevelProperties(x = 2, sourceCount = 1, rotateObvious = true, maxPrismaCount = 0),
-        LevelProperties(x = 2, y = 3, sourceCount = 2, rotateObvious = true, maxPrismaCount = 0)
+        LevelProperties(x = 2, y = 3, sourceCount = 2, rotateObvious = true, maxPrismaCount = 0),
+        infiniteX = false
+    ),
+    EASY_PLUS(
+        LevelProperties(x = 2, sourceCount = 2, rotateObvious = true, maxPrismaCount = 0),
     ),
     INTERMEDIATE(
         LevelProperties(x = 3, sourceCount = 2, maxPrismaCount = 1),
         LevelProperties(x = 3, sourceCount = 3, maxPrismaCount = 1),
-        LevelProperties(x = 3, sourceCount = 4, maxPrismaCount = 2)
+        LevelProperties(x = 3, sourceCount = 4, maxPrismaCount = 2),
+        infiniteX = false
     ),
     HARD(
         LevelProperties(x = 4, sourceCount = 1, maxPrismaCount = 3),
@@ -31,21 +37,15 @@ enum class LevelType(
         LevelProperties(x = 5, sourceCount = 3),
         LevelProperties(x = 5, sourceCount = 19),
         LevelProperties(x = 5, sourceCount = 20),
-        LevelProperties(x = 7, sourceCount = 49),
         LevelProperties(x = 6, sourceCount = 30),
-    ),
-    VERY_HARD(
-        LevelProperties(x = 6, sourceCount = 1),
-        LevelProperties(x = 6, sourceCount = 2),
-        LevelProperties(x = 6, sourceCount = 3),
-        LevelProperties(x = 6, sourceCount = 20),
-        LevelProperties(x = 6, sourceCount = 30),
+        LevelProperties(x = 6, sourceCount = 35)
     ),
     INSANE(
         LevelProperties(x = 4, y = 4, sourceCount = 2, maxPrismaCount = 0),
         LevelProperties(x = 4, y = 4, sourceCount = 3, maxPrismaCount = 0),
         LevelProperties(x = 4, y = 4, sourceCount = 4, maxPrismaCount = 0),
-        infiniteX = true
+        infiniteX = true,
+        infiniteY = true
     ),
     NIGHTMARE(
         LevelProperties(x = 4, sourceCount = 1),
@@ -63,7 +63,8 @@ enum class LevelType(
         LevelProperties(x = 6, sourceCount = 4),
         LevelProperties(x = 6, sourceCount = 29),
         LevelProperties(x = 6, sourceCount = 30),
-        infiniteX = true
+        infiniteX = true,
+        infiniteY = true
     ),
     NIGHTMARE_PLUS2(
         LevelProperties(x = 8, sourceCount = 1),
@@ -75,19 +76,6 @@ enum class LevelType(
         LevelProperties(x = 8, sourceCount = 6),
         LevelProperties(x = 8, sourceCount = 30),
         LevelProperties(x = 8, sourceCount = 40),
-        infiniteX = true,
-        infiniteY = true
-    ),
-    NIGHTMARE_PLUS3(
-        LevelProperties(x = 10, sourceCount = 1),
-        LevelProperties(x = 10, sourceCount = 2),
-        LevelProperties(x = 10, sourceCount = 3),
-        LevelProperties(x = 10, sourceCount = 4),
-        LevelProperties(x = 10, sourceCount = 4),
-        LevelProperties(x = 10, sourceCount = 5),
-        LevelProperties(x = 10, sourceCount = 6),
-        LevelProperties(x = 10, sourceCount = 59),
-        LevelProperties(x = 10, sourceCount = 60),
         infiniteX = true,
         infiniteY = true
     );
