@@ -118,6 +118,15 @@ compose.desktop {
         mainClass = "de.nielsfalk.laserhexagon.MainKt"
 
         nativeDistributions {
+            macOS {
+                iconFile.set(project.file("icon.icns"))
+            }
+            windows {
+                iconFile.set(project.file("icon.ico"))
+            }
+            linux {
+                iconFile.set(project.file("icon.png"))
+            }
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "de.nielsfalk.laserhexagon"
             packageVersion = "1.0.0"
