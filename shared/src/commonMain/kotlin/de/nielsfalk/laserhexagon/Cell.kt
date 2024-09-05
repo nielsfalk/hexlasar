@@ -39,20 +39,16 @@ data class Cell(
                     if (position.y.even) Position(position.x - 1, position.y + 1)
                     else Position(position.x, position.y + 1)
         )
-        if (grid.connectBorders) {
-            neighbors.mapValues { (_, position) ->
-                position.copy(
-                    x = (position.x + grid.x) % grid.x,
-                    y = (position.y + grid.y) % grid.y
-                )
-            }
-        } else {
-            neighbors.filterValues {
-                it.x >= 0
-                        && it.y >= 0
-                        && it.x < grid.x
-                        && it.y < grid.y
-            }
+        neighbors.mapValues { (_, position) ->
+            position.copy(
+                x = if (grid.infiniteY)(position.x + grid.x) % grid.x else position.x,
+                y = if (grid.infiniteY)(position.y + grid.y) % grid.y else position.y
+            )
+        }.filterValues {
+            it.x >= 0
+                    && it.y >= 0
+                    && it.x < grid.x
+                    && it.y < grid.y
         }
     }
     val neighbors: Map<Direction, Cell>
@@ -65,7 +61,6 @@ data class Cell(
         get() = neighbors.filter { (direction, cell) ->
             direction in futureRotatedConnections && direction.opposite in cell.futureRotatedConnections
         }
-    val neighborsDirections: Set<Direction> by lazy { neighborsPositions.keys }
 }
 
 data class Position(val x: Int, val y: Int)

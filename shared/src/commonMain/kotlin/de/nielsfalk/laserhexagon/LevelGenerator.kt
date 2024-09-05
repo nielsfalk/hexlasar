@@ -18,7 +18,8 @@ class LevelGenerator(
     var grid = Grid(
         levelProperties.x,
         levelProperties.y,
-        levelType.connectBorders
+        infiniteX = levelType.infiniteX,
+        infiniteY = levelType.infiniteY
     )
 
     fun generate(): Grid =

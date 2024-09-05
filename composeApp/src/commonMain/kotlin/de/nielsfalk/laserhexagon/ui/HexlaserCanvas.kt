@@ -341,8 +341,8 @@ private class Grid private constructor(
             wrapped[x % wrapped.x, y % wrapped.y]
         }
 
-    val x: Int = if (wrapped.connectBorders) wrapped.x + 1 else wrapped.x
-    val y: Int = if (wrapped.connectBorders) wrapped.y + 1 else wrapped.y
+    val x: Int = if (wrapped.infiniteX) wrapped.x + 1 else wrapped.x
+    val y: Int = if (wrapped.infiniteY) wrapped.y + 1 else wrapped.y
 
     companion object {
         fun de.nielsfalk.laserhexagon.Grid.wrapBorderConnectionsAsCellsAgain() = Grid(this)

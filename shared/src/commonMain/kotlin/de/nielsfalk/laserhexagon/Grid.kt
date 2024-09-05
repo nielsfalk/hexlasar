@@ -1,24 +1,28 @@
 package de.nielsfalk.laserhexagon
 
-import de.nielsfalk.laserhexagon.Color.*
-import de.nielsfalk.laserhexagon.Direction.*
-
 data class Grid(
     val cells: List<Cell>,
     val x: Int = cells.maxOf { it.position.x } + 1,
     val y: Int = cells.maxOf { it.position.y } + 1,
-    val connectBorders: Boolean = false,
+    val infiniteX: Boolean = false,
+    val infiniteY: Boolean = false,
     val glowPath: GlowPath = GlowPath()
 ) {
-    constructor(x: Int = 10, y: Int = 13, connectBorders: Boolean = false) : this(
-        (0 until x).map { x ->
-            (0 until y).map { y ->
-                Cell(Position(x, y))
+    constructor(
+        x: Int = 10,
+        y: Int = 13,
+        infiniteX: Boolean = false,
+        infiniteY: Boolean = false
+    ) : this(
+        cells = (0 until x).map { cellX ->
+            (0 until y).map { cellY ->
+                Cell(Position(cellX, cellY))
             }
         }.flatten(),
-        x,
-        y,
-        connectBorders
+        x = x,
+        y = y,
+        infiniteX = infiniteX,
+        infiniteY = infiniteY
     )
 
     init {
@@ -77,41 +81,3 @@ fun Grid.reset(): Grid =
 
 fun Grid.lockAllCells(): Grid =
     update(cells.map { it.copy(locked = true) })
-
-val testGrid = Grid(5, 6).run {
-    val cellIterator = cells.iterator()
-    update(
-        cellIterator.next().copy(
-            connections = setOf(LEFT),
-            source = Red
-        ),
-        cellIterator.next().copy(
-            connections = setOf(TOPLEFT),
-            source = Blue
-        ),
-        cellIterator.next().copy(
-            connections = setOf(TOPRIGHT),
-            source = Yellow
-        ),
-        cellIterator.next().copy(
-            connections = setOf(RIGHT),
-            endPoint = setOf(Red)
-        ),
-        cellIterator.next().copy(
-            connections = setOf(BOTTOMRIGHT),
-            endPoint = setOf(Red, Yellow)
-        ),
-        cellIterator.next().copy(connections = setOf(BOTTOMLEFT)),
-        cellIterator.next().copy(connections = Direction.entries.toSet()),
-        cellIterator.next().copy(connections = Direction.entries.toSet()),
-        cellIterator.next().copy(connections = Direction.entries.toSet()),
-        cellIterator.next().copy(connections = Direction.entries.toSet()),
-        cellIterator.next().copy(connections = Direction.entries.toSet()),
-        cellIterator.next().copy(connections = setOf(LEFT, TOPLEFT)),
-        cellIterator.next().copy(connections = setOf(LEFT, TOPRIGHT)),
-        cellIterator.next().copy(connections = setOf(LEFT, RIGHT)),
-        cellIterator.next().copy(connections = setOf(LEFT, BOTTOMLEFT)),
-        cellIterator.next().copy(connections = setOf(LEFT, BOTTOMRIGHT)),
-        cellIterator.next().copy(connections = Direction.entries.toSet())
-    )
-}
