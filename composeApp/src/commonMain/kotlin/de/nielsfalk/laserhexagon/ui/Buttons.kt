@@ -1,9 +1,6 @@
 package de.nielsfalk.laserhexagon.ui
 
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -26,12 +23,13 @@ import de.nielsfalk.laserhexagon.ui.Icons.Companion.refresh
 import de.nielsfalk.laserhexagon.ui.Icons.Companion.right
 import de.nielsfalk.laserhexagon.ui.Icons.Companion.up
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun Buttons(
     onEvent: (HexlaserEvent) -> Unit,
     state: HexLaserState
 ) {
-    Row(
+    FlowRow(
         Modifier
             .padding(horizontal = 5.dp)
             .fillMaxWidth()
@@ -76,7 +74,6 @@ fun Buttons(
             Text(
                 fontSize = 18.sp,
                 modifier = Modifier
-                    .fillMaxWidth()
                     .wrapContentHeight()
                     .padding(16.dp),
                 color = Color.White,
