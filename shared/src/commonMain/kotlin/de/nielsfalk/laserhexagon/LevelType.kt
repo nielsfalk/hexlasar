@@ -16,7 +16,7 @@ enum class LevelType(
         infiniteX = false
     ),
     EASY_PLUS(
-        LevelProperties(x = 2, sourceCount = 2, rotateObvious = true, maxPrismaCount = 0),
+        LevelProperties(x = 3, y = 3, sourceCount = 2, rotateObvious = true, maxPrismaCount = 0),
     ),
     INTERMEDIATE(
         LevelProperties(x = 3, sourceCount = 2, maxPrismaCount = 1),
