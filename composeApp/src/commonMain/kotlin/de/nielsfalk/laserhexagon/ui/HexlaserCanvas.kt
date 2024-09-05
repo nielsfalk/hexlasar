@@ -279,15 +279,15 @@ private fun CellDrawScope.drawCellLock(partsPixel: Float) {
 private data class CellDrawingData(
     val grid: Grid,
     val size: Size,
-    val horizontalParts: Int = grid.x * 2 + 3,
-    val verticalParts: Float = grid.y * 2 + 0.7f,
+    val horizontalParts: Int = grid.x * 2 + 1,
+    val verticalParts: Float = grid.y * 2f,
     val radius: Float = min(size.width / horizontalParts, size.height / verticalParts),
     val cellOffsets: List<Pair<Offset, Cell>> =
         (0 until grid.x).flatMap { x ->
             (0 until grid.y).map { y ->
                 Offset(
-                    x = ((if (y.odd) 3 else 2) + x * 2) * radius,
-                    y = (1 + y) * sqrt((2 * radius).pow(2) - radius.pow(2))
+                    x = ((if (y.odd) 2 else 1) + x * 2) * radius,
+                    y = (0.7f+ y) * sqrt((2 * radius).pow(2) - radius.pow(2))
                 ) to grid[x, y]
             }
         }
