@@ -30,7 +30,7 @@ class Color {
         fun CellColor.toColor(): ComposeColor = basicColors[this]!!
 
         val winningColors = usedColorsToCellColors.map { (composeColor, _) -> composeColor } + Yellow + White
-        val basicColors = usedColorsToCellColors.filter { (_, cellColors) -> cellColors.size == 1 }
+        private val basicColors = usedColorsToCellColors.filter { (_, cellColors) -> cellColors.size == 1 }
             .associate { (composeColor, cellColors) -> cellColors.first() to composeColor }
     }
 }

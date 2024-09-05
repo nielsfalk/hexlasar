@@ -16,7 +16,9 @@ abstract class ViewModel<STATE, EVENT> {
         setState(function(this))
     }
 
-    abstract fun onEvent(event: EVENT): Unit
+    protected open fun onInitialized() {}
+
+    abstract fun onEvent(event: EVENT)
 
     companion object {
         @Composable
@@ -26,10 +28,15 @@ abstract class ViewModel<STATE, EVENT> {
         ): VIEWMODEL {
             var state: STATE by remember { mutableStateOf(initialState) }
             val viewModelScope = rememberCoroutineScope()
+            var initialized: Boolean by remember { mutableStateOf(false) }
             return factoryMethod().also {
                 it.getstate = { state }
                 it.setState = { state = it }
                 it._viewModelScope = viewModelScope
+                if (!initialized) {
+                    initialized = true
+                    it.onInitialized()
+                }
             }
         }
     }

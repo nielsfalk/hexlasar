@@ -7,5 +7,5 @@ data class HexLaserState(
     val grid: Grid,
     val toggleXYWithLevelGeneration:Boolean=false,
     val levelType: LevelType = LevelType.entries.first(),
-    val solvingAnimationSpendTime: Int? =null
+    val animationSpendTime: Int? =null
 )

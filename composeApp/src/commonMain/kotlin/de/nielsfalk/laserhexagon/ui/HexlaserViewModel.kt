@@ -9,6 +9,11 @@ import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
 class HexlaserViewModel : ViewModel<HexLaserState, HexlaserEvent>() {
+    override fun onInitialized() {
+        viewModelScope.launch {
+            animation()
+        }
+    }
 
     private fun updateGrid(function: (Grid) -> Grid) {
         state.update { it.copy(grid = function(it.grid)) }
@@ -138,7 +143,7 @@ class HexlaserViewModel : ViewModel<HexLaserState, HexlaserEvent>() {
                     }
                     delay(1)
                     glow()
-                    if (state.grid.solved && state.solvingAnimationSpendTime == null) {
+                    if (state.grid.solved && state.animationSpendTime == null) {
                         winning()
                     }
                 } else {
@@ -154,15 +159,19 @@ class HexlaserViewModel : ViewModel<HexLaserState, HexlaserEvent>() {
 
     private suspend fun winning() {
         updateGrid(Grid::lockAllCells)
+        animation()
+    }
+
+    private suspend fun animation() {
         repeatWithTiming {
             state.update {
-                it.copy(solvingAnimationSpendTime = spendTime)
+                it.copy(animationSpendTime = spendTime)
             }
             delay(1)
-            spendTime < winningAnimationSpeed
+            spendTime < animationSpeed
         }
         state.update {
-            it.copy(solvingAnimationSpendTime = null)
+            it.copy(animationSpendTime = null)
         }
     }
 }
@@ -172,7 +181,7 @@ private fun Grid.getPendingCell(): Cell? =
         ?: cells.filter { it.rotations % Direction.entries.size != 0 && it.endPoint.isEmpty() }.randomOrNull()
         ?: cells.filter { it.rotations % Direction.entries.size != 0 }.randomOrNull()
 
-const val winningAnimationSpeed = 3000
+const val animationSpeed = 3000
 
 fun newLevel(
     levelType: LevelType = LevelType.entries.first(),

@@ -83,12 +83,12 @@ private fun DrawScope.drawGame(state: HexLaserState, cellDrawingData: CellDrawin
             drawSource(partsPixel)
         }
     }
-    drawWinning(state.solvingAnimationSpendTime)
+    drawWinning(state.animationSpendTime)
 }
 
-private fun DrawScope.drawWinning(solvingAnimationSpendTime: Int?) {
-    solvingAnimationSpendTime?.let {
-        val percentOfAnimation = it * 100000 / winningAnimationSpeed / max(size.width, size.height)
+private fun DrawScope.drawWinning(animationSpendTime: Int?) {
+    animationSpendTime?.let {
+        val percentOfAnimation = it * 100000 / animationSpeed / max(size.width, size.height)
         (winningColors).forEachIndexed { idx, color ->
             val radius = (percentOfAnimation - idx) * 100f
             if (radius > 0)
