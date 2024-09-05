@@ -119,7 +119,7 @@ private fun CellDrawScope.drawMiddlePoint(
             center = cellCenterOffset
         )
     }
-    onLayer(4){
+    onLayer(4) {
         glowPath.colors(cell.position).toColor()?.let {
             drawCircle(
                 color = if (cell.prisma) White else it,
@@ -254,7 +254,7 @@ private fun CellDrawScope.plusAngle(
     y = sin(angle.toRadians()) * length
 )
 
-private fun Float.toRadians(): Float = this * 0.017453292519943295f
+private fun Float.toRadians(): Float = this * 0.017453292f
 
 private fun CellDrawScope.drawCellBorder(partsPixel: Float) {
     drawCircle(
@@ -269,9 +269,9 @@ private fun CellDrawScope.drawCellLock(partsPixel: Float) {
     if (cell.locked) {
         drawCircle(
             color = White,
-            radius = partsPixel * 0.9f,
+            radius = partsPixel * 0.97f,
             center = cellCenterOffset,
-            style = Stroke(partsPixel / 40)
+            style = Stroke(partsPixel / 25)
         )
     }
 }
