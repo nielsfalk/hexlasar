@@ -3,6 +3,7 @@ package de.nielsfalk.laserhexagon.ui
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -14,7 +15,9 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import de.nielsfalk.laserhexagon.LevelType
 import de.nielsfalk.laserhexagon.ui.HexlaserEvent.*
 import de.nielsfalk.laserhexagon.ui.Icons.Companion.down
@@ -66,6 +69,20 @@ fun Buttons(
             modifier = Modifier.padding(horizontal = 5.dp)
         ) {
             Icon(imageVector = hint, contentDescription = null)
+        }
+        state.grid.cells.run {
+            val performedRotations = sumOf { it.rotations - it.initialRotation }
+            val requiredRotations = sumOf { it.initialRotation }
+            Text(
+                fontSize = 18.sp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(16.dp),
+                color = Color.White,
+                text = "Rotations $performedRotations / $requiredRotations",
+                textAlign = TextAlign.Center,
+            )
         }
     }
 }
