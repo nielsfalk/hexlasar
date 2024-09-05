@@ -7,6 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -82,8 +83,69 @@ private fun DrawScope.drawGame(state: HexLaserState, cellDrawingData: CellDrawin
             drawPrisma(partsPixel)
             drawSource(partsPixel)
         }
+        blurInfiniteEnd(cellDrawingData, state.grid.infiniteX, state.grid.infiniteY)
     }
     drawWinning(state.animationSpendTime)
+}
+
+private fun LayerDrawScope.blurInfiniteEnd(
+    cellDrawingData: CellDrawingData,
+    infiniteX: Boolean,
+    infiniteY: Boolean
+) {
+    cellDrawingData.run {
+        val transparent: Color = Color.Transparent
+        val elements = Black
+        if (infiniteX) {
+            onLayer(5) {
+                val leftOffset = cellOffsets.first { (_, cell) -> cell.position.x == 0 }.first.x - radius * 1.5f
+                drawRect(
+                    brush = Brush.horizontalGradient(
+                        colors = listOf(elements, transparent),
+                        startX = leftOffset,
+                        endX = leftOffset + radius * 3
+                    ),
+                    size = Size(radius * 3f, size.height),
+                    topLeft = Offset(leftOffset, 0f)
+                )
+                val rightOffset = leftOffset + grid.x * 2 * radius - radius * 1.5f
+                drawRect(
+                    brush = Brush.horizontalGradient(
+                        colors = listOf(transparent, elements),
+                        startX = rightOffset,
+                        endX = rightOffset + 3 * radius
+                    ),
+                    topLeft = Offset(rightOffset + radius * 0.5f, 0f),
+                    size = Size(radius * 3, size.height)
+                )
+            }
+        }
+        if (infiniteY) {
+            onLayer(5) {
+                val topOffset = cellOffsets.first { (_, cell) -> cell.position.y == 0 }.first.y - 1.5f * radius
+                drawRect(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(elements, transparent),
+                        startY = topOffset,
+                        endY = topOffset + 2.5f * radius
+                    ),
+                    size = Size(size.width, radius * 2),
+                    topLeft = Offset(0f, topOffset + radius * 0.4f)
+                )
+                val bottomOffset = topOffset + grid.y * 2 * radius - radius * 2.5f
+                drawRect(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(transparent, elements),
+                        startY = bottomOffset,
+                        endY = bottomOffset + 2.5f * radius
+                    ),
+                    size = Size(size.width, radius * 2.5f),
+                    topLeft = Offset(0f, bottomOffset)
+                )
+
+            }
+        }
+    }
 }
 
 private fun DrawScope.drawWinning(animationSpendTime: Int?) {
@@ -287,7 +349,7 @@ private data class CellDrawingData(
             (0 until grid.y).map { y ->
                 Offset(
                     x = ((if (y.odd) 2 else 1) + x * 2) * radius,
-                    y = (0.7f+ y) * sqrt((2 * radius).pow(2) - radius.pow(2))
+                    y = (0.7f + y) * sqrt((2 * radius).pow(2) - radius.pow(2))
                 ) to grid[x, y]
             }
         }
