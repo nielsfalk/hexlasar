@@ -7,7 +7,7 @@ import de.nielsfalk.laserhexagon.ui.App
 fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
-        title = "Laserhexagon",
+        title = "Hexlaser",
     ) {
         App()
     }
