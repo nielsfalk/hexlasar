@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import de.nielsfalk.laserhexagon.Direction
 import de.nielsfalk.laserhexagon.LevelType
 import de.nielsfalk.laserhexagon.ui.HexlaserEvent.*
 import de.nielsfalk.laserhexagon.ui.Icons.Companion.down
@@ -70,16 +71,21 @@ fun Buttons(
         }
         state.grid.cells.run {
             val performedRotations = sumOf { it.rotations - it.initialRotation }
-            val requiredRotations = sumOf { it.initialRotation }
-            Text(
-                fontSize = 18.sp,
-                modifier = Modifier
-                    .wrapContentHeight()
-                    .padding(16.dp),
-                color = Color.White,
-                text = "Rotations $performedRotations / $requiredRotations",
-                textAlign = TextAlign.Center,
-            )
+            if (performedRotations > 0) {
+                val requiredRotations = sumOf {
+                    if (it.initialRotation == 0) 0
+                    else Direction.entries.size - it.initialRotation
+                }
+                Text(
+                    fontSize = 18.sp,
+                    modifier = Modifier
+                        .wrapContentHeight()
+                        .padding(16.dp),
+                    color = Color.White,
+                    text = "Rotations $performedRotations / $requiredRotations",
+                    textAlign = TextAlign.Center,
+                )
+            }
         }
     }
 }
