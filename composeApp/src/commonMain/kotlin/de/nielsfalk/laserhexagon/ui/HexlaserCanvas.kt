@@ -3,6 +3,8 @@ package de.nielsfalk.laserhexagon.ui
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -34,64 +36,73 @@ fun HexlaserCanvas(
 ) {
     var cellCenterPoints by remember { mutableStateOf(listOf<Pair<Offset, Position>>()) }
     var ongoingDrag by remember { mutableStateOf<Pair<Position, Float>?>(null) }
-    Canvas(
-        modifier = Modifier.pointerInput(Unit) {
-            detectDragGestures(
-                onDragStart = { offset ->
-                    cellCenterPoints.cellCloseTo(offset)?.let {
-                        ongoingDrag = it to 0f
-                    }
-                },
-                onDrag = { change, dragAmount ->
-                    change.consume()
-                    ongoingDrag?.let { (position, value) ->
-                        ongoingDrag = position to value + dragAmount.y * 360 / 500
-                    }
-                },
-                onDragCancel = {
-                    ongoingDrag = null
-                    println("dragCancel")
-                },
-                onDragEnd = {
-                    ongoingDrag = null
-                    println("dragEnd")
-                }
-            )
-            detectTapGestures(
-                onTap = { offset ->
-                    cellCenterPoints.cellCloseTo(offset)
-                        ?.let { onEvent(TabCell(it)) }
-                },
-                onLongPress = { offset ->
-                    cellCenterPoints.cellCloseTo(offset)
-                        ?.let { onEvent(HexlaserEvent.LockCell(it)) }
-                }
-            )
-        }
-            .fillMaxSize()) {
-        val grid = state.grid
-        when {
-            size.run { width > height } && grid.run { x < y && !started } -> {
-                onEvent(HexlaserEvent.ToggleXYWithLevelGeneration(true))
+    Box(modifier = Modifier.pointerInput(Unit) {
+        detectTapGestures(
+            onTap = { offset ->
+                cellCenterPoints.cellCloseTo(offset)
+                    ?.let { onEvent(TabCell(it)) }
+            },
+            onLongPress = { offset ->
+                cellCenterPoints.cellCloseTo(offset)
+                    ?.let { onEvent(HexlaserEvent.LockCell(it)) }
             }
-
-            size.run { width < height } && grid.run { x > y && !started } -> {
-                onEvent(HexlaserEvent.ToggleXYWithLevelGeneration(false))
-            }
-
-            else -> {
-                drawRect(color = Black, size = size)
-
-                val cellDrawingData = CellDrawingData(
-                    grid = grid.wrapBorderConnectionsAsCellsAgain(),
-                    size = size
+        )
+    }) {
+        Canvas(
+            modifier = Modifier.pointerInput(Unit) {
+                detectVerticalDragGestures(
+                    onDragStart = { offset ->
+                        cellCenterPoints.cellCloseTo(offset)?.let {
+                            ongoingDrag = it to 0f
+                        }
+                    },
+                    onVerticalDrag = { change, dragAmount ->
+                        ongoingDrag?.let { (position, value) ->
+                            ongoingDrag = position to value + dragAmount * 360 / 500
+                        }
+                    },
+                    onDragCancel = {
+                        ongoingDrag = null
+                        println("dragCancel")
+                    },
+                    onDragEnd = {
+                        ongoingDrag?.let { (position, degrees) ->
+                            if (degrees < 30f) {
+                                onEvent(HexlaserEvent.LockCell(position))
+                            }
+                        }
+                        ongoingDrag = null
+                        println("dragEnd")
+                    }
                 )
-                drawGame(state, cellDrawingData, ongoingDrag)
-                cellCenterPoints = cellDrawingData.cellOffsets.map { (offset, cell) ->
-                    offset to cell.position
+
+            }
+                .fillMaxSize()) {
+            val grid = state.grid
+            when {
+                size.run { width > height } && grid.run { x < y && !started } -> {
+                    onEvent(HexlaserEvent.ToggleXYWithLevelGeneration(true))
+                }
+
+                size.run { width < height } && grid.run { x > y && !started } -> {
+                    onEvent(HexlaserEvent.ToggleXYWithLevelGeneration(false))
+                }
+
+                else -> {
+                    drawRect(color = Black, size = size)
+
+                    val cellDrawingData = CellDrawingData(
+                        grid = grid.wrapBorderConnectionsAsCellsAgain(),
+                        size = size
+                    )
+                    drawGame(state, cellDrawingData, ongoingDrag)
+                    cellCenterPoints = cellDrawingData.cellOffsets.map { (offset, cell) ->
+                        offset to cell.position
+                    }
                 }
             }
         }
+
     }
 }
 
@@ -291,9 +302,10 @@ private fun CellDrawScope.drawConnections(
     cell.openCircleParts.forEach { (circlePart, direction) ->
         val angleOffset = -90f - 360 / 12 / 2
         val ongoingCellDrag = ongoingDrag?.let { (position, degrees) ->
-            if (cell.position == position) degrees else 0f
+            if (!cell.locked && cell.position == position) degrees else 0f
         } ?: 0f
-        val startAngle = ((angleOffset + 360 * circlePart / 12) + cell.rotationWithParts * 360 / 6) % 360f + ongoingCellDrag
+        val startAngle =
+            ((angleOffset + 360 * circlePart / 12) + cell.rotationWithParts * 360 / 6) % 360f + ongoingCellDrag
         val middleAngle = startAngle + 360 / 12 / 2
         onLayer(1) {
             drawLine(
