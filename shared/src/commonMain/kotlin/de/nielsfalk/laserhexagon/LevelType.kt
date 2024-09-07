@@ -24,6 +24,11 @@ enum class LevelType(
         LevelProperties(x = 3, sourceCount = 4, maxPrismaCount = 2),
         infiniteX = false
     ),
+    INTERMEDIATE_PLUS(
+        LevelProperties(x = 3, sourceCount = 2, maxPrismaCount = 1),
+        LevelProperties(x = 3, sourceCount = 3, maxPrismaCount = 1),
+        LevelProperties(x = 3, sourceCount = 4, maxPrismaCount = 2),
+    ),
     HARD(
         LevelProperties(x = 4, sourceCount = 1, maxPrismaCount = 3),
         LevelProperties(x = 4, sourceCount = 2, maxPrismaCount = 3),
