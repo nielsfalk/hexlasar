@@ -52,7 +52,7 @@ fun Buttons(
 
         }
         Button(
-            onClick = { onEvent(Next) },
+            onClick = { onEvent(NextLevel) },
             modifier = Modifier.padding(horizontal = 5.dp)
         ) {
             Icon(imageVector = right, contentDescription = null)

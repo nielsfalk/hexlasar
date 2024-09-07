@@ -41,7 +41,7 @@ class HexlaserViewModel : ViewModel<HexLaserState, HexlaserEvent>() {
     override fun onEvent(event: HexlaserEvent) {
         when (event) {
             is TabCell -> {
-                if (state.grid.solvedAndLocked) next()
+                if (state.grid.solvedAndLocked) nextLevel()
                 else launchRotation(event.cellPosition)
             }
 
@@ -56,8 +56,8 @@ class HexlaserViewModel : ViewModel<HexLaserState, HexlaserEvent>() {
                 }
             }
 
-            Next -> {
-                next()
+            NextLevel -> {
+                nextLevel()
             }
 
             LevelUp -> {
@@ -80,7 +80,7 @@ class HexlaserViewModel : ViewModel<HexLaserState, HexlaserEvent>() {
                 state.update {
                     state.copy(toggleXYWithLevelGeneration = event.toggle)
                 }
-                onEvent(Next)
+                onEvent(NextLevel)
             }
 
             Hint -> {
@@ -93,16 +93,29 @@ class HexlaserViewModel : ViewModel<HexLaserState, HexlaserEvent>() {
                         val pendingRotations = Direction.entries.size - (it.rotations % Direction.entries.size)
                         repeat(pendingRotations) {
                             viewModelScope.launch {
-                                rotate(position)
+                                rotateDelayed(position)
                             }
                         }
+                    }
+                }
+            }
+
+            is DragCell -> {
+                val cell = state.grid[event.position]
+                if (!cell.locked) {
+                    updateGrid {
+                        it.update(cell.copy(rotations = cell.rotations + event.rotations))
+                            .removeDisconnectedFromPaths()
+                    }
+                    viewModelScope.launch {
+                        afterRotation(event.position)
                     }
                 }
             }
         }
     }
 
-    private fun next() {
+    private fun nextLevel() {
         updateGrid { newLevel(state.levelType, state.toggleXYWithLevelGeneration) }
         viewModelScope.launch {
             glow()
@@ -112,12 +125,12 @@ class HexlaserViewModel : ViewModel<HexLaserState, HexlaserEvent>() {
     private fun launchRotation(position: Position) {
         if (!state.grid[position].locked) {
             viewModelScope.launch {
-                rotate(position)
+                rotateDelayed(position)
             }
         }
     }
 
-    private suspend fun rotate(position: Position) {
+    private suspend fun rotateDelayed(position: Position) {
         updateGrid {
             val cell = it[position]
             it.update(
@@ -142,13 +155,7 @@ class HexlaserViewModel : ViewModel<HexLaserState, HexlaserEvent>() {
                             .removeDisconnectedFromPaths()
                     }
                     delay(1)
-                    glow()
-                    if (state.grid[position].locked) { // happening on doubletabbing the last rotation on iphone
-                        updateCell(position) { it.copy(locked = false) }
-                    }
-                    if (state.grid.solved && state.animationSpendTime == null) {
-                        winning()
-                    }
+                    afterRotation(position)
                 } else {
                     updateCell(position) {
                         it.copy(rotatedParts = it.rotatedParts + delta)
@@ -157,6 +164,16 @@ class HexlaserViewModel : ViewModel<HexLaserState, HexlaserEvent>() {
 
             }
             !lastIteration
+        }
+    }
+
+    private suspend fun afterRotation(position: Position) {
+        glow()
+        if (state.grid[position].locked) { // happening on doubletabbing the last rotation on iphone
+            updateCell(position) { it.copy(locked = false) }
+        }
+        if (state.grid.solved && state.animationSpendTime == null) {
+            winning()
         }
     }
 

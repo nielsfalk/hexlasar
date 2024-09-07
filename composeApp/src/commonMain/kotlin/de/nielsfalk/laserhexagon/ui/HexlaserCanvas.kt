@@ -1,7 +1,6 @@
 package de.nielsfalk.laserhexagon.ui
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
@@ -23,6 +22,7 @@ import de.nielsfalk.laserhexagon.ui.Color.Companion.White
 import de.nielsfalk.laserhexagon.ui.Color.Companion.toColor
 import de.nielsfalk.laserhexagon.ui.Color.Companion.winningColors
 import de.nielsfalk.laserhexagon.ui.Grid.Companion.wrapBorderConnectionsAsCellsAgain
+import de.nielsfalk.laserhexagon.ui.HexlaserEvent.DragCell
 import de.nielsfalk.laserhexagon.ui.HexlaserEvent.TabCell
 import de.nielsfalk.util.LayerDrawScope
 import de.nielsfalk.util.layers
@@ -58,21 +58,24 @@ fun HexlaserCanvas(
                     },
                     onVerticalDrag = { change, dragAmount ->
                         ongoingDrag?.let { (position, value) ->
-                            ongoingDrag = position to value + dragAmount * 360 / 500
+                            ongoingDrag = position to value + dragAmount * 360 / 1000
                         }
                     },
                     onDragCancel = {
                         ongoingDrag = null
-                        println("dragCancel")
                     },
                     onDragEnd = {
                         ongoingDrag?.let { (position, degrees) ->
-                            if (degrees < 30f) {
-                                onEvent(HexlaserEvent.LockCell(position))
-                            }
+                            var positiveDegrees = degrees
+                            while (positiveDegrees < 0) positiveDegrees += 360
+                            onEvent(
+                                DragCell(
+                                    rotations = (positiveDegrees.toInt() + 30) / 60,
+                                    position=position
+                                )
+                            )
                         }
                         ongoingDrag = null
-                        println("dragEnd")
                     }
                 )
 
