@@ -143,6 +143,9 @@ class HexlaserViewModel : ViewModel<HexLaserState, HexlaserEvent>() {
                     }
                     delay(1)
                     glow()
+                    if (state.grid[position].locked) { // happening on doubletabbing the last rotation on iphone
+                        updateCell(position) { it.copy(locked = false) }
+                    }
                     if (state.grid.solved && state.animationSpendTime == null) {
                         winning()
                     }
