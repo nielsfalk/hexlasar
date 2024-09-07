@@ -1,6 +1,7 @@
 package de.nielsfalk.laserhexagon.ui
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
@@ -32,8 +33,30 @@ fun HexlaserCanvas(
     onEvent: (HexlaserEvent) -> Unit,
 ) {
     var cellCenterPoints by remember { mutableStateOf(listOf<Pair<Offset, Position>>()) }
+    var ongoingDrag by remember { mutableStateOf<Pair<Position, Float>?>(null) }
     Canvas(
         modifier = Modifier.pointerInput(Unit) {
+            detectDragGestures(
+                onDragStart = { offset ->
+                    cellCenterPoints.cellCloseTo(offset)?.let {
+                        ongoingDrag = it to 0f
+                    }
+                },
+                onDrag = { change, dragAmount ->
+                    change.consume()
+                    ongoingDrag?.let { (position, value) ->
+                        ongoingDrag = position to value + dragAmount.y * 360 / 500
+                    }
+                },
+                onDragCancel = {
+                    ongoingDrag = null
+                    println("dragCancel")
+                },
+                onDragEnd = {
+                    ongoingDrag = null
+                    println("dragEnd")
+                }
+            )
             detectTapGestures(
                 onTap = { offset ->
                     cellCenterPoints.cellCloseTo(offset)
@@ -63,7 +86,7 @@ fun HexlaserCanvas(
                     grid = grid.wrapBorderConnectionsAsCellsAgain(),
                     size = size
                 )
-                drawGame(state, cellDrawingData)
+                drawGame(state, cellDrawingData, ongoingDrag)
                 cellCenterPoints = cellDrawingData.cellOffsets.map { (offset, cell) ->
                     offset to cell.position
                 }
@@ -72,12 +95,16 @@ fun HexlaserCanvas(
     }
 }
 
-private fun DrawScope.drawGame(state: HexLaserState, cellDrawingData: CellDrawingData) {
+private fun DrawScope.drawGame(
+    state: HexLaserState,
+    cellDrawingData: CellDrawingData,
+    ongoingDrag: Pair<Position, Float>?
+) {
     layers {
         onAllCells(cellDrawingData) {
             drawCellBorder(partsPixel)
             drawCellLock(partsPixel)
-            drawConnections(partsPixel, state.grid.glowPath)
+            drawConnections(partsPixel, state.grid.glowPath, ongoingDrag)
             drawEndpoint(partsPixel, state.grid.glowPath)
             drawMiddlePoint(partsPixel, state.grid.glowPath)
             drawPrisma(partsPixel)
@@ -258,11 +285,15 @@ private fun CellDrawScope.drawEndpoint(
 
 private fun CellDrawScope.drawConnections(
     partsPixel: Float,
-    glowPath: GlowPath
+    glowPath: GlowPath,
+    ongoingDrag: Pair<Position, Float>?
 ) {
     cell.openCircleParts.forEach { (circlePart, direction) ->
         val angleOffset = -90f - 360 / 12 / 2
-        val startAngle = ((angleOffset + 360 * circlePart / 12) + cell.rotationWithParts * 360 / 6) % 360f
+        val ongoingCellDrag = ongoingDrag?.let { (position, degrees) ->
+            if (cell.position == position) degrees else 0f
+        } ?: 0f
+        val startAngle = ((angleOffset + 360 * circlePart / 12) + cell.rotationWithParts * 360 / 6) % 360f + ongoingCellDrag
         val middleAngle = startAngle + 360 / 12 / 2
         onLayer(1) {
             drawLine(
