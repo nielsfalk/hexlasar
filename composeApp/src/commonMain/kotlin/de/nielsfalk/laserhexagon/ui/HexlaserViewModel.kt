@@ -170,8 +170,13 @@ class HexlaserViewModel : ViewModel<HexLaserState, HexlaserEvent>() {
 
     private suspend fun afterRotation(position: Position) {
         glow()
-        if (state.grid[position].locked) { // happening on doubletabbing the last rotation on iphone
+        val cell = state.grid[position]
+        if (cell.locked) { // happening on doubletabbing the last rotation on iphone
             updateCell(position) { it.copy(locked = false) }
+            viewModelScope.launch {
+                delay(200)
+                updateCell(position) { cell.copy(locked = true) }
+            }
         }
         if (state.grid.solved && state.animationSpendTime == null) {
             winning()
