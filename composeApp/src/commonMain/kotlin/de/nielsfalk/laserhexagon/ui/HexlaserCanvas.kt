@@ -92,8 +92,6 @@ fun HexlaserCanvas(
                 }
 
                 else -> {
-                    drawRect(color = Black, size = size)
-
                     val cellDrawingData = CellDrawingData(
                         grid = grid.wrapBorderConnectionsAsCellsAgain(),
                         size = size

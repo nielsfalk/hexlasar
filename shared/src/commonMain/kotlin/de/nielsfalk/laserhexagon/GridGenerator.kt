@@ -10,7 +10,7 @@ internal val Grid.emptyCells: List<Cell>
     get() = cells.filter { it.source == null && it.connections.isEmpty() }
 
 
-class LevelGenerator(
+class GridGenerator(
     val random: Random = Random.Default,
     val levelType: LevelType = LevelType.entries.first(),
     val levelProperties: LevelProperties = levelType.levelProperties.random(random)
@@ -92,10 +92,10 @@ class LevelGenerator(
     }
 
     private fun Cell.getNeighborWithOtherColor(): Map<Direction, Cell> {
-        val colors = this@LevelGenerator.grid.glowPath.colors(position)
+        val colors = this@GridGenerator.grid.glowPath.colors(position)
         return if (colors.size == 1) {
             neighbors.filter { (_, neighbor) ->
-                neighbor.source == null && colors.first() !in this@LevelGenerator.grid.glowPath.colors(neighbor.position)
+                neighbor.source == null && colors.first() !in this@GridGenerator.grid.glowPath.colors(neighbor.position)
             }
         } else mapOf()
     }

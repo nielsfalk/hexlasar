@@ -40,7 +40,7 @@ fun Buttons(
             onClick = { onEvent(LevelUp) },
             modifier = Modifier.padding(horizontal = 5.dp)
         ) {
-            Text("Difficulty ${state.levelType.ordinal + 1}")
+            Text("Level ${state.levelType.ordinal + 1}")
 
             Icon(
                 imageVector = if (state.levelType == LevelType.entries.last())
@@ -52,7 +52,7 @@ fun Buttons(
 
         }
         Button(
-            onClick = { onEvent(NextLevel) },
+            onClick = { onEvent(NextGrid) },
             modifier = Modifier.padding(horizontal = 5.dp)
         ) {
             Icon(imageVector = right, contentDescription = null)
@@ -82,7 +82,7 @@ fun Buttons(
                         .wrapContentHeight()
                         .padding(16.dp),
                     color = Color.White,
-                    text = "Rotations $performedRotations / $requiredRotations",
+                    text = "Moves $performedRotations / $requiredRotations",
                     textAlign = TextAlign.Center,
                 )
             }

@@ -12,6 +12,7 @@ class HexlaserViewModel : ViewModel<HexLaserState, HexlaserEvent>() {
     override fun onInitialized() {
         viewModelScope.launch {
             animation()
+            glow()
         }
     }
 
@@ -41,7 +42,7 @@ class HexlaserViewModel : ViewModel<HexLaserState, HexlaserEvent>() {
     override fun onEvent(event: HexlaserEvent) {
         when (event) {
             is TabCell -> {
-                if (state.grid.solvedAndLocked) nextLevel()
+                if (state.grid.solvedAndLocked) nextGrid()
                 else launchRotation(event.cellPosition)
             }
 
@@ -56,15 +57,15 @@ class HexlaserViewModel : ViewModel<HexLaserState, HexlaserEvent>() {
                 }
             }
 
-            NextLevel -> {
-                nextLevel()
+            NextGrid -> {
+                nextGrid()
             }
 
             LevelUp -> {
                 state.update {
                     val levelType = state.levelType.next()
                     it.copy(
-                        grid = newLevel(
+                        grid = newGrid(
                             levelType = levelType,
                             toggleXYWithLevelGeneration = state.toggleXYWithLevelGeneration
                         ),
@@ -80,7 +81,7 @@ class HexlaserViewModel : ViewModel<HexLaserState, HexlaserEvent>() {
                 state.update {
                     state.copy(toggleXYWithLevelGeneration = event.toggle)
                 }
-                onEvent(NextLevel)
+                onEvent(NextGrid)
             }
 
             Hint -> {
@@ -115,8 +116,8 @@ class HexlaserViewModel : ViewModel<HexLaserState, HexlaserEvent>() {
         }
     }
 
-    private fun nextLevel() {
-        updateGrid { newLevel(state.levelType, state.toggleXYWithLevelGeneration) }
+    private fun nextGrid() {
+        updateGrid { newGrid(state.levelType, state.toggleXYWithLevelGeneration) }
         viewModelScope.launch {
             glow()
         }
@@ -178,7 +179,12 @@ class HexlaserViewModel : ViewModel<HexLaserState, HexlaserEvent>() {
     }
 
     private suspend fun winning() {
-        updateGrid(Grid::lockAllCells)
+        state.update {
+            it.copy(
+                grid = it.grid.update(it.grid.cells.map { cell -> cell.copy(locked = true) }),
+                solvingCount = it.solvingCount + it.levelType
+            )
+        }
         animation()
     }
 
@@ -196,6 +202,9 @@ class HexlaserViewModel : ViewModel<HexLaserState, HexlaserEvent>() {
     }
 }
 
+private operator fun Map<LevelType, Int>.plus(levelType: LevelType): Map<LevelType, Int> =
+    this +(levelType to this[levelType]!!+1)
+
 private fun Grid.getPendingCell(): Cell? =
     cells.filter { it.rotations % Direction.entries.size != 0 && it.locked }.randomOrNull()
         ?: cells.filter { it.rotations % Direction.entries.size != 0 && it.endPoint.isEmpty() }.randomOrNull()
@@ -203,11 +212,11 @@ private fun Grid.getPendingCell(): Cell? =
 
 const val animationSpeed = 3000
 
-fun newLevel(
+fun newGrid(
     levelType: LevelType = LevelType.entries.first(),
     toggleXYWithLevelGeneration: Boolean = false
 ) =
-    LevelGenerator(
+    GridGenerator(
         levelType = levelType,
         levelProperties = levelType.levelProperties.random().let {
             if (toggleXYWithLevelGeneration)

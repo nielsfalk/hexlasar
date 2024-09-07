@@ -11,7 +11,7 @@ fun App() {
     MaterialTheme {
         val viewModel = getViewModel(
             factoryMethod = { HexlaserViewModel() },
-            initialState = HexLaserState(newLevel())
+            initialState = HexLaserState(newGrid())
         )
 
 

@@ -2,9 +2,8 @@ package de.nielsfalk.laserhexagon
 
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.shouldBe
 
-class LevelGeneratorTest:FreeSpec({
+class GridGeneratorTest:FreeSpec({
     "Generate small"{
         val random = ControlledRandom(
             0, //first Source
@@ -15,7 +14,7 @@ class LevelGeneratorTest:FreeSpec({
             //scramble
             1,1,1,1,1,1,1,1,1
         )
-        val levelGenerator = LevelGenerator(
+        val gridGenerator = GridGenerator(
             levelProperties = LevelProperties(
                 x = 3,
                 y = 3,
@@ -25,7 +24,7 @@ class LevelGeneratorTest:FreeSpec({
             random = random
         )
 
-        val grid = levelGenerator.generate().followPathComplete()
+        val grid = gridGenerator.generate().followPathComplete()
 
         grid.sources shouldHaveSize  1
         grid.endpoints shouldHaveSize 4
