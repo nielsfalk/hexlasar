@@ -8,6 +8,7 @@ import de.nielsfalk.laserhexagon.Direction.TOPLEFT
 import de.nielsfalk.laserhexagon.Direction.TOPRIGHT
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.maps.shouldContainExactly
+import io.kotest.matchers.maps.shouldHaveSize
 import io.kotest.matchers.shouldBe
 
 class CellTest : FreeSpec({
@@ -64,6 +65,32 @@ class CellTest : FreeSpec({
                     BOTTOMRIGHT to Position(3, 5),
                     BOTTOMLEFT to Position(2, 5)
                 )
+            }
+            "infinite grid"-{
+                "x"{
+                    val infiniteXGrid = Grid(5, 6, infiniteX = true)
+
+                    infiniteXGrid[0,0].neighbors shouldHaveSize 4
+                    infiniteXGrid[infiniteXGrid.x-1,0].neighbors shouldHaveSize 4
+                    infiniteXGrid[0,infiniteXGrid.y-1].neighbors shouldHaveSize 4
+                    infiniteXGrid[infiniteXGrid.x-1,infiniteXGrid.y-1].neighbors shouldHaveSize 4
+                }
+                "y"{
+                    val infiniteYGrid = Grid(5, 5, infiniteY = true)
+
+                    infiniteYGrid[0,0].neighbors shouldHaveSize 3
+                    infiniteYGrid[infiniteYGrid.x-1,0].neighbors shouldHaveSize 5
+                    infiniteYGrid[0,infiniteYGrid.y-1].neighbors shouldHaveSize 3
+                    infiniteYGrid[infiniteYGrid.x-1,infiniteYGrid.y-1].neighbors shouldHaveSize 5
+                }
+                "xy"{
+                    val infiniteGrid = Grid(5, 6, infiniteX = true,infiniteY = true)
+
+                    infiniteGrid[0,0].neighbors shouldHaveSize 6
+                    infiniteGrid[infiniteGrid.x-1,0].neighbors shouldHaveSize 6
+                    infiniteGrid[0,infiniteGrid.y-1].neighbors shouldHaveSize 6
+                    infiniteGrid[infiniteGrid.x-1,infiniteGrid.y-1].neighbors shouldHaveSize 6
+                }
             }
         }
         "connected neighbours" - {
