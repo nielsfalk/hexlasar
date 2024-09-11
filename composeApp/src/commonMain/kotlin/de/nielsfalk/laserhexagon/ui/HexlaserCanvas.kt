@@ -9,7 +9,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -71,7 +70,7 @@ fun HexlaserCanvas(
                             onEvent(
                                 DragCell(
                                     rotations = (positiveDegrees.toInt() + 30) / 60,
-                                    position=position
+                                    position = position
                                 )
                             )
                         }
@@ -122,69 +121,89 @@ private fun DrawScope.drawGame(
             drawPrisma(partsPixel)
             drawSource(partsPixel)
         }
-        blurInfiniteEnd(cellDrawingData, state.grid.infiniteX, state.grid.infiniteY)
+        drawInfiniteBorders(cellDrawingData, state.grid.infiniteX, state.grid.infiniteY)
     }
     drawWinning(state.animationSpendTime)
 }
 
-private fun LayerDrawScope.blurInfiniteEnd(
+private fun LayerDrawScope.drawInfiniteBorders(
     cellDrawingData: CellDrawingData,
     infiniteX: Boolean,
     infiniteY: Boolean
 ) {
-    cellDrawingData.run {
-        val transparent: Color = Color.Transparent
-        val elements = Black
-        if (infiniteX) {
-            onLayer(5) {
-                val leftOffset = cellOffsets.first { (_, cell) -> cell.position.x == 0 }.first.x - radius * 1.5f
-                drawRect(
-                    brush = Brush.horizontalGradient(
-                        colors = listOf(elements, transparent),
-                        startX = leftOffset,
-                        endX = leftOffset + radius * 3
-                    ),
-                    size = Size(radius * 3f, size.height),
-                    topLeft = Offset(leftOffset, 0f)
-                )
-                val rightOffset = leftOffset + grid.x * 2 * radius - radius * 1.5f
-                drawRect(
-                    brush = Brush.horizontalGradient(
-                        colors = listOf(transparent, elements),
-                        startX = rightOffset,
-                        endX = rightOffset + 3 * radius
-                    ),
-                    topLeft = Offset(rightOffset + radius * 0.5f, 0f),
-                    size = Size(radius * 3, size.height)
-                )
-            }
-        }
-        if (infiniteY) {
-            onLayer(5) {
-                val topOffset = cellOffsets.first { (_, cell) -> cell.position.y == 0 }.first.y - 1.5f * radius
-                drawRect(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(elements, transparent),
-                        startY = topOffset,
-                        endY = topOffset + 2.5f * radius
-                    ),
-                    size = Size(size.width, radius * 2),
-                    topLeft = Offset(0f, topOffset + radius * 0.4f)
-                )
-                val bottomOffset = topOffset + grid.y * 2 * radius - radius * 2.5f
-                drawRect(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(transparent, elements),
-                        startY = bottomOffset,
-                        endY = bottomOffset + 2.5f * radius
-                    ),
-                    size = Size(size.width, radius * 2.5f),
-                    topLeft = Offset(0f, bottomOffset)
-                )
+    if (infiniteX || infiniteY) {
+        onLayer(5) {
+            cellDrawingData.run {
+                val (topLeftCellCenter, _) = cellOffsets.first { (_, cell) -> cell.position == Position(0, 0) }
+                if (infiniteX) {
+                    val leftLineStart = topLeftCellCenter.copy(y = topLeftCellCenter.y - radius)
+                    val leftLineEnd =
+                        topLeftCellCenter.copy(y = topLeftCellCenter.y + radius + cellHeight * (grid.y - 1))
+                    drawRect(
+                        color = Black,
+                        topLeft = Offset(0f, 0f),
+                        size = Size(width = leftLineStart.x, height = size.height)
+                    )
+                    drawLine(
+                        color = White,
+                        strokeWidth = radius / 42,
+                        start = leftLineStart,
+                        end = leftLineEnd
+                    )
+                    val rightLineStart = topLeftCellCenter.copy(
+                        x = grid.x * 2 * radius + topLeftCellCenter.x - radius,
+                        y = topLeftCellCenter.y - radius
+                    )
+                    val rightLineEnd = topLeftCellCenter.copy(
+                        x = grid.x * 2 * radius + topLeftCellCenter.x - radius,
+                        y = topLeftCellCenter.y + radius + cellHeight * (grid.y - 1)
+                    )
+                    drawRect(
+                        color = Black,
+                        topLeft = rightLineStart,
+                        size = size
+                    )
+                    drawLine(
+                        color = White,
+                        strokeWidth = radius / 42,
+                        start = rightLineStart,
+                        end = rightLineEnd
+                    )
+                }
+                if (infiniteY) {
+                    val leftLineStart = topLeftCellCenter.copy(y = topLeftCellCenter.y - radius / 2)
+                    val leftLineEnd = leftLineStart.copy(x = grid.x * radius * 2)
+                    drawRect(
+                        color = Black,
+                        topLeft = Offset(0f, 0f),
+                        size = Size(width = size.width, height = leftLineStart.y)
+                    )
+                    drawLine(
+                        color = White,
+                        strokeWidth = radius / 42,
+                        start = leftLineStart,
+                        end = leftLineEnd
+                    )
+                    val bottomLineStart =
+                        topLeftCellCenter.copy(y = topLeftCellCenter.y + radius + cellHeight * (grid.y - 1)-radius/2)
+                    val bottomLineEnd = bottomLineStart.copy(x = grid.x * radius * 2)
+                    drawRect(
+                        color = Black,
+                        topLeft = Offset(0f, bottomLineStart.y),
+                        size = size
+                    )
+                    drawLine(
+                        color = White,
+                        strokeWidth = radius / 42,
+                        start = bottomLineStart,
+                        end = bottomLineEnd
+                    )
 
+                }
             }
         }
     }
+
 }
 
 private fun DrawScope.drawWinning(animationSpendTime: Int?) {
@@ -388,12 +407,13 @@ private data class CellDrawingData(
     val horizontalParts: Int = grid.x * 2 + 1,
     val verticalParts: Float = grid.y * 2f,
     val radius: Float = min(size.width / horizontalParts, size.height / verticalParts),
+    val cellHeight: Float = sqrt((2 * radius).pow(2) - radius.pow(2)),
     val cellOffsets: List<Pair<Offset, Cell>> =
         (0 until grid.x).flatMap { x ->
             (0 until grid.y).map { y ->
                 Offset(
                     x = ((if (y.odd) 2 else 1) + x * 2) * radius,
-                    y = (0.7f + y) * sqrt((2 * radius).pow(2) - radius.pow(2))
+                    y = (0.7f + y) * cellHeight
                 ) to grid[x, y]
             }
         }
