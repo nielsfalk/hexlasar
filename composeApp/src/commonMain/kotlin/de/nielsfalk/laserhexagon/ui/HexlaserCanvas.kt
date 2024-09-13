@@ -172,7 +172,7 @@ private fun LayerDrawScope.drawInfiniteBorders(
                 }
                 if (infiniteY) {
                     val leftLineStart = topLeftCellCenter.copy(y = topLeftCellCenter.y - radius / 2)
-                    val leftLineEnd = leftLineStart.copy(x = grid.x * radius * 2)
+                    val leftLineEnd = leftLineStart.copy(x = (grid.x - 0.4f) * radius * 2)
                     drawRect(
                         color = Black,
                         topLeft = Offset(0f, 0f),
@@ -185,8 +185,8 @@ private fun LayerDrawScope.drawInfiniteBorders(
                         end = leftLineEnd
                     )
                     val bottomLineStart =
-                        topLeftCellCenter.copy(y = topLeftCellCenter.y + radius + cellHeight * (grid.y - 1)-radius/2)
-                    val bottomLineEnd = bottomLineStart.copy(x = grid.x * radius * 2)
+                        topLeftCellCenter.copy(y = topLeftCellCenter.y + radius + cellHeight * (grid.y - 1) - radius / 2)
+                    val bottomLineEnd = bottomLineStart.copy(x = (grid.x - 0.4f) * radius * 2)
                     drawRect(
                         color = Black,
                         topLeft = Offset(0f, bottomLineStart.y),
@@ -404,15 +404,21 @@ private fun CellDrawScope.drawCellLock(partsPixel: Float) {
 private data class CellDrawingData(
     val grid: Grid,
     val size: Size,
-    val horizontalParts: Int = grid.x * 2 + 1,
-    val verticalParts: Float = grid.y * 2f,
+    val horizontalParts: Float = grid.x * 2 + if (grid.infiniteX) -0.6f else 1f,
+    val verticalParts: Float = (if (grid.infiniteY) 2f else 2.5f) +
+            sqrt((2 * (grid.y - 1f)).pow(2) - (grid.y - 1f).pow(2)),
     val radius: Float = min(size.width / horizontalParts, size.height / verticalParts),
     val cellHeight: Float = sqrt((2 * radius).pow(2) - radius.pow(2)),
     val cellOffsets: List<Pair<Offset, Cell>> =
         (0 until grid.x).flatMap { x ->
             (0 until grid.y).map { y ->
                 Offset(
-                    x = ((if (y.odd) 2 else 1) + x * 2) * radius,
+                    x = ((when {
+                        grid.infiniteX && y.odd -> 1.2f
+                        grid.infiniteX -> 0.2f
+                        y.odd -> 2f
+                        else -> 1f
+                    }) + x * 2) * radius,
                     y = (0.7f + y) * cellHeight
                 ) to grid[x, y]
             }
@@ -460,6 +466,9 @@ internal fun List<Pair<Offset, Position>>.cellCloseTo(tapOffset: Offset): Positi
 private class Grid private constructor(
     private val wrapped: de.nielsfalk.laserhexagon.Grid
 ) {
+    val infiniteY = wrapped.infiniteY
+    val infiniteX = wrapped.infiniteX
+
     operator fun get(x: Int, y: Int): Cell =
         if (x < wrapped.x && y < wrapped.y) {
             wrapped[x, y]
@@ -467,8 +476,9 @@ private class Grid private constructor(
             wrapped[x % wrapped.x, y % wrapped.y]
         }
 
-    val x: Int = if (wrapped.infiniteX) wrapped.x + 1 else wrapped.x
-    val y: Int = if (wrapped.infiniteY) wrapped.y + 1 else wrapped.y
+    val x: Int = if (infiniteX) wrapped.x + 1 else wrapped.x
+
+    val y: Int = if (infiniteY) wrapped.y + 1 else wrapped.y
 
     companion object {
         fun de.nielsfalk.laserhexagon.Grid.wrapBorderConnectionsAsCellsAgain() = Grid(this)
