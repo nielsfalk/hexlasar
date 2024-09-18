@@ -4,7 +4,10 @@ is a kmp puzzle game
 
 ## run
 tests
-`./gradlew :shared:cleanJvmTest :shared:jvmTest`
+`./gradlew :shared:allTest :composeApp:allTest`
+
+jvm tests
+`./gradlew :shared:jvmTest :composeApp:desktopTest`
 
 desktop
 `./gradlew desktopRun -DmainClass=de.nielsfalk.laserhexagon.MainKt`
