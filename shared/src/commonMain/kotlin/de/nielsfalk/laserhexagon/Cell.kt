@@ -41,8 +41,8 @@ data class Cell(
         )
         neighbors.mapValues { (_, position) ->
             position.copy(
-                x = if (grid.infiniteX)(position.x + grid.x) % grid.x else position.x,
-                y = if (grid.infiniteY)(position.y + grid.y) % grid.y else position.y
+                x = if (grid.infiniteX) (position.x + grid.x) % grid.x else position.x,
+                y = if (grid.infiniteY) (position.y + grid.y) % grid.y else position.y
             )
         }.filterValues {
             it.x >= 0
@@ -77,6 +77,9 @@ enum class Direction {
     LEFT, TOPLEFT, TOPRIGHT, RIGHT, BOTTOMRIGHT, BOTTOMLEFT;
 
     fun rotate(i: Int): Direction =
+        Direction.entries[(ordinal + i) % Direction.entries.size]
+
+    operator fun plus(i: Int): Direction =
         Direction.entries[(ordinal + i) % Direction.entries.size]
 
     val opposite: Direction by lazy {

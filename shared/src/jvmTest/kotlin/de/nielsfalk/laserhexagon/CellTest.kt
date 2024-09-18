@@ -141,6 +141,9 @@ class CellTest : FreeSpec({
             "$given has opposite $expectedOpposite" {
                 given.opposite shouldBe expectedOpposite
             }
+            "$given +3 is $expectedOpposite" {
+                (given + 3)  shouldBe expectedOpposite
+            }
         }
         listOf(
             LEFT to TOPLEFT,

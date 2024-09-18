@@ -91,7 +91,8 @@ class HexlaserViewModel : ViewModel<HexLaserState, HexlaserEvent>() {
                         updateCell(position) { cell ->
                             cell.copy(locked = true)
                         }
-                        val pendingRotations = Direction.entries.size - (it.rotations % Direction.entries.size)
+                        val pendingRotations =
+                            (Direction.entries.size - (it.rotations % Direction.entries.size)) % it.connections.scrambleAmount
                         repeat(pendingRotations) {
                             viewModelScope.launch {
                                 rotateDelayed(position)
@@ -208,12 +209,12 @@ class HexlaserViewModel : ViewModel<HexLaserState, HexlaserEvent>() {
 }
 
 private operator fun Map<LevelType, Int>.plus(levelType: LevelType): Map<LevelType, Int> =
-    this +(levelType to this[levelType]!!+1)
+    this + (levelType to this[levelType]!! + 1)
 
 private fun Grid.getPendingCell(): Cell? =
-    cells.filter { it.rotations % Direction.entries.size != 0 && it.locked }.randomOrNull()
-        ?: cells.filter { it.rotations % Direction.entries.size != 0 && it.endPoint.isEmpty() }.randomOrNull()
-        ?: cells.filter { it.rotations % Direction.entries.size != 0 }.randomOrNull()
+    cells.filter { it.rotations % it.connections.scrambleAmount != 0 && it.locked }.randomOrNull()
+        ?: cells.filter { it.rotations % it.connections.scrambleAmount != 0 && it.endPoint.isEmpty() }.randomOrNull()
+        ?: cells.filter { it.rotations % it.connections.scrambleAmount != 0 }.randomOrNull()
 
 const val animationSpeed = 3000
 

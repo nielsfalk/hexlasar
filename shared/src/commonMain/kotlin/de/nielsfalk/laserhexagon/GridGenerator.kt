@@ -3,6 +3,27 @@ package de.nielsfalk.laserhexagon
 import kotlin.math.min
 import kotlin.random.Random
 
+val Set<Direction>.scrambleAmount: Int
+    get() = when {
+        isEmpty() || size == Direction.entries.size -> 0
+        size == 2 && contains(first().opposite) -> {
+            Direction.entries.size / 2
+        }
+
+        size == 3 && contains(first() + 2) && contains(first() + 4) -> {
+            Direction.entries.size / 3
+        }
+
+        size == 4 && contains(first().opposite)->{
+            val withoutFirstAndItsOpposite = this - listOf(first(), first().opposite)
+            if (withoutFirstAndItsOpposite.contains(withoutFirstAndItsOpposite.first().opposite))
+                Direction.entries.size / 2
+            else null
+        }
+
+        else -> null
+    } ?: Direction.entries.size
+
 private val Cell.freeNeighbors: Map<Direction, Cell>
     get() = neighbors.filter { (_, cell) -> cell.source == null && cell.connections.isEmpty() }
 
@@ -35,7 +56,7 @@ class GridGenerator(
                 connectColors()
             }
             if (maxPrismaCount != 0) {
-                repeat(random.nextInt(maxPrismaCount)+1) {
+                repeat(random.nextInt(maxPrismaCount) + 1) {
                     addPrisma()
                 }
             }
@@ -61,9 +82,13 @@ class GridGenerator(
 
     private fun scramble() {
         grid = grid.update(
-            grid.cells.filter { it.connections.isNotEmpty() && (levelProperties.rotateObvious || it.connections.size != it.neighbors.size) }
+            grid.cells.filter {
+                it.connections.isNotEmpty() &&
+                        (levelProperties.rotateObvious || it.connections.size != it.neighbors.size) &&
+                        it.connections.scrambleAmount > 0
+            }
                 .map {
-                    val initialRotation = random.nextInt(Direction.entries.size)
+                    val initialRotation = random.nextInt(it.connections.scrambleAmount)
                     it.copy(
                         initialRotation = initialRotation,
                         rotations = initialRotation
