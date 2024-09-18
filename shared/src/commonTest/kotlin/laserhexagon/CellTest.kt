@@ -1,22 +1,27 @@
-package de.nielsfalk.laserhexagon
+package laserhexagon
 
+import de.nielsfalk.laserhexagon.Color
 import de.nielsfalk.laserhexagon.Direction.BOTTOMLEFT
 import de.nielsfalk.laserhexagon.Direction.BOTTOMRIGHT
 import de.nielsfalk.laserhexagon.Direction.LEFT
 import de.nielsfalk.laserhexagon.Direction.RIGHT
 import de.nielsfalk.laserhexagon.Direction.TOPLEFT
 import de.nielsfalk.laserhexagon.Direction.TOPRIGHT
+import de.nielsfalk.laserhexagon.Grid
+import de.nielsfalk.laserhexagon.Position
+import de.nielsfalk.laserhexagon.get
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.maps.shouldContainExactly
 import io.kotest.matchers.maps.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import kotlin.test.assertEquals
 
 class CellTest : FreeSpec({
     "on a 5*5 grid" - {
         val grid = Grid(5, 6)
 
         "has 30 cells" {
-            grid.cells.size shouldBe 30
+            assertEquals(grid.cells.size,30)
         }
 
         "neighbours" - {

@@ -1,5 +1,6 @@
-package de.nielsfalk.laserhexagon
+package laserhexagon
 
+import de.nielsfalk.laserhexagon.*
 import de.nielsfalk.laserhexagon.Direction.*
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.collections.shouldHaveSize

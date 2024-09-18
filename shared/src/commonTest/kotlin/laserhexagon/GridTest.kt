@@ -1,5 +1,8 @@
-package de.nielsfalk.laserhexagon
+package laserhexagon
 
+import de.nielsfalk.laserhexagon.Grid
+import de.nielsfalk.laserhexagon.get
+import de.nielsfalk.laserhexagon.reset
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.collections.shouldContainExactly
 

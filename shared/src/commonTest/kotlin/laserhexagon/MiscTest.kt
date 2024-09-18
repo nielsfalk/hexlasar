@@ -1,8 +1,12 @@
-package de.nielsfalk.laserhexagon
+package laserhexagon
 
+import de.nielsfalk.laserhexagon.ControlledRandom
+import de.nielsfalk.laserhexagon.randomExecution
+import de.nielsfalk.laserhexagon.roundUp
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.maps.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import kotlin.test.assertEquals
 
 class MiscTest : FreeSpec({
     mapOf(
@@ -11,7 +15,7 @@ class MiscTest : FreeSpec({
         2.002f to 3,
     ).forEach { (given, expected) ->
         "$given rounds up to $expected" {
-            given.roundUp() shouldBe expected
+            assertEquals(given.roundUp(), expected)
         }
     }
 
@@ -34,7 +38,7 @@ class MiscTest : FreeSpec({
         )
         val resultRecorder = mutableMapOf<String, Int>()
         fun record(s: String) {
-            val count = resultRecorder.computeIfAbsent(s) { 0 }
+            val count = resultRecorder[s] ?: 0
             resultRecorder[s] = count + 1
         }
 

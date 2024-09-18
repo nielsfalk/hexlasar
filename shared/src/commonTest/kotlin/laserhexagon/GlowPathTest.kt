@@ -1,5 +1,6 @@
-package de.nielsfalk.laserhexagon
+package laserhexagon
 
+import de.nielsfalk.laserhexagon.*
 import de.nielsfalk.laserhexagon.Color.Red
 import de.nielsfalk.laserhexagon.Color.Yellow
 import de.nielsfalk.laserhexagon.Direction.LEFT
