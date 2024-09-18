@@ -10,15 +10,16 @@ desktop
 `./gradlew desktopRun -DmainClass=de.nielsfalk.laserhexagon.MainKt`
 
 web 
-`./gradlew clean composeApp:wasmJsBrowserProductionRun  --stacktrace  --info`
+`./gradlew composeApp:wasmJsBrowserProductionRun  --stacktrace  --info`
 
 ## install
 macOs
-`./gradlew clean composeApp:packageDmg`
+`./gradlew composeApp:packageDmg`
 
 web
 ```shell
 cd build && \
+rm -rf downloaded && \
 mkdir downloaded && \
 cd downloaded && \
 wget -r -p -k http://localhost:8080/ && \
