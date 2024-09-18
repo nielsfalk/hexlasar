@@ -36,34 +36,45 @@ class GridGenerator(
     val levelType: LevelType = LevelType.entries.first(),
     val levelProperties: LevelProperties = levelType.levelProperties.random(random)
 ) {
-    var grid = Grid(
+    var grid = newGrid()
+
+    private fun newGrid() = Grid(
         levelProperties.x,
         levelProperties.y,
         infiniteX = levelType.infiniteX,
         infiniteY = levelType.infiniteY
     )
 
-    fun generate(): Grid =
-        levelProperties.run {
-            repeat(sourceCount) {
-                generateSource()
-                generateSourceConnections()
-            }
-            repeat(x * y) { generateNextPart() }
-            removeUnconnectedSources()
-            repeat(sourceCount - 1) { generateNextPart() }
-            repeat(random.nextInt(3)) {
-                connectColors()
-            }
-            if (maxPrismaCount != 0) {
-                repeat(random.nextInt(maxPrismaCount) + 1) {
-                    addPrisma()
+
+    fun generate(): Grid {
+        while (true) {
+            levelProperties.run {
+                repeat(sourceCount) {
+                    generateSource()
+                    generateSourceConnections()
+                }
+                repeat(x * y) { generateNextPart() }
+                removeUnconnectedSources()
+                repeat(sourceCount - 1) { generateNextPart() }
+                repeat(random.nextInt(3)) {
+                    connectColors()
+                }
+                if (maxPrismaCount != 0) {
+                    repeat(random.nextInt(maxPrismaCount) + 1) {
+                        addPrisma()
+                    }
+                }
+                setEndPointColors()
+                scramble()
+                if (grid.cells.sumOf { it.initialRotation } > 0) {
+                    grid = grid.copy(glowPath = GlowPath()).initGlowPath()
+                    return grid
+                }else{
+                    grid = newGrid()
                 }
             }
-            setEndPointColors()
-            scramble()
-            grid.copy(glowPath = GlowPath()).initGlowPath()
         }
+    }
 
     private fun addPrisma() {
         glow()
