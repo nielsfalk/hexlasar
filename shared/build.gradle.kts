@@ -1,6 +1,5 @@
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
@@ -12,7 +11,7 @@ plugins {
 }
 
 kotlin {
-    @OptIn(ExperimentalWasmDsl::class)
+    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
     wasmJs {
         browser {
             val projectDirPath = project.projectDir.path
@@ -46,7 +45,6 @@ kotlin {
             implementation(libs.kotlinx.datetime)
         }
         commonTest.dependencies {
-            implementation(libs.kotest.assertions.core)
             implementation(libs.kotest.framework.engine)
             implementation(kotlin("test"))
             implementation(kotlin("test-common"))
@@ -108,8 +106,10 @@ powerAssert {
         "kotlin.assert",
         "kotlin.test.assertTrue",
         "kotlin.test.assertEquals",
+        "kotlin.test.assertNotEquals",
         "kotlin.test.assertNull",
-        "io.kotest.matchers.shouldBe"
+        "io.kotest.matchers.shouldBe",
+        "io.kotest.matchers.maps.shouldContainExactly"
     )
     includedSourceSets = listOf("commonTest", "jvmTest", "iosTest", "wasmJsTest")
 }

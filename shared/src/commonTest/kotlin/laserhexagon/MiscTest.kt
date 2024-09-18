@@ -4,7 +4,6 @@ import de.nielsfalk.laserhexagon.ControlledRandom
 import de.nielsfalk.laserhexagon.randomExecution
 import de.nielsfalk.laserhexagon.roundUp
 import io.kotest.core.spec.style.FreeSpec
-import io.kotest.matchers.maps.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kotlin.test.assertEquals
 
@@ -62,10 +61,12 @@ class MiscTest : FreeSpec({
             }
         }
 
-        resultRecorder shouldContainExactly mapOf(
-            "the one percent" to 1,
-            "69" to 69,
-            "last 30" to 30
+        assertEquals(
+            resultRecorder, mapOf(
+                "the one percent" to 1,
+                "69" to 69,
+                "last 30" to 30
+            )
         )
     }
 })

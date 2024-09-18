@@ -4,7 +4,7 @@ import de.nielsfalk.laserhexagon.Grid
 import de.nielsfalk.laserhexagon.get
 import de.nielsfalk.laserhexagon.reset
 import io.kotest.core.spec.style.FreeSpec
-import io.kotest.matchers.collections.shouldContainExactly
+import kotlin.test.assertEquals
 
 class GridTest : FreeSpec({
     "reset" {
@@ -12,6 +12,6 @@ class GridTest : FreeSpec({
 
             .reset()
 
-        grid.cells shouldContainExactly listOf(grid[0, 0].copy(rotations = 0, rotatedParts = 0))
+        assertEquals(grid.cells, listOf(grid[0, 0].copy(rotations = 0, rotatedParts = 0)))
     }
 })

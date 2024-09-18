@@ -3,8 +3,8 @@ package laserhexagon
 import de.nielsfalk.laserhexagon.*
 import de.nielsfalk.laserhexagon.Direction.*
 import io.kotest.core.spec.style.FreeSpec
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import kotlin.test.assertEquals
 
 class GridGeneratorTest : FreeSpec({
     "scrambleAmount" - {
@@ -48,8 +48,8 @@ class GridGeneratorTest : FreeSpec({
 
         val grid = gridGenerator.generate().followPathComplete()
 
-        grid.sources shouldHaveSize 1
-        grid.endpoints shouldHaveSize 4
-        grid.emptyCells shouldHaveSize 0
+        assertEquals(grid.sources.size, 1)
+        assertEquals(grid.endpoints.size, 4)
+        assertEquals(grid.emptyCells.size, 0)
     }
 })

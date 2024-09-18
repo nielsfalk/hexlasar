@@ -6,8 +6,8 @@ import de.nielsfalk.laserhexagon.Color.Yellow
 import de.nielsfalk.laserhexagon.Direction.LEFT
 import de.nielsfalk.laserhexagon.Direction.RIGHT
 import io.kotest.core.spec.style.FreeSpec
-import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import kotlin.test.assertEquals
 
 class GlowPathTest : FreeSpec({
     "remove disconnected" {
@@ -129,7 +129,7 @@ class GlowPathTest : FreeSpec({
 
             .initGlowPath().followPathComplete().removeDisconnectedFromPaths()
 
-        grid.glowPath.colors(1, 0) shouldContainExactly setOf(Red, Yellow)
+        assertEquals(grid.glowPath.colors(1, 0), setOf(Red, Yellow))
     }
     "not solved"{
         Grid(3, 1).let {
