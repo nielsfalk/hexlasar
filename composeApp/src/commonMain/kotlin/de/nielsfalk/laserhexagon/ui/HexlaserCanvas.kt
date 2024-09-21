@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -35,18 +36,19 @@ fun HexlaserCanvas(
 ) {
     var cellCenterPoints by remember { mutableStateOf(listOf<Pair<Offset, Position>>()) }
     var ongoingDrag by remember { mutableStateOf<Pair<Position, Float>?>(null) }
-    Box(modifier = Modifier.pointerInput(Unit) {
-        detectTapGestures(
-            onTap = { offset ->
-                cellCenterPoints.cellCloseTo(offset)
-                    ?.let { onEvent(TabCell(it)) }
-            },
-            onLongPress = { offset ->
-                cellCenterPoints.cellCloseTo(offset)
-                    ?.let { onEvent(HexlaserEvent.LockCell(it)) }
-            }
-        )
-    }) {
+    Box(modifier = Modifier.clipToBounds()
+        .pointerInput(Unit) {
+            detectTapGestures(
+                onTap = { offset ->
+                    cellCenterPoints.cellCloseTo(offset)
+                        ?.let { onEvent(TabCell(it)) }
+                },
+                onLongPress = { offset ->
+                    cellCenterPoints.cellCloseTo(offset)
+                        ?.let { onEvent(HexlaserEvent.LockCell(it)) }
+                }
+            )
+        }) {
         Canvas(
             modifier = Modifier.pointerInput(Unit) {
                 detectVerticalDragGestures(
@@ -405,7 +407,7 @@ private data class CellDrawingData(
     val grid: Grid,
     val size: Size,
     val horizontalParts: Float = grid.x * 2 + if (grid.infiniteX) -0.6f else 1f,
-    val verticalParts: Float = (if (grid.infiniteY) 2f else 2.5f) +
+    val verticalParts: Float = (if (grid.infiniteY) 1.1f else 2.5f) +
             sqrt((2 * (grid.y - 1f)).pow(2) - (grid.y - 1f).pow(2)),
     val radius: Float = min(size.width / horizontalParts, size.height / verticalParts),
     val cellHeight: Float = sqrt((2 * radius).pow(2) - radius.pow(2)),
@@ -419,7 +421,7 @@ private data class CellDrawingData(
                         y.odd -> 2f
                         else -> 1f
                     }) + x * 2) * radius,
-                    y = (0.7f + y) * cellHeight
+                    y = ((if (grid.infiniteY) 0.3f else 0.7f) + y) * cellHeight
                 ) to grid[x, y]
             }
         }
