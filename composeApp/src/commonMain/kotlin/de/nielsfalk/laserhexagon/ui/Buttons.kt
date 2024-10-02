@@ -71,21 +71,19 @@ fun Buttons(
         }
         state.grid.cells.run {
             val performedRotations = sumOf { it.rotations - it.initialRotation }
-            if (performedRotations > 0) {
-                val requiredRotations = sumOf {
-                    if (it.initialRotation == 0) 0
-                    else Direction.entries.size - it.initialRotation
-                }
-                Text(
-                    fontSize = 18.sp,
-                    modifier = Modifier
-                        .wrapContentHeight()
-                        .padding(16.dp),
-                    color = Color.White,
-                    text = "Moves $performedRotations / $requiredRotations",
-                    textAlign = TextAlign.Center,
-                )
+            val requiredRotations = sumOf {
+                if (it.initialRotation == 0) 0
+                else Direction.entries.size - it.initialRotation
             }
+            Text(
+                fontSize = 18.sp,
+                modifier = Modifier
+                    .wrapContentHeight()
+                    .padding(16.dp),
+                color = Color.White,
+                text = "Moves $performedRotations / $requiredRotations",
+                textAlign = TextAlign.Center,
+            )
         }
     }
 }
