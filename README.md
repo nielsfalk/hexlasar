@@ -15,6 +15,18 @@ desktop
 web 
 `./gradlew composeApp:wasmJsBrowserProductionRun  --stacktrace  --info`
 
+ios
+```shell
+pwd=`pwd` && \
+cd iosApp  && \
+/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild && \
+ -project "$pwd/iosApp/iosApp.xcodeproj" && \
+ -scheme iosApp  && \
+-configuration Debug OBJROOT="$pwd/build/ios" SYMROOT="$pwd/build/ios" && \
+-destination id=F6AF6C08-293E-463F-8ADD-378ACB527D28  && \
+-allowProvisioningDeviceRegistration -allowProvisioningUpdates
+```
+
 ## install
 macOs
 `./gradlew composeApp:packageDmg`
