@@ -33,7 +33,8 @@ fun Buttons(
     FlowRow(
         Modifier
             .padding(horizontal = 5.dp)
-            .fillMaxWidth()
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
     ) {
 
         Button(

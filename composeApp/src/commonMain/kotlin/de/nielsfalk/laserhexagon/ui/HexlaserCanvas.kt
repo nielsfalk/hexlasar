@@ -137,10 +137,15 @@ private fun LayerDrawScope.drawInfiniteBorders(
         onLayer(5) {
             cellDrawingData.run {
                 val (topLeftCellCenter, _) = cellOffsets.first { (_, cell) -> cell.position == Position(0, 0) }
+
+                val bottomRightCellCenter = Offset(
+                    x = cellOffsets.maxOf { it.first.x },
+                    y = cellOffsets.maxOf { it.first.y },
+                )
                 if (infiniteX) {
                     val leftLineStart = topLeftCellCenter.copy(y = topLeftCellCenter.y - radius)
                     val leftLineEnd =
-                        topLeftCellCenter.copy(y = topLeftCellCenter.y + radius + cellHeight * (grid.y - 1))
+                        topLeftCellCenter.copy(y = bottomRightCellCenter.y + radius)
                     drawRect(
                         color = Black,
                         topLeft = Offset(0f, 0f),
@@ -153,12 +158,12 @@ private fun LayerDrawScope.drawInfiniteBorders(
                         end = leftLineEnd
                     )
                     val rightLineStart = topLeftCellCenter.copy(
-                        x = grid.x * 2 * radius + topLeftCellCenter.x - radius,
+                        x = bottomRightCellCenter.x,
                         y = topLeftCellCenter.y - radius
                     )
                     val rightLineEnd = topLeftCellCenter.copy(
-                        x = grid.x * 2 * radius + topLeftCellCenter.x - radius,
-                        y = topLeftCellCenter.y + radius + cellHeight * (grid.y - 1)
+                        x = bottomRightCellCenter.x,
+                        y = bottomRightCellCenter.y + radius
                     )
                     drawRect(
                         color = Black,
@@ -174,7 +179,7 @@ private fun LayerDrawScope.drawInfiniteBorders(
                 }
                 if (infiniteY) {
                     val leftLineStart = topLeftCellCenter.copy(y = topLeftCellCenter.y - radius / 2)
-                    val leftLineEnd = leftLineStart.copy(x = (grid.x - 0.4f) * radius * 2)
+                    val leftLineEnd = leftLineStart.copy(x = bottomRightCellCenter.x)
                     drawRect(
                         color = Black,
                         topLeft = Offset(0f, 0f),
@@ -188,7 +193,7 @@ private fun LayerDrawScope.drawInfiniteBorders(
                     )
                     val bottomLineStart =
                         topLeftCellCenter.copy(y = topLeftCellCenter.y + radius + cellHeight * (grid.y - 1) - radius / 2)
-                    val bottomLineEnd = bottomLineStart.copy(x = (grid.x - 0.4f) * radius * 2)
+                    val bottomLineEnd = bottomLineStart.copy(x = bottomRightCellCenter.x)
                     drawRect(
                         color = Black,
                         topLeft = Offset(0f, bottomLineStart.y),
@@ -411,10 +416,14 @@ private data class CellDrawingData(
             sqrt((2 * (grid.y - 1f)).pow(2) - (grid.y - 1f).pow(2)),
     val radius: Float = min(size.width / horizontalParts, size.height / verticalParts),
     val cellHeight: Float = sqrt((2 * radius).pow(2) - radius.pow(2)),
+    val centerGameInitialOffset: Offset = Offset(
+        x = (size.width - grid.x * radius * 2 + if (grid.infiniteX) radius / 2 else -radius) / 2,
+        y = (size.height - grid.y * cellHeight + if (grid.infiniteY) radius / 1.5f else -radius) / 2
+    ),
     val cellOffsets: List<Pair<Offset, Cell>> =
         (0 until grid.x).flatMap { x ->
             (0 until grid.y).map { y ->
-                Offset(
+                centerGameInitialOffset + Offset(
                     x = ((when {
                         grid.infiniteX && y.odd -> 1.2f
                         grid.infiniteX -> 0.2f
