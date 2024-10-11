@@ -374,7 +374,6 @@ private fun CellDrawScope.drawConnections(
                 )
             }
         }
-
     }
 }
 

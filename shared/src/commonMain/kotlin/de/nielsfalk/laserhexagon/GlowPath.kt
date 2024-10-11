@@ -17,7 +17,7 @@ private fun GlowPathEntry.color(x: Int, y: Int): Color? =
     if (position.x == x && position.y == y) {
         color
     } else {
-        children.mapNotNull { it.color(x, y) }.firstOrNull()
+        children.firstNotNullOfOrNull { it.color(x, y) }
     }
 
 fun GlowPath.colors(position: Position): Set<Color> =
@@ -30,12 +30,12 @@ private operator fun GlowPathEntry.get(x: Int, y: Int): GlowPathEntry? =
     if (position.x == x && position.y == y) {
         this
     } else {
-        children.mapNotNull { it[x, y] }.firstOrNull()
+        children.firstNotNullOfOrNull { it[x, y] }
     }
 
 data class GlowPathEntry(
     val position: Position,
-    val parentPostition: Position? = null,
+    val parentPosition: Position? = null,
     val color: Color,
     val prismaFrom: Direction? = null,
     val children: List<GlowPathEntry> = listOf(),
@@ -45,7 +45,7 @@ fun Grid.initGlowPath(): Grid =
     copy(glowPath = glowPath.copy(sources = sources.map { (cell, color) ->
         GlowPathEntry(
             position = cell.position,
-            parentPostition = null,
+            parentPosition = null,
             color = color,
             children = listOf()
         )
@@ -73,14 +73,14 @@ fun GlowPathEntry.follow(grid: Grid, root: GlowPathEntry = this): GlowPathEntry 
             if (cell.prisma) {
                 GlowPathEntry(
                     position = cell.position,
-                    parentPostition = position,
+                    parentPosition = position,
                     color = color.next,
                     prismaFrom= direction.opposite
                 )
             } else {
                 GlowPathEntry(
                     position = cell.position,
-                    parentPostition = position,
+                    parentPosition = position,
                     color = color
                 )
             }
