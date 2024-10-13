@@ -351,23 +351,15 @@ private fun CellDrawScope.drawConnections(
             )
         }
         onLayer(3) {
-            val connectedColor: Color? =
-                if (cell.prisma) {
-                    glowPath[cell.position].flatMap {
-                        it.prismaFrom?.let { prismaFrom ->
-                            if (direction.rotate(cell.rotations) == prismaFrom) {
-                                val sourceNe = cell.neighborsPositions[prismaFrom]
-                                sourceNe?.let { glowPath.colors(it) }
-                            } else setOf(it.color)
-                        }
-                            ?: setOf(it.color)
-                    }.toSet().toColor()
-                } else {
-                    glowPath.colors(cell.position).toColor()
-                }
-            connectedColor?.let {
+            if (cell.prisma) {
+                val colors =
+                    glowPath[cell.position].mapNotNull { it.prismaColors?.get(direction.rotate(cell.rotations)) }
+                colors.toSet().toColor()
+            } else {
+                glowPath.colors(cell.position).toColor()
+            }?.let { color ->
                 drawLine(
-                    color = connectedColor,
+                    color = color,
                     start = cellCenterOffset,
                     end = plusAngle(angle = middleAngle, length = partsPixel),
                     strokeWidth = partsPixel * 0.1f

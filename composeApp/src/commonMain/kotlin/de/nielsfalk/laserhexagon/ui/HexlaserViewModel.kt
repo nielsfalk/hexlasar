@@ -107,6 +107,7 @@ class HexlaserViewModel : ViewModel<HexLaserState, HexlaserEvent>() {
                 if (!cell.locked) {
                     updateGrid {
                         it.update(cell.copy(rotations = cell.rotations + event.rotations))
+                            .removePrismaGlow(event.position)
                             .removeDisconnectedFromPaths()
                     }
                     viewModelScope.launch {
@@ -154,6 +155,7 @@ class HexlaserViewModel : ViewModel<HexLaserState, HexlaserEvent>() {
                                 rotations = cell.rotations + 1
                             )
                         )
+                            .removePrismaGlow(position)
                             .removeDisconnectedFromPaths()
                     }
                     delay(1)

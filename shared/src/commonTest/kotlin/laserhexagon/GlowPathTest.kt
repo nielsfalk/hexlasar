@@ -2,8 +2,7 @@ package laserhexagon
 
 import de.nielsfalk.laserhexagon.*
 import de.nielsfalk.laserhexagon.Color.*
-import de.nielsfalk.laserhexagon.Direction.LEFT
-import de.nielsfalk.laserhexagon.Direction.RIGHT
+import de.nielsfalk.laserhexagon.Direction.*
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import kotlin.test.assertEquals
@@ -170,6 +169,71 @@ class GlowPathTest : FreeSpec({
 
             .solved shouldBe true
     }
+
+    data class PrismaTestData(
+        val prismaConnections: Set<Direction>,
+        val expectedPrismaColors: Map<Direction, Color>? = null
+    )
+    listOf(
+        PrismaTestData(
+            prismaConnections = setOf(LEFT),
+            expectedPrismaColors = mapOf(LEFT to Red)
+        ),
+        PrismaTestData(
+            prismaConnections = setOf(LEFT, RIGHT),
+            expectedPrismaColors = mapOf(LEFT to Red, RIGHT to Yellow)
+        ),
+        PrismaTestData(
+            prismaConnections = setOf(LEFT, TOPLEFT, RIGHT, BOTTOMRIGHT),
+            expectedPrismaColors = mapOf(LEFT to Red, TOPLEFT to Yellow, RIGHT to Blue, BOTTOMRIGHT to Red)
+        ),
+        PrismaTestData(
+            prismaConnections = Direction.entries.toSet(),
+            expectedPrismaColors = mapOf(
+                LEFT to Red,
+                TOPLEFT to Yellow,
+                TOPRIGHT to Blue,
+                RIGHT to Red,
+                BOTTOMRIGHT to Yellow,
+                BOTTOMLEFT to Blue
+            )
+        )
+    ).map {
+        it.run {
+            "prisma with $prismaConnections" {
+                val grid = Grid(2, 1).let {
+                    it.update(
+                        it[0, 0].copy(source = Red, connections = setOf(RIGHT)),
+                        it[1, 0].copy(prisma = true, connections = prismaConnections),
+                    )
+                }
+
+                val glowPath = grid.initGlowPath().followPathComplete().glowPath
+
+                assertEquals(
+                    actual = glowPath,
+                    expected = GlowPath(
+                        sources = listOf(
+                            GlowPathEntry(
+                                position = Position(x = 0, y = 0),
+                                parentPosition = null,
+                                color = Red,
+                                children = listOf(
+                                    GlowPathEntry(
+                                        position = Position(x = 1, y = 0),
+                                        parentPosition = Position(x = 0, y = 0),
+                                        color = Yellow,
+                                        prismaColors = expectedPrismaColors
+                                    )
+                                ),
+                                prismaColors = null
+                            )
+                        )
+                    )
+                )
+            }
+        }
+    }
     "prisma to Prisma" {
         val grid = Grid(4, 1).let {
             it.update(
@@ -190,62 +254,61 @@ class GlowPathTest : FreeSpec({
                         position = Position(x = 0, y = 0),
                         parentPosition = null,
                         color = Red,
-                        prismaFrom = null,
                         children = listOf(
                             GlowPathEntry(
                                 position = Position(x = 1, y = 0),
                                 parentPosition = Position(x = 0, y = 0),
                                 color = Yellow,
-                                prismaFrom = LEFT,
                                 children = listOf(
                                     GlowPathEntry(
                                         position = Position(x = 2, y = 0),
                                         parentPosition = Position(x = 1, y = 0),
                                         color = Blue,
-                                        prismaFrom = LEFT,
                                         children = listOf(
                                             GlowPathEntry(
                                                 position = Position(x = 3, y = 0),
                                                 parentPosition = Position(x = 2, y = 0),
                                                 color = Blue,
-                                                prismaFrom = null,
-                                                children = listOf()
+                                                children = listOf(),
+                                                prismaColors = null
                                             )
-                                        )
+                                        ),
+                                        prismaColors = mapOf(LEFT to Yellow, RIGHT to Blue)
                                     )
-                                )
+                                ),
+                                prismaColors = mapOf(LEFT to Red, RIGHT to Yellow)
                             )
-                        )
-                    ), GlowPathEntry(
+                        ),
+                        prismaColors = null
+                    ),
+                    GlowPathEntry(
                         position = Position(x = 3, y = 0),
                         parentPosition = null,
                         color = Blue,
-                        prismaFrom = null,
                         children = listOf(
                             GlowPathEntry(
                                 position = Position(x = 2, y = 0),
                                 parentPosition = Position(x = 3, y = 0),
                                 color = Red,
-                                prismaFrom = RIGHT,
                                 children = listOf(
                                     GlowPathEntry(
                                         position = Position(x = 1, y = 0),
                                         parentPosition = Position(x = 2, y = 0),
                                         color = Yellow,
-                                        prismaFrom = RIGHT,
                                         children = listOf(
                                             GlowPathEntry(
                                                 position = Position(x = 0, y = 0),
                                                 parentPosition = Position(x = 1, y = 0),
                                                 color = Yellow,
-                                                prismaFrom = null,
-                                                children = listOf()
+                                                children = listOf(),
+                                                prismaColors = null
                                             )
-                                        )
-                                    )
-                                )
-                            )
-                        )
+                                        ),
+                                        prismaColors = mapOf( RIGHT to Red, LEFT to Yellow ))
+                                ),
+                                prismaColors = mapOf( RIGHT to Blue, LEFT to Red))
+                        ),
+                        prismaColors = null
                     )
                 )
             )

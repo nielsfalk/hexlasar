@@ -79,7 +79,7 @@ class GridGenerator(
     private fun addPrisma() {
         glow()
         grid.cells.filter {
-            it.source == null && it.connections.size == 2
+            it.source == null && it.connections.size > 1
         }
             .randomOrNull(random)
             ?.let {

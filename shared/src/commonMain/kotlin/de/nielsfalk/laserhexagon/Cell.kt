@@ -14,7 +14,7 @@ data class Cell(
     val locked: Boolean = false,
     val prisma: Boolean = false
 ) {
-    private val rotatedConnections: Set<Direction> by lazy {
+    val rotatedConnections: Set<Direction> by lazy {
         connections.map { it.rotate(rotations) }.toSet()
     }
 
