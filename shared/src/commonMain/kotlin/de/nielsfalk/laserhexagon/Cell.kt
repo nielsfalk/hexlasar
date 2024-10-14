@@ -66,7 +66,7 @@ data class Cell(
 data class Position(val x: Int, val y: Int)
 
 enum class Color {
-    Red, Yellow, Blue;
+    Orange, Green, Purple;
 
     companion object
 }

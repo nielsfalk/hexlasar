@@ -121,7 +121,7 @@ class CellTest : FreeSpec({
                 val grid = Grid(3, 1).let {
                     it.update(
                         it[0, 0].copy(
-                            source = Color.Red,
+                            source = Color.Orange,
                             connections = setOf(RIGHT)
                         ),
                         it[1, 0].copy(

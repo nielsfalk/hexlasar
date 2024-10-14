@@ -6,22 +6,22 @@ import de.nielsfalk.laserhexagon.Color as CellColor
 class Color {
     companion object {
         val White = ComposeColor.White
-        val Yellow = ComposeColor.Yellow
-        val Orange = ComposeColor(0xffFF9900)
-        val Red = ComposeColor.Red
-        val Purple = ComposeColor(0xffa818cc)
-        val Blue = ComposeColor.Blue
         val Green = ComposeColor.Green
+        val Yellow = ComposeColor(0xfffff302)
+        val Orange = ComposeColor(0xfff88f09)
+        val Red = ComposeColor(0xffe10056)
+        val Purple = ComposeColor(0xffa818cc)
+        val Blue = ComposeColor(0xff0270dd)
         val Black = ComposeColor.Black
 
         private val usedColorsToCellColors: List<Pair<ComposeColor, Set<CellColor>>> = listOf(
-            White to setOf(CellColor.Red, CellColor.Yellow, CellColor.Blue),
-            Yellow to setOf(CellColor.Yellow),
-            Orange to setOf(CellColor.Yellow, CellColor.Red),
-            Red to setOf(CellColor.Red),
-            Purple to setOf(CellColor.Red, CellColor.Blue),
-            Blue to setOf(CellColor.Blue),
-            Green to setOf(CellColor.Blue, CellColor.Yellow)
+            White to setOf(CellColor.Orange, CellColor.Green, CellColor.Purple),
+            Green to setOf(CellColor.Green),
+            Yellow to setOf(CellColor.Green, CellColor.Orange),
+            Orange to setOf(CellColor.Orange),
+            Red to setOf(CellColor.Orange, CellColor.Purple),
+            Purple to setOf(CellColor.Purple),
+            Blue to setOf(CellColor.Purple, CellColor.Green)
         )
 
         fun Set<CellColor>.toColor(): ComposeColor? =
@@ -29,7 +29,7 @@ class Color {
 
         fun CellColor.toColor(): ComposeColor = basicColors[this]!!
 
-        val winningColors = usedColorsToCellColors.map { (composeColor, _) -> composeColor } + Yellow + White
+        val winningColors = usedColorsToCellColors.map { (composeColor, _) -> composeColor } + Green + White
         private val basicColors = usedColorsToCellColors.filter { (_, cellColors) -> cellColors.size == 1 }
             .associate { (composeColor, cellColors) -> cellColors.first() to composeColor }
     }
