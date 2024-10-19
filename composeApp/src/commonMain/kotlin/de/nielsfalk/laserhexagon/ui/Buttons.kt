@@ -2,10 +2,12 @@ package de.nielsfalk.laserhexagon.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults.buttonColors
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color.Companion.DarkGray
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
@@ -17,6 +19,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.nielsfalk.laserhexagon.Direction
 import de.nielsfalk.laserhexagon.LevelType
+import de.nielsfalk.laserhexagon.ui.Color.Companion.Purple
+import de.nielsfalk.laserhexagon.ui.Color.Companion.White
 import de.nielsfalk.laserhexagon.ui.HexlaserEvent.*
 import de.nielsfalk.laserhexagon.ui.Icons.Companion.down
 import de.nielsfalk.laserhexagon.ui.Icons.Companion.hint
@@ -36,10 +40,16 @@ fun Buttons(
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.Center
     ) {
+        val buttonColors = buttonColors(
+            backgroundColor = Purple,
+            contentColor = White,
+            disabledContentColor = DarkGray
+        )
 
         Button(
             onClick = { onEvent(LevelUp) },
-            modifier = Modifier.padding(horizontal = 5.dp)
+            modifier = Modifier.padding(horizontal = 5.dp),
+            colors = buttonColors
         ) {
             Text("Level ${state.levelType.ordinal + 1}")
 
@@ -48,27 +58,29 @@ fun Buttons(
                     down
                 else
                     up,
-                contentDescription = null
+                contentDescription = "level ${if (state.levelType == LevelType.entries.last()) "down" else "up"}"
             )
-
         }
         Button(
             onClick = { onEvent(NextGrid) },
-            modifier = Modifier.padding(horizontal = 5.dp)
+            modifier = Modifier.padding(horizontal = 5.dp),
+            colors = buttonColors
         ) {
-            Icon(imageVector = right, contentDescription = null)
+            Icon(imageVector = right, contentDescription = "next")
         }
         Button(
             onClick = { onEvent(Retry) },
-            modifier = Modifier.padding(horizontal = 5.dp)
+            modifier = Modifier.padding(horizontal = 5.dp),
+            colors = buttonColors
         ) {
-            Icon(imageVector = refresh, contentDescription = null)
+            Icon(imageVector = refresh, contentDescription = "retry")
         }
         Button(
             onClick = { onEvent(Hint) },
-            modifier = Modifier.padding(horizontal = 5.dp)
+            modifier = Modifier.padding(horizontal = 5.dp),
+            colors = buttonColors
         ) {
-            Icon(imageVector = hint, contentDescription = null)
+            Icon(imageVector = hint, contentDescription = "hint")
         }
         state.grid.cells.run {
             val performedRotations = sumOf { it.rotations - it.initialRotation }
