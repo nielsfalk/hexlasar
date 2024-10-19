@@ -14,7 +14,6 @@ fun App() {
             initialState = HexLaserState(newGrid())
         )
 
-
         HexlaserScreen(
             state = viewModel.state,
             onEvent = viewModel::onEvent,
