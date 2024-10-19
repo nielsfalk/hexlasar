@@ -18,7 +18,6 @@ pluginManagement {
 dependencyResolutionManagement {
     pluginManagement {
         repositories {
-            specialRepositories()
             gradlePluginPortal()
         }
     }
@@ -31,14 +30,6 @@ dependencyResolutionManagement {
             }
         }
         mavenCentral()
-        specialRepositories()
-    }
-}
-
-fun RepositoryHandler.specialRepositories() {
-    maven("https://s01.oss.sonatype.org/content/repositories/snapshots/") {
-        name = "MavenCentralSnapshots"
-        mavenContent { snapshotsOnly() }
     }
 }
 
