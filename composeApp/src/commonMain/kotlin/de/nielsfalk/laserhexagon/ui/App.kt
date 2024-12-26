@@ -2,20 +2,18 @@ package de.nielsfalk.laserhexagon.ui
 
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
-import de.nielsfalk.util.ViewModel.Companion.getViewModel
+import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 @Preview
 fun App() {
     MaterialTheme {
-        val viewModel = getViewModel(
-            factoryMethod = { HexlaserViewModel() },
-            initialState = HexLaserState(newGrid())
-        )
+        val viewModel = viewModel { HexlaserViewModel() }
 
         HexlaserScreen(
-            state = viewModel.state,
+            state = viewModel.state.collectAsState().value,
             onEvent = viewModel::onEvent,
         )
     }
