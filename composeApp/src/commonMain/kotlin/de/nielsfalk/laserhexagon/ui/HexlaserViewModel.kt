@@ -2,6 +2,7 @@ package de.nielsfalk.laserhexagon.ui
 
 import androidx.lifecycle.viewModelScope
 import de.nielsfalk.laserhexagon.*
+import de.nielsfalk.laserhexagon.GridCache.get
 import de.nielsfalk.laserhexagon.ui.HexlaserEvent.*
 import de.nielsfalk.util.TimingContext.Companion.repeatWithTiming
 import kotlinx.coroutines.delay
@@ -217,6 +218,14 @@ class HexlaserViewModel : androidx.lifecycle.ViewModel() {
             it.copy(animationSpendTime = null)
         }
     }
+
+    private fun newGrid(
+        levelType: LevelType = LevelType.entries.first(),
+        toggleXYWithLevelGeneration: Boolean = false
+    ) = viewModelScope.get(
+        levelType = levelType,
+        toggleXY = toggleXYWithLevelGeneration
+    )
 }
 
 private operator fun Map<LevelType, Int>.plus(levelType: LevelType): Map<LevelType, Int> =
@@ -228,18 +237,3 @@ private fun Grid.getPendingCell(): Cell? =
         ?: cells.filter { it.rotations % it.connections.scrambleAmount != 0 }.randomOrNull()
 
 const val animationSpeed = 3000
-
-fun newGrid(
-    levelType: LevelType = LevelType.entries.first(),
-    toggleXYWithLevelGeneration: Boolean = false
-) =
-    GridGenerator(
-        levelType = levelType,
-        levelProperties = levelType.levelProperties.random().let {
-            if (toggleXYWithLevelGeneration)
-                it.copy(x = it.y, y = it.x)
-            else it
-        }
-    )
-        .generate()
-        .initGlowPath()
