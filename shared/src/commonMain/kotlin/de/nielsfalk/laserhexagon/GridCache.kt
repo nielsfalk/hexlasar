@@ -1,6 +1,7 @@
 package de.nielsfalk.laserhexagon
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
@@ -21,8 +22,8 @@ object GridCache {
     }
 
     private fun CoroutineScope.fillCache(prefer: CacheKey) {
-        allACacheKeys
-            .sortedBy {
+        launch(Dispatchers.Default) {
+            allACacheKeys.sortedBy {
                 when {
                     it.levelType == prefer.levelType && it.toggleXY == prefer.toggleXY -> 0
                     it.levelType == prefer.levelType -> 1
@@ -30,13 +31,12 @@ object GridCache {
                     else -> 10
                 }
             }
-            .forEach { cacheKey ->
-                launch {
+                .forEach { cacheKey ->
                     while (cache[cacheKey]!!.size < 3) {
                         cache[cacheKey]!!.add(generate(cacheKey))
                     }
                 }
-            }
+        }
     }
 
     private fun getOrGenerate(
