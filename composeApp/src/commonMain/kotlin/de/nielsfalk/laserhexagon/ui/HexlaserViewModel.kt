@@ -232,8 +232,11 @@ private operator fun Map<LevelType, Int>.plus(levelType: LevelType): Map<LevelTy
     this + (levelType to this[levelType]!! + 1)
 
 private fun Grid.getPendingCell(): Cell? =
-    cells.filter { it.rotations % it.connections.scrambleAmount != 0 && it.locked }.randomOrNull()
-        ?: cells.filter { it.rotations % it.connections.scrambleAmount != 0 && it.endPoint.isEmpty() }.randomOrNull()
-        ?: cells.filter { it.rotations % it.connections.scrambleAmount != 0 }.randomOrNull()
+    cells.filter { it.rotations % it.connections.scrambleAmount != 0 && it.rotatedParts == 0 }
+        .run {
+            find { it.locked }
+                ?: find { it.endPoint.isEmpty() }
+                ?: randomOrNull()
+        }
 
 const val animationSpeed = 3000
