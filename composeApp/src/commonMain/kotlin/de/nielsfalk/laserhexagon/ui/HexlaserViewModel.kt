@@ -2,6 +2,7 @@ package de.nielsfalk.laserhexagon.ui
 
 import androidx.lifecycle.viewModelScope
 import de.nielsfalk.laserhexagon.*
+import de.nielsfalk.laserhexagon.Grid
 import de.nielsfalk.laserhexagon.GridCache.get
 import de.nielsfalk.laserhexagon.ui.HexlaserEvent.*
 import de.nielsfalk.util.TimingContext.Companion.repeatWithTiming
@@ -102,7 +103,7 @@ class HexlaserViewModel : androidx.lifecycle.ViewModel() {
                             cell.copy(locked = true)
                         }
                         val pendingRotations =
-                            (Direction.entries.size - (it.rotations % Direction.entries.size)) % it.connections.scrambleAmount
+                            (it.connections.scrambleAmount - (it.rotations % it.connections.scrambleAmount))
                         repeat(pendingRotations) {
                             viewModelScope.launch {
                                 rotateDelayed(position)
@@ -232,10 +233,15 @@ private operator fun Map<LevelType, Int>.plus(levelType: LevelType): Map<LevelTy
     this + (levelType to this[levelType]!! + 1)
 
 private fun Grid.getPendingCell(): Cell? =
-    cells.filter { it.rotations % it.connections.scrambleAmount != 0 && it.rotatedParts == 0 }
+    cells.filter {
+        it.connections.isNotEmpty() &&
+                it.connections.size != Direction.entries.size &&
+                it.rotations % it.connections.scrambleAmount != 0 &&
+                it.rotatedParts == 0
+    }
         .run {
-            find { it.locked }
-                ?: find { it.endPoint.isEmpty() }
+            filter { it.locked }.randomOrNull()
+                ?: filter { it.endPoint.isEmpty() }.randomOrNull()
                 ?: randomOrNull()
         }
 
