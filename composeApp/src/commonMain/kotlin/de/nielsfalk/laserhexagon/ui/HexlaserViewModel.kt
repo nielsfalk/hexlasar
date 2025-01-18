@@ -102,9 +102,7 @@ class HexlaserViewModel : androidx.lifecycle.ViewModel() {
                         updateCell(position) { cell ->
                             cell.copy(locked = true)
                         }
-                        val pendingRotations =
-                            (it.connections.scrambleAmount - (it.rotations % it.connections.scrambleAmount))
-                        repeat(pendingRotations) {
+                        repeat(it.pendingRotations) {
                             viewModelScope.launch {
                                 rotateDelayed(position)
                             }

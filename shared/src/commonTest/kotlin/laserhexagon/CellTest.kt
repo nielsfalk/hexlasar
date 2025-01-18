@@ -1,10 +1,7 @@
 package laserhexagon
 
-import de.nielsfalk.laserhexagon.Color
+import de.nielsfalk.laserhexagon.*
 import de.nielsfalk.laserhexagon.Direction.*
-import de.nielsfalk.laserhexagon.Grid
-import de.nielsfalk.laserhexagon.Position
-import de.nielsfalk.laserhexagon.get
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import kotlin.test.assertEquals
@@ -168,6 +165,35 @@ class CellTest : FreeSpec({
         ).forEach { (given, expected) ->
             "$given rotated by 1 is $expected" {
                 given.rotate(1) shouldBe expected
+            }
+        }
+    }
+    "pending rotations" - {
+        listOf(
+            Cell(
+                rotations=2,
+                connections = setOf(),
+                position = Position(0, 0)
+            ) to 0,
+            Cell(
+                rotations=2,
+                connections = Direction.entries.toSet(),
+                position = Position(0, 0)
+            ) to 0,
+            Cell(
+                rotations=2,
+                connections = setOf(LEFT,RIGHT),
+                position = Position(0, 0)
+            ) to 1,
+            Cell(
+                rotations=2,
+                connections = setOf(RIGHT),
+                position = Position(0, 0)
+            ) to 4
+
+        ).forEach { (givenCell, expected) ->
+            "$givenCell pendingRotations is $expected" {
+                givenCell.pendingRotations shouldBe expected
             }
         }
     }

@@ -92,3 +92,10 @@ fun Cell.toggleLock(): Cell =
 
 val Cell.rotationWithParts: Float get() = rotations + rotatedParts / rotationSpeed.toFloat()
 const val rotationSpeed = 200
+
+val Cell.pendingRotations: Int
+    get() =
+        when (connections.size) {
+            0, Direction.entries.size -> 0
+            else -> connections.scrambleAmount - (rotations % connections.scrambleAmount)
+        }
