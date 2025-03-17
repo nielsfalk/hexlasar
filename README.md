@@ -2,6 +2,11 @@
 
 is a kmp puzzle game
 
+![iPad10.png](img/ipad.png)
+![img.png](img/pixel.png)
+![img_1.png](img/chrome.png)
+![img_2.png](img/desktop.png)
+
 ## run
 tests
 `./gradlew :shared:allTest :composeApp:allTest`
